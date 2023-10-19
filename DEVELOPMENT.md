@@ -39,3 +39,9 @@ tutte le possibili soluzioni dalla situazione attuale e consigliare l'utente per
   - Deve essere possibile abilitare questa opzione.
 - Il gioco deve finire se non vi sono mosse ammesse.
 - Mostrare i domino non selezionabili in quel momento in grigetto. Il domino consigliato in verde.
+- Leggersi l'universo dei domino da file o da configurazione runtime
+- Testing (ove ha senso e non crea problemi)
+- Github actions:
+  - Build in ubuntu
+  - Build in windows (se possibile)
+  - Build in macos (se possibile)

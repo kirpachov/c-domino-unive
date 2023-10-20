@@ -22,17 +22,12 @@ Ciò permetterà:
 - Debug semplificato nel momento in cui vi sono presenti bug
 
 ## TODO
-- Non permettere all'utente di posizionare domino che non possono essere posizionati
 - Tieni traccia del punteggio e mostralo all'utente sempre.
-- Fai sì che la view sia stabile:
-Quando si posizionano i tasselli dalla mano al tavolo,
-anziché spostare tutto di conseguenza, logga un accapo.
-In questo modo la riga in cui l'utente inserisce i dati non si muove.
 - Feedback: Ad ogni input dell'utente, il sistema deve loggare un feedback.
 Il feedback potrà essere:
   - Domino `[x|y]` posizionato sul tavolo.
   - Il domino `[x|y]` non si può posizionare ora.
-  - Messaggio di help nel caso di input non testuali.
+  - Messaggio di help nel caso di input non testuali o invalidi.
 - Funzione ricorsiva dovrà essere in grado di calcolare
 tutte le possibili soluzioni dalla situazione attuale e consigliare l'utente per quella con maggior punteggio.
   - Si potrebbe aggiungere un * a fianco della mossa consigliata.

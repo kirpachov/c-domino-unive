@@ -15,10 +15,11 @@
 #define COMMAND_HELP "help"
 #define COMMAND_EXIT "exit"
 
-int user_dominoes_count = 5; // TODO make this a input (--dominoes 5) parameter.
-int seed = 0; // TODO make this a input (--seed 1) parameter.
-char last_command[USER_COMMAND_MAX_LENGTH] = "";
-bool is_last_command_invalid = false;
+enum DominoStatus {
+    DOMINO_IN_USERS_HAND = 1,
+    DOMINO_ON_TABLE = 2
+};
+
 
 struct Domino {
     int left_value;
@@ -29,6 +30,7 @@ struct Domino {
  * The dominoes that the user has.
  */
 struct Domino user_dominoes[USER_MAX_DOMINOES_COUNT];
+int user_dominoes_count = 5; // TODO make this a input (--dominoes 5) parameter.
 
 /**
  * The dominoes that the user can have.
@@ -42,7 +44,13 @@ struct Domino dominoes_universe[DOMINOES_UNIVERSE_COUNT];
  */
 struct Domino table_dominoes[USER_MAX_DOMINOES_COUNT];
 
-int dominoes_on_table = 0;
+int table_dominoes_count = 0;
+
+/**
+ * The last command that the user has typed.
+ */
+char last_command[USER_COMMAND_MAX_LENGTH] = "";
+
 
 void remove_user_domino(int index) {
     for (int i = index; i < user_dominoes_count - 1; i++) {
@@ -52,11 +60,6 @@ void remove_user_domino(int index) {
     user_dominoes_count--;
 }
 
-void put_domino_on_table(int index_from_user_dominoes) {
-    table_dominoes[dominoes_on_table] = user_dominoes[index_from_user_dominoes];
-    remove_user_domino(index_from_user_dominoes);
-    dominoes_on_table++;
-}
 
 void populate_dominoes_universe() {
     int i = 0;
@@ -92,21 +95,62 @@ void assign_user_random_dominoes() {
 
 void log_table_status() {
     printf("\n");
-    if (dominoes_on_table == 0) {
+    if (table_dominoes_count == 0) {
         printf("<Il tavolo da gioco è vuoto.>");
     } else
-        for (int i = 0; i < dominoes_on_table; i++) {
+        for (int i = 0; i < table_dominoes_count; i++) {
             printf("[%d|%d]", table_dominoes[i].left_value, table_dominoes[i].right_value);
         }
 
     printf("\n\n");
 }
 
+bool can_put_domino_on_table(const struct Domino domino) {
+    if (table_dominoes_count == 0) return true;
+
+    const struct Domino last_domino_on_table = table_dominoes[table_dominoes_count - 1];
+
+    return last_domino_on_table.left_value == domino.left_value ||
+           last_domino_on_table.left_value == domino.right_value ||
+           last_domino_on_table.right_value == domino.left_value ||
+           last_domino_on_table.right_value == domino.right_value;
+}
+
+int count_avaliable_dominoes() {
+    int count = 0;
+    for (int i = 0; i < user_dominoes_count; i++) {
+        if (can_put_domino_on_table(user_dominoes[i])) count++;
+    }
+
+    log_debug("count_avaliable_dominoes: %d", count);
+
+    return count;
+}
+
+void put_domino_on_table(int index_from_user_dominoes) {
+    if (!can_put_domino_on_table(user_dominoes[index_from_user_dominoes])) {
+        log_error("Cannot put domino on table.");
+        return;
+    }
+
+    table_dominoes[table_dominoes_count] = user_dominoes[index_from_user_dominoes];
+    remove_user_domino(index_from_user_dominoes);
+    table_dominoes_count++;
+}
+
 void log_user_dominoes() {
-    printf("Seleziona il domino che vuoi mettere sul tavolo, e conferma con <invio>\n");
+    printf("Seleziona il domino che vuoi mettere sul tavolo usando il suo indice; conferma con <invio>\n");
 
     for (int i = 0; i < user_dominoes_count; i++) {
-        printf("%i) [%d|%d]\n", i, user_dominoes[i].left_value, user_dominoes[i].right_value);
+        if (can_put_domino_on_table(user_dominoes[i])) printf("%i)", i);
+        else printf("-)");
+
+        printf(" [%d|%d]", user_dominoes[i].left_value, user_dominoes[i].right_value);
+        printf("\n");
+    }
+
+    for (int i = 0; i < table_dominoes_count; i++) {
+        printf("\n");
     }
 }
 
@@ -166,7 +210,7 @@ void log_status() {
     printf("\n");
 
     // if (!is_last_command("")) printf("$ %s\n", last_command);
-    log_last_command_status();
+    // log_last_command_status();
 }
 
 /**
@@ -179,9 +223,28 @@ void initialize() {
     log_info("Initialized.");
 }
 
+void log_game_end_reason() {
+    if (user_dominoes_count == 0) {
+        log_info("Game has ended because user has no more dominoes.");
+        return;
+    }
+
+    if (is_last_command(COMMAND_EXIT)) {
+        log_info("Game has ended because user has typed exit.");
+        return;
+    }
+
+    if (count_avaliable_dominoes() <= 0) {
+        log_info("Game has ended because user has no more valid moves.");
+        return;
+    }
+
+    log_error("Game has ended for an unknown reason.");
+}
+
 void start_game() {
     log_status();
-    while ((!is_last_command(COMMAND_EXIT)) && user_dominoes_count > 0) {
+    while ((!is_last_command(COMMAND_EXIT)) && user_dominoes_count > 0 && count_avaliable_dominoes() > 0) {
         printf("$ ");
         if (scanf("%s", last_command) != 1) {
             log_error("scanf returned an error.");
@@ -190,14 +253,6 @@ void start_game() {
 
         exec_command();
         log_status();
-    }
-
-    if (user_dominoes_count == 0) {
-        log_info("Game has ended because user has no more dominoes.");
-    }
-
-    if (is_last_command(COMMAND_EXIT)) {
-        log_info("Game has ended because user has typed exit.");
     }
 }
 
@@ -212,6 +267,7 @@ int main() {
     initialize();
     assign_user_random_dominoes();
     start_game();
+    log_game_end_reason();
     complete();
     return 0;
 }

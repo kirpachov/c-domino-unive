@@ -28,7 +28,6 @@ Then, execute it with:
 ```bash
 ./iap [--challenge]
 ```
-<small>--challange param will basicly make the game play by itself.</small>
 
 ## Development
 For the development ideas and `TODOs`, please refer to [DEVELOPMENT.md](DEVELOPMENT.md).

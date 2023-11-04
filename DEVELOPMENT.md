@@ -1,6 +1,16 @@
 # Sviluppo
 Di seguito idee iniziali sullo sviluppo.
 
+## Compile and run
+```bash
+make -f makefile run
+```
+
+## Test
+```bash
+make -f makefile test
+```
+
 ## Layout
 Bisogna permettere all'utente di visualizzare:
 - Tavolo da gioco con tutti i domino che vi sono stati messi

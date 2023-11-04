@@ -1,3 +1,5 @@
 game.log
 cmake-build-debug
 iap
+*.out
+.idea

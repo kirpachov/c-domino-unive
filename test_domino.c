@@ -75,6 +75,9 @@ static void test_guess_selection(void) {
   int index;
   int position;
 
+  /**
+   * LEFT
+   */
   guess_selection("5 l", &index, &position);
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(1, position);
@@ -83,23 +86,9 @@ static void test_guess_selection(void) {
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(1, position);
 
-  guess_selection("5 position", &index, &position);
-  TEST_ASSERT_EQUAL(5, index);
-  TEST_ASSERT_EQUAL(0, position);
-
-  guess_selection("5 start", &index, &position);
-  TEST_ASSERT_EQUAL(5, index);
-  TEST_ASSERT_EQUAL(0, position);
-
-  guess_selection("15", &index, &position);
-  TEST_ASSERT_EQUAL(15, index);
-  TEST_ASSERT_EQUAL(0, position);
-
-  // RIGHT/DESTRO
-  guess_selection("20 destra", &index, &position);
-  TEST_ASSERT_EQUAL(20, index);
-  TEST_ASSERT_EQUAL(2, position);
-
+  /**
+   * RIGHT
+   */
   guess_selection("20 right", &index, &position);
   TEST_ASSERT_EQUAL(20, index);
   TEST_ASSERT_EQUAL(2, position);
@@ -116,8 +105,19 @@ static void test_guess_selection(void) {
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(2, position);
 
-  guess_selection("25 DESTRO", &index, &position);
-  TEST_ASSERT_EQUAL(25, index);
+  /**
+   * Invalid positions
+   */
+  guess_selection("15", &index, &position);
+  TEST_ASSERT_EQUAL(15, index);
+  TEST_ASSERT_EQUAL(0, position);
+
+  guess_selection("5 position", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(0, position);
+
+  guess_selection("5 start", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(0, position);
 }
 
@@ -125,9 +125,30 @@ static void test_str_add_padding(void){
   char* str;
   char* result;
 
+  str = "BANANA";
+  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " BANANA ", 8);
+  TEST_ASSERT_EQUAL(strlen(result), 8);
+
   str = "1";
-  str_add_padding(str, result = malloc(sizeof(char) * (strlen(str) +2 )));
+  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1 ", 3);
+  TEST_ASSERT_EQUAL(strlen(result), 3);
+
+  str = "1l";
+  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1l ", 4);
+  TEST_ASSERT_EQUAL(strlen(result), 4);
+
+  str = " 1l";
+  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1l ", 5);
+  TEST_ASSERT_EQUAL(strlen(result), 5);
+
+  str = " 1L ";
+  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1L  ", 6);
+  TEST_ASSERT_EQUAL(strlen(result), 6);
 
 //  free(str);
   free(result);

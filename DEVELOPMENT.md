@@ -45,8 +45,26 @@ tutte le possibili soluzioni dalla situazione attuale e consigliare l'utente per
 - Il gioco deve finire se non vi sono mosse ammesse.
 - Mostrare i domino non selezionabili in quel momento in grigetto. Il domino consigliato in verde.
 - Leggersi l'universo dei domino da file o da configurazione runtime
-- Testing (ove ha senso e non crea problemi)
 - Github actions:
   - Build in ubuntu
   - Build in windows (se possibile)
   - Build in macos (se possibile)
+### Testing
+Al momento poco e niente è stato testato.
+Bisognerebbe implementare i test per le funzionalità più importanti.
+
+### non-challenge (5 nov 23)
+- TODO: esci dal gioco con `CTRL+D`
+
+c'è la funzione che interpreta la selezione dell'utente ma manca la possibilità di selezionare
+il domino con una stringa di due caratteri tipo "5l", "5L", "5R" oppure "5R". bisognerà aggiungere
+questa opzione.
+
+Fatto ciò bisognerà processare la richiesta di selezione del domino dell'utente e fornire feedback,
+positivo o negativo che sia.
+
+Dopo di che:
+- La funzione ricorsiva deve ricalcolare la miglior mossa in quel momento
+- bisogna ricalcolare il punteggio attuale dell'utente
+- printare lo schermo aggiornato
+- verificare se è possibile continuare il gioco; se non è possibile bisognerà uscire.

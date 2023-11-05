@@ -2,10 +2,10 @@
 
 #include "domino.h"
 
-const char* LEFT_IDENTIFIERS[] = {"LEFT"," L "};
+const char* LEFT_IDENTIFIERS[] = {" LEFT "," L "};
 const unsigned LEFT_IDENTIFIERS_COUNT = 2;
 
-const char* RIGHT_IDENTIFIERS[] = {"RIGHT", " R "};
+const char* RIGHT_IDENTIFIERS[] = {" RIGHT ", " R "};
 const unsigned RIGHT_IDENTIFIERS_COUNT = 2;
 
 
@@ -195,12 +195,26 @@ int valid_moves_count(void) {
   return count;
 }
 
-void str_add_padding(const char* str, char* result){
+/**
+ * Writes padding to result param
+ * @param str original string
+ * @param result string with one space before and one after.
+ * @return result pointer
+ */
+char* str_add_padding(const char* str, char* result){
   result[0] = ' ';
-  result[strlen(str)] = ' ';
+  result[strlen(str) + 1] = ' ';
 
-  for(unsigned i = 1; i <= strlen(str); i++) result[i] = str[i];
+  for(unsigned i = 0; i < strlen(str); i++) result[i + 1] = str[i];
+
+  return result;
 }
+
+//char* add_padding(const char* str){
+//  char* result = calloc(strlen(str) + 2, sizeof(char));
+//  str_add_padding(str, result);
+//  return result;
+//}
 
 int random_between(const int lower, const int upper) {
   return (rand() % (upper - lower + 1)) + lower;
@@ -333,50 +347,53 @@ void guess_selection(const char* command, int *result_index, int *position) {
 
   if (*result_index < 0 || *result_index > (int)strlen(command) * 10) *result_index = 0;
 
-  char *upcase_tmp = malloc(sizeof(char) * strlen(command));
+  char *upcase_tmp = calloc(strlen(command), sizeof(char));
+  char *with_padding_tmp = calloc(strlen(command), sizeof(char));
+
+  const char* formatted_command = str_add_padding(upcase_str(command, upcase_tmp), with_padding_tmp);
 
   *position = 0;
 
   for (unsigned i = 0; i < LEFT_IDENTIFIERS_COUNT; i++) {
-    if (is_string_in_string(upcase_str(command, upcase_tmp), LEFT_IDENTIFIERS[i])) {
+    if (is_string_in_string(formatted_command, LEFT_IDENTIFIERS[i])) {
        *position = 1;
       return;
     }
   }
 
   for (unsigned i = 0; i < RIGHT_IDENTIFIERS_COUNT; i++) {
-    if (is_string_in_string(upcase_str(command, upcase_tmp), RIGHT_IDENTIFIERS[i])) {
+    if (is_string_in_string(formatted_command, RIGHT_IDENTIFIERS[i])) {
        *position = 2;
       return;
     }
   }
 
   free(upcase_tmp);
+  free(with_padding_tmp);
 }
 
 void process_last_command(void) {
   log_debug("processing command \"%s\"", last_command);
   if (is_help_command(last_command)) return;
 
+  int selected_domino_index = 0; // 0 is invalid as index
+  int selected_domino_position = 0; // 0 is invalid as position
+  guess_selection(last_command, &selected_domino_index, &selected_domino_position);
+  if (selected_domino_index == 0){
+    log_info("user selected invalid index %d (command is: \"%s\")", selected_domino_index, last_command);
+  }
+  if (selected_domino_position == 0){
+    log_info("user selected invalid position %d (command is: \"%s\")", selected_domino_position, last_command);
+  }
 
-//  int selected_domino_index = -1;
-//
-//  selected_domino_index = first_number_from_string(last_command);
-//  for (int i = 0; i < LEFT_IDENTIFIERS_COUNT; i++) {
-//    if (is_string_in_string(upcase_str(last_command, upcase_tmp), LEFT_IDENTIFIERS[i])) selected_domino_index = 'L';
-//
-//    if (is_string_in_string(upcase_str(last_command, upcase_tmp), RIGHT_IDENTIFIERS[i])) selected_domino_index = 'R';
-//  }
-
-
-
-//  for (int i = 0; i < user_dominoes_size; i++) {
-//    char *domino_command = malloc(sizeof(char) * 15);
-//    const struct Domino d = user_dominoes[i];
-//    sprintf(domino_command, "%d %c", i + 1, 'l');
-//    log_debug("domino_command [%d|%d]: \"%s\"", d.left, d.right, domino_command);
-//    log_debug("\"%s\" == \"%s\": %d", last_command, domino_command, strcmp(last_command, domino_command) == 0);
-//  }
+  /**
+   * TODO:
+   * - if user has invalid position or index, popoulate "last_command_feedback" with the error messages.
+   * otherwise, select domino and try to put it on the table.
+   * if it's a valid move, populate last_command_feedback with something like "Domino [x|y] has been put on <left/right> side"
+   * otherwise, if it's not a valid move, let user know that it's not a valid move.
+   *
+   */
 
   last_command_feedback = "Invalid command.";
 }

@@ -34,7 +34,7 @@ bool is_string_in_string(const char*, const char*);
 int first_number_from_string(const char*);
 int valid_move(const struct Domino);
 int valid_moves_count(void);
-void str_add_padding(const char* original, char* result);
+char* str_add_padding(const char* original, char* result);
 int random_between(const int, const int);
 struct Domino random_domino_from_universe(void);
 int run_challenge(void);

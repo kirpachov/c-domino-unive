@@ -11,6 +11,12 @@ make -f makefile run
 make -f makefile test
 ```
 
+## Modalità
+Devono esserci tre possibili modalità di gioco.
+1. **Interattiva**: l'utente gioca con tessere assegnate a caso.
+2. **AI**: una funzione risolve il gioco autonomamente con delle tessere assegnate a caso. Il numero di tessere 
+3. **Challenge**: Specifiche nel documento.
+
 ## Layout
 Bisogna permettere all'utente di visualizzare:
 - Tavolo da gioco con tutti i domino che vi sono stati messi
@@ -32,6 +38,7 @@ Ciò permetterà:
 - Debug semplificato nel momento in cui vi sono presenti bug
 
 ## TODO
+- All'inizio della partita all'utente non deve essere chiesto il lato dove mettere la card, perché il tavolo è vuoto.
 - Tieni traccia del punteggio e mostralo all'utente sempre.
 - Feedback: Ad ogni input dell'utente, il sistema deve loggare un feedback.
 Il feedback potrà essere:

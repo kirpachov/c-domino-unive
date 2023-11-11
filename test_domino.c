@@ -1,5 +1,5 @@
-#include "test-framework/unity.h"
 #include "domino.h"
+#include "test-framework/unity.h"
 
 void setUp(void) {}
 
@@ -86,6 +86,22 @@ static void test_guess_selection(void) {
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(1, position);
 
+  guess_selection("L5", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(1, position);
+
+  guess_selection("5L", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(1, position);
+
+  guess_selection("5l", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(1, position);
+
+  guess_selection("l5", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(1, position);
+
   /**
    * RIGHT
    */
@@ -105,6 +121,22 @@ static void test_guess_selection(void) {
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(2, position);
 
+  guess_selection("5r", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(2, position);
+
+  guess_selection("5R", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(2, position);
+
+  guess_selection("R5", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(2, position);
+
+  guess_selection("r5", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(2, position);
+
   /**
    * Invalid positions
    */
@@ -119,34 +151,46 @@ static void test_guess_selection(void) {
   guess_selection("5 start", &index, &position);
   TEST_ASSERT_EQUAL(5, index);
   TEST_ASSERT_EQUAL(0, position);
+
+  guess_selection("5l a", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(0, position);
+
+  guess_selection("l5a", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(0, position);
+
+  guess_selection("l5 bubi", &index, &position);
+  TEST_ASSERT_EQUAL(5, index);
+  TEST_ASSERT_EQUAL(0, position);
 }
 
-static void test_str_add_padding(void){
-  char* str;
-  char* result;
+static void test_str_add_padding(void) {
+  char *str;
+  char *result;
 
   str = "BANANA";
-  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " BANANA ", 8);
   TEST_ASSERT_EQUAL(strlen(result), 8);
 
   str = "1";
-  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1 ", 3);
   TEST_ASSERT_EQUAL(strlen(result), 3);
 
   str = "1l";
-  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1l ", 4);
   TEST_ASSERT_EQUAL(strlen(result), 4);
 
   str = " 1l";
-  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1l ", 5);
   TEST_ASSERT_EQUAL(strlen(result), 5);
 
   str = " 1L ";
-  str_add_padding(str, result = calloc( strlen(str), sizeof(char)));
+  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
   TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1L  ", 6);
   TEST_ASSERT_EQUAL(strlen(result), 6);
 
@@ -154,14 +198,171 @@ static void test_str_add_padding(void){
   free(result);
 }
 
+static void test_rotate_domino(void) {
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {1, 2}).right, 1);
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {1, 2}).left, 2);
+
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {1, 1}).left, 1);
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {1, 1}).right, 1);
+
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {4, 5}).right, 4);
+  TEST_ASSERT_EQUAL(rotate_domino((struct Domino) {4, 5}).left, 5);
+}
+
+static void test_get_and_set_user_dominoes(void) {
+  set_user_dominoes((struct Domino[2]) {{1, 2},
+                                        {3, 4}}, 2);
+
+  struct Domino *dominoes = get_user_dominoes();
+  TEST_ASSERT_EQUAL(dominoes[0].left, 1);
+  TEST_ASSERT_EQUAL(dominoes[0].right, 2);
+  TEST_ASSERT_EQUAL(dominoes[1].left, 3);
+  TEST_ASSERT_EQUAL(dominoes[1].right, 4);
+}
+
+static void test_needs_to_be_rotated_before_putting_on_table(void) {
+  set_table_dominoes((struct Domino[2]) {{1, 2},
+                                         {3, 4}}, 2);
+
+  // Table is [1|2] [3|4].
+  // Putting [2|1] on the left should be ok, because:
+  // [2|1] <-> [1|2] [3|4] ==> OK!
+  TEST_ASSERT_FALSE(needs_to_be_rotated_before_putting_on_table((struct Domino) {2, 1}, true));
+  // Putting [1|2] should require rotation, because:
+  // [1|2] <-> [1|2] [3|4] ==> NOT OK!
+  TEST_ASSERT_TRUE(needs_to_be_rotated_before_putting_on_table((struct Domino) {1, 2}, true));
+
+  TEST_ASSERT_TRUE(needs_to_be_rotated_before_putting_on_table((struct Domino) {3, 4}, false));
+  TEST_ASSERT_FALSE(needs_to_be_rotated_before_putting_on_table((struct Domino) {4, 3}, false));
+}
+
+static void test_interactive_0(void) {
+  const bool verbose = true;
+
+  /**
+   * Initial situation:
+   * Table:
+   * [2|6] [6|1] [1|4] [4|6] [1|6]
+   *
+   * Your dominoes:
+   * [6|1]  (1R)
+   * [4|4]
+   * [4|4]
+   * [2|5]  (4L)
+   * [2|4]  (5L)
+   * 
+   */
+  initialize();
+  set_table_dominoes((struct Domino[5]) {
+      {2, 6},
+      {6, 1},
+      {1, 4},
+      {4, 6},
+      {1, 6},
+  }, 5);
+
+  set_user_dominoes((struct Domino[5]) {
+      {6, 1},
+      {4, 4},
+      {4, 4},
+      {2, 5},
+      {2, 4},
+  }, 5);
+
+  /**
+   * situation after "1r"
+   *
+   * Table:
+   * [2|6] [6|1] [1|4] [4|6] [1|6] [6|1]
+   *
+   * Your dominoes:
+   * [4|4]
+   * [4|4]
+   * [2|5]  (3L)
+   * [2|4]  (4L)
+   *
+   */
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  struct Domino *domino_arr = (struct Domino[4]) {{4, 4},
+                                                  {4, 4},
+                                                  {2, 5},
+                                                  {2, 4}};
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(domino_arr, 4), format_user_dominoes(),
+                               strlen(format_dominoes_with_valid_moves(domino_arr, 4)));
+
+  domino_arr = (struct Domino[6]) {{2, 6},
+                                   {6, 1},
+                                   {1, 4},
+                                   {4, 6},
+                                   {1, 6},
+                                   {6, 1}};
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_for_table(domino_arr, 6), format_table_dominoes(),
+                               strlen(format_dominoes_for_table(domino_arr, 6)));
+
+  /**
+   * UPDATED SITUATION:
+   *
+   * 
+   * Table:
+   * [2|6] [6|1] [1|4] [4|6] [1|6] [6|1]
+   *
+   * Your dominoes:
+   * 1) [4|4]
+   * 2) [4|4]
+   * 3) [2|5] (L)
+   * 4) [2|4] (L)
+   *
+   * Domino [6|1] has been put on right side
+   *
+   */
+
+  set_last_command("3 l");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  print_everything();
+  TEST_ASSERT_EQUAL(7, get_table_dominoes_size());
+  TEST_ASSERT_EQUAL(3, get_user_dominoes_size());
+
+  domino_arr = (struct Domino[]) {{5, 2},
+                                  {2, 6},
+                                  {6, 1},
+                                  {1, 4},
+                                  {4, 6},
+                                  {1, 6},
+                                  {6, 1}};
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_for_table(domino_arr, 7), format_table_dominoes(),
+                               strlen(format_dominoes_for_table(domino_arr, 7)));
+
+  domino_arr = (struct Domino[]) {{4, 4},
+                                  {4, 4},
+                                  {2, 4}};
+
+  // THIS IS NOT PASSING !!!
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(domino_arr, 3), format_user_dominoes(),
+                               strlen(format_dominoes_with_valid_moves(domino_arr, 3)));
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
+
+  RUN_TEST(test_interactive_0);
 
   RUN_TEST(test_first_number_from_string);
   RUN_TEST(test_is_string_in_string);
   RUN_TEST(test_upcase_str);
   RUN_TEST(test_guess_selection);
   RUN_TEST(test_str_add_padding);
+  RUN_TEST(test_rotate_domino);
+  RUN_TEST(test_get_and_set_user_dominoes);
+  RUN_TEST(test_needs_to_be_rotated_before_putting_on_table);
 
   return UnityEnd();
 }

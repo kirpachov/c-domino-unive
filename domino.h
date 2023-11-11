@@ -14,6 +14,9 @@
 #define SMALLES_DOMINO_VALUE 1
 #define LARGEST_DOMINO_VALUE 6
 
+#define LEFT_SIDE 1
+#define RIGHT_SIDE 2
+
 #define MAX_COMMAND_SIZE 10
 
 #define TOTAL_USER_DOMINOES 11
@@ -23,8 +26,32 @@ struct Domino {
   int right: 24;
 };
 
+
+//bool have_anything_in_common(const struct Domino, const struct Domino);
+
+/* ********************* TEST UTILS ********************* */
+void set_user_dominoes(const struct Domino* arr, const int arr_size);
+struct Domino* get_user_dominoes(void);
+int get_user_dominoes_size(void);
+void set_table_dominoes(const struct Domino* arr, const int arr_size);
+struct Domino* get_table_dominoes(void);
+int get_table_dominoes_size(void);
+void set_last_command(char* new_last_command);
+char* get_last_command(void);
+/* ********************* TEST UTILS ********************* */
+
+bool can_place_on_left(const struct Domino d);
+bool can_place_on_right(const struct Domino d);
+bool can_place_on_table(const struct Domino d);
+//char* where_can_place(const struct Domino d);
+struct Domino *allocate_memory_for_dominoes(struct Domino **arr, int size);
+void push(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
+void unshift(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
+void pop(int index, struct Domino* domino_arr, int* domino_arr_size);
+int total_user_dominoes_valid(void);
 void user_dominoes_push(struct Domino);
-void table_dominoes_push(struct Domino);
+void user_dominoes_pop(const int);
+void table_dominoes_push(struct Domino domino, const bool left_side);
 void universe_dominoes_push(struct Domino);
 int char_to_int(const char);
 bool is_char_a_number(const char);
@@ -39,8 +66,11 @@ int random_between(const int, const int);
 struct Domino random_domino_from_universe(void);
 int run_challenge(void);
 void populate_universe_dominoes(void);
-void print_domino(const struct Domino);
+char* format_dominoes_for_table(const struct Domino*, const int);
+char* format_table_dominoes(void);
 void print_table(void);
+char* format_dominoes_with_valid_moves(const struct Domino*, const int);
+char* format_user_dominoes();
 void print_user_dominoes(void);
 bool is_help_command(const char*);
 void print_last_command_feedback(void);
@@ -48,6 +78,14 @@ void clean_screen(void);
 void print_everything(void);
 void assign_user_random_dominoes(void);
 void guess_selection(const char*, int*, int*);
+char* format_domino(const struct Domino);
+char *side_str(const bool is_left_side);
+bool can_be_put_on_table(const struct Domino, const bool left_side);
+bool needs_to_be_rotated_before_putting_on_table(struct Domino selected_domino, bool is_left_side);
+struct Domino rotate_domino(const struct Domino d);
+struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left_side);
+struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left_side);
+int put_on_table(const int index, const bool left_side);
 void process_last_command(void);
 void acquire_command(void);
 void run_terminal(void);

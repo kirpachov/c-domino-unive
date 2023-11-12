@@ -20,14 +20,7 @@ void push(const struct Domino domino, struct Domino *domino_arr, int *domino_arr
 }
 
 void unshift(struct Domino domino, struct Domino *domino_arr, int *domino_arr_size) {
-  char* array_str = format_dominoes_for_table(domino_arr, *domino_arr_size);
-  log_debug("Writing into array %s | domino: %s | domino_arr_size: %d", array_str, format_domino(domino),
-            *domino_arr_size);
-
-  for (int i = *domino_arr_size; i > 0; i--) {
-    log_debug("unshift | domino_arr[%d]: %s | domino_arr[%d - 1]: %s", i, format_domino(domino_arr[i]), i, format_domino(domino_arr[i]));
-    domino_arr[i] = domino_arr[i - 1];
-  }
+  for (int i = *domino_arr_size; i > 0; i--) domino_arr[i] = domino_arr[i - 1];
 
   domino_arr[0] = domino;
   (*domino_arr_size)++;
@@ -66,8 +59,8 @@ void user_dominoes_push(const struct Domino d) {
 }
 
 void user_dominoes_pop(const int index) {
-  log_debug("user_dominoes_pop | index: %d", index);
   pop(index, user_dominoes, &user_dominoes_size);
+  resize_dominoes_array(&user_dominoes, user_dominoes_size - 1);
 }
 
 /**
@@ -77,8 +70,6 @@ struct Domino *table_dominoes;
 int table_dominoes_size = 0;
 
 void table_dominoes_push(const struct Domino d, const bool left_side) {
-  log_debug("table_dominoes_push | domino: %s | side: \"%s\" | table_dominoes_size: %d", format_domino(d), left_side ? "left" : "right", table_dominoes_size);
-
   resize_dominoes_array(&table_dominoes, table_dominoes_size + 1);
 
   if (left_side) unshift(d, table_dominoes, &table_dominoes_size);
@@ -394,10 +385,26 @@ bool is_help_command(const char *command) {
   return false;
 }
 
-void print_last_command_feedback(void) {
-  // create some space
-  printf("\n");
+int calc_user_points(void){
+  int result = 0;
 
+  for (int i = 0; i < table_dominoes_size; i++)
+    result += table_dominoes[i].left + table_dominoes[i].right;
+
+  return result;
+}
+
+char* format_user_points_str(void){
+  char* result = calloc(strlen("Your points: 999999"), sizeof(char));
+  sprintf(result, "Your points: %d", calc_user_points());
+  return result;
+}
+
+void print_user_points(void){
+  printf("%s\n", format_user_points_str());
+}
+
+void print_last_command_feedback(void) {
   if (strlen(last_command) == 0 || is_help_command(last_command)) {
     printf("Welcome!\n"
            "Select the domino to place by specifying the domino's index and the side (Right/Left) where to place it.\n"
@@ -409,14 +416,28 @@ void print_last_command_feedback(void) {
 }
 
 void clean_screen(void) {
-  // printf("\e[1;1H\e[2J"); // non-ISO-standard escape sequence
-  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+#ifdef _WIN64
+  system("cls");
+#elif __linux
+  const int result = system("clear");
+  log_debug("system(\"clear\") returned %d", result);
+#else
+  log_error("WARNING: CANNOT CLEAR SCREEN.");
+  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+#endif
 }
 
 void print_everything() {
   clean_screen();
   print_table();
   print_user_dominoes();
+
+  for (int i = 0; i < table_dominoes_size; i++) printf("\n");
+
+  printf("\n");
+  if (calc_user_points() > 0) print_user_points();
+  else printf("\n"); // Place a newline for consistency
+
   print_last_command_feedback();
 }
 
@@ -582,6 +603,9 @@ void run_terminal(void) {
     process_last_command();
     print_everything();
   }
+
+  printf("Game over!\n");
+  printf("You made %d points!\n", calc_user_points());
 }
 
 int run_interactive(void) {

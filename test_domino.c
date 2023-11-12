@@ -1,9 +1,15 @@
 #include "domino.h"
 #include "test-framework/unity.h"
 
-void setUp(void) {}
+void setUp(void) {
+  initialize();
+}
 
-void tearDown(void) {}
+void tearDown(void) {
+  empty_table_dominoes();
+  empty_user_dominoes();
+  set_last_command("");
+}
 
 static void test_first_number_from_string(void) {
   TEST_ASSERT_EQUAL(first_number_from_string("10 banana"), 10);
@@ -39,36 +45,33 @@ static void test_is_string_in_string(void) {
 
 static void test_upcase_str(void) {
   char *str;
-  char *result;
 
   str = "ciao";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "CIAO", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "CIAO", strlen(str));
 
   str = "banana";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "BANANA", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "BANANA", strlen(str));
 
   str = "1l";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1L", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1L", strlen(str));
 
   str = "1 l";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 L", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 L", strlen(str));
 
   str = "1 left";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 LEFT", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 LEFT", strlen(str));
 
   str = "1 right";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 RIGHT", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 RIGHT", strlen(str));
 
   str = "1 RIGHT";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 RIGHT", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 RIGHT", strlen(str));
 
   str = "1 LEFT";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 LEFT", strlen(str));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 LEFT", strlen(str));
 
   str = "1 L";
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str, result = malloc(sizeof(char) * strlen(str))), "1 L", strlen(str));
-
-  free(result);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(upcase_str(str), "1 L", strlen(str));
 }
 
 static void test_guess_selection(void) {
@@ -167,35 +170,26 @@ static void test_guess_selection(void) {
 
 static void test_str_add_padding(void) {
   char *str;
-  char *result;
 
   str = "BANANA";
-  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " BANANA ", 8);
-  TEST_ASSERT_EQUAL(strlen(result), 8);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(str_add_padding(str), " BANANA ", 8);
+  TEST_ASSERT_EQUAL(strlen(str_add_padding(str)), 8);
 
   str = "1";
-  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1 ", 3);
-  TEST_ASSERT_EQUAL(strlen(result), 3);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(str_add_padding(str), " 1 ", 3);
+  TEST_ASSERT_EQUAL(strlen(str_add_padding(str)), 3);
 
   str = "1l";
-  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, " 1l ", 4);
-  TEST_ASSERT_EQUAL(strlen(result), 4);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(str_add_padding(str), " 1l ", 4);
+  TEST_ASSERT_EQUAL(strlen(str_add_padding(str)), 4);
 
   str = " 1l";
-  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1l ", 5);
-  TEST_ASSERT_EQUAL(strlen(result), 5);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(str_add_padding(str), "  1l ", 5);
+  TEST_ASSERT_EQUAL(strlen(str_add_padding(str)), 5);
 
   str = " 1L ";
-  str_add_padding(str, result = calloc(strlen(str), sizeof(char)));
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(result, "  1L  ", 6);
-  TEST_ASSERT_EQUAL(strlen(result), 6);
-
-//  free(str);
-  free(result);
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(str_add_padding(str), "  1L  ", 6);
+  TEST_ASSERT_EQUAL(strlen(str_add_padding(str)), 6);
 }
 
 static void test_rotate_domino(void) {
@@ -236,8 +230,37 @@ static void test_needs_to_be_rotated_before_putting_on_table(void) {
   TEST_ASSERT_FALSE(needs_to_be_rotated_before_putting_on_table((struct Domino) {4, 3}, false));
 }
 
+static void test_table_dominoes_push(void) {
+  set_table_dominoes((struct Domino[1]) {
+      {1, 1},
+  }, 1);
+
+  struct Domino *user_dominoes = (struct Domino[2]) {
+      {2, 2},
+      {2, 2},
+  };
+
+  set_user_dominoes(user_dominoes, 2);
+
+  table_dominoes_push((struct Domino) {3, 3}, true);
+
+  struct Domino *current_table_dominoes = (struct Domino[2]) {
+      {3, 3},
+      {1, 1},
+  };
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_for_table(current_table_dominoes, 2), format_table_dominoes(),
+                               strlen(format_dominoes_for_table(current_table_dominoes, 2)));
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(user_dominoes, 2), format_user_dominoes(),
+                               strlen(format_dominoes_with_valid_moves(user_dominoes, 2)));
+
+  TEST_ASSERT_EQUAL(2, get_table_dominoes_size());
+  TEST_ASSERT_EQUAL(2, get_user_dominoes_size());
+}
+
 static void test_interactive_0(void) {
-  const bool verbose = true;
+  const bool verbose = false;
 
   /**
    * Initial situation:
@@ -250,9 +273,8 @@ static void test_interactive_0(void) {
    * [4|4]
    * [2|5]  (4L)
    * [2|4]  (5L)
-   * 
+   *
    */
-  initialize();
   set_table_dominoes((struct Domino[5]) {
       {2, 6},
       {6, 1},
@@ -309,7 +331,7 @@ static void test_interactive_0(void) {
   /**
    * UPDATED SITUATION:
    *
-   * 
+   *
    * Table:
    * [2|6] [6|1] [1|4] [4|6] [1|6] [6|1]
    *
@@ -324,9 +346,12 @@ static void test_interactive_0(void) {
    */
 
   set_last_command("3 l");
+
   if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  if (verbose) log_debug("AFTER 3l\n\n\n");
+  if (verbose) printf("AFTER 3l \n\n\n");
   process_last_command();
-  print_everything();
+  if (verbose) print_everything();
   TEST_ASSERT_EQUAL(7, get_table_dominoes_size());
   TEST_ASSERT_EQUAL(3, get_user_dominoes_size());
 
@@ -345,7 +370,6 @@ static void test_interactive_0(void) {
                                   {4, 4},
                                   {2, 4}};
 
-  // THIS IS NOT PASSING !!!
   TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(domino_arr, 3), format_user_dominoes(),
                                strlen(format_dominoes_with_valid_moves(domino_arr, 3)));
 }
@@ -354,7 +378,7 @@ int main(void) {
   UnityBegin("test_domino.c");
 
   RUN_TEST(test_interactive_0);
-
+  RUN_TEST(test_table_dominoes_push);
   RUN_TEST(test_first_number_from_string);
   RUN_TEST(test_is_string_in_string);
   RUN_TEST(test_upcase_str);

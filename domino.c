@@ -1,4 +1,6 @@
 // 902835
+// Source is available at
+// https://github.com/kirpachov/c-domino-unive
 
 #include "domino.h"
 
@@ -8,13 +10,25 @@ const unsigned LEFT_IDENTIFIERS_COUNT = 2;
 const char *RIGHT_IDENTIFIERS[] = {" RIGHT ", " R "};
 const unsigned RIGHT_IDENTIFIERS_COUNT = 2;
 
+void resize_dominoes_array(struct Domino **arr, const int new_size) {
+  *arr = realloc(*arr, sizeof(struct Domino) * new_size);
+}
+
 void push(const struct Domino domino, struct Domino *domino_arr, int *domino_arr_size) {
   domino_arr[*domino_arr_size] = domino;
   (*domino_arr_size)++;
 }
 
 void unshift(struct Domino domino, struct Domino *domino_arr, int *domino_arr_size) {
-  for (int i = *domino_arr_size; i > 0; i--) domino_arr[i] = domino_arr[i - 1];
+  char* array_str = format_dominoes_for_table(domino_arr, *domino_arr_size);
+  log_debug("Writing into array %s | domino: %s | domino_arr_size: %d", array_str, format_domino(domino),
+            *domino_arr_size);
+
+  for (int i = *domino_arr_size; i > 0; i--) {
+    log_debug("unshift | domino_arr[%d]: %s | domino_arr[%d - 1]: %s", i, format_domino(domino_arr[i]), i, format_domino(domino_arr[i]));
+    domino_arr[i] = domino_arr[i - 1];
+  }
+
   domino_arr[0] = domino;
   (*domino_arr_size)++;
 }
@@ -46,10 +60,13 @@ struct Domino *user_dominoes;
 int user_dominoes_size = 0;
 
 void user_dominoes_push(const struct Domino d) {
+  resize_dominoes_array(&user_dominoes, user_dominoes_size + 1);
+
   push(d, user_dominoes, &user_dominoes_size);
 }
 
 void user_dominoes_pop(const int index) {
+  log_debug("user_dominoes_pop | index: %d", index);
   pop(index, user_dominoes, &user_dominoes_size);
 }
 
@@ -60,7 +77,9 @@ struct Domino *table_dominoes;
 int table_dominoes_size = 0;
 
 void table_dominoes_push(const struct Domino d, const bool left_side) {
-  log_debug("table_dominoes_push | domino: %s | side: \"%s\"", format_domino(d), left_side ? "left" : "right");
+  log_debug("table_dominoes_push | domino: %s | side: \"%s\" | table_dominoes_size: %d", format_domino(d), left_side ? "left" : "right", table_dominoes_size);
+
+  resize_dominoes_array(&table_dominoes, table_dominoes_size + 1);
 
   if (left_side) unshift(d, table_dominoes, &table_dominoes_size);
   else push(d, table_dominoes, &table_dominoes_size);
@@ -136,9 +155,10 @@ void str_to_int_array(const char *str, int *integers) {
   }
 }
 
-char *upcase_str(const char *str, char *result) {
-  for (unsigned i = 0; i < strlen(str); i++)
-    result[i] = (char) toupper((int) str[i]);
+char *upcase_str(const char *original) {
+  char *result = calloc(strlen(original), sizeof(char));
+  for (unsigned i = 0; i < strlen(original); i++)
+    result[i] = (char) toupper((int) original[i]);
 
   return result;
 }
@@ -189,32 +209,6 @@ int first_number_from_string(const char *string) {
 }
 
 /**
- * Is this domino a valid move?
- * @input const struct Domino d
- * @return:
- * 0 if cannot be placed;
- * 1 if can be put on left side;
- * 2 if can be put on right side;
- * 3 if can be put on both sides;
- */
-//int valid_move(const struct Domino d) {
-//  if (table_dominoes_size == 0) return 3;
-//  int sum = 0;
-//
-//  // Can be put on left side
-//  if (table_dominoes[0].left == d.right || table_dominoes[0].left == d.left) sum += 1;
-//  if (table_dominoes[table_dominoes_size].right == d.left || table_dominoes[table_dominoes_size].right == d.right)
-//    sum += 2;
-//
-//  return sum;
-//}
-
-//bool have_anything_in_common(const struct Domino first, const struct Domino second) {
-//  return first.left == second.left || first.left == second.right || first.right == second.left ||
-//         first.right == second.right;
-//}
-
-/**
  * Can domino be placed on left side on the table?
  * @param d Domino
  * @return bool
@@ -247,17 +241,6 @@ bool can_place_on_table(const struct Domino d) {
   return can_place_on_left(d) || can_place_on_right(d);
 }
 
-//char *where_can_place(const struct Domino d) {
-//  if (!can_place_on_table(d)) return "-";
-//  if (can_place_on_left(d) && can_place_on_right(d)) return "L / R";
-//  if (can_place_on_left(d)) return "L";
-//  if (can_place_on_right(d)) return "R";
-//
-//  log_error("Something went wrong inside function where_can_place.");
-//
-//  return "ERROR";
-//}
-
 int valid_moves_count(void) {
   if (user_dominoes_size <= 0) return 0;
 
@@ -269,26 +252,16 @@ int valid_moves_count(void) {
   return count;
 }
 
-/**
- * Writes padding to result param
- * @param str original string
- * @param result string with one space before and one after.
- * @return result pointer
- */
-char *str_add_padding(const char *str, char *result) {
-  result[0] = ' ';
-  result[strlen(str) + 1] = ' ';
 
-  for (unsigned i = 0; i < strlen(str); i++) result[i + 1] = str[i];
+char *str_add_padding(const char *original) {
+  char *result = calloc(strlen(original) + 2, sizeof(char));
+  result[0] = ' ';
+  result[strlen(original) + 1] = ' ';
+
+  for (unsigned i = 0; i < strlen(original); i++) result[i + 1] = original[i];
 
   return result;
 }
-
-//char* add_padding(const char* str){
-//  char* result = calloc(strlen(str) + 2, sizeof(char));
-//  str_add_padding(str, result);
-//  return result;
-//}
 
 char *format_domino(const struct Domino d) {
   char *str = calloc(100, sizeof(char));
@@ -333,7 +306,7 @@ void populate_universe_dominoes(void) {
   log_debug("universe_dominoes_size is %d", universe_dominoes_size);
 }
 
-char *format_dominoes_for_table(const struct Domino* dominoes, const int size){
+char *format_dominoes_for_table(const struct Domino *dominoes, const int size) {
   char *result = calloc(100, sizeof(char));
 
   for (int i = 0; i < size; i++) {
@@ -370,7 +343,7 @@ void print_table(void) {
  * @param arr_size
  * @return
  */
-char *format_dominoes_with_valid_moves(const struct Domino* dominoes, const int arr_size){
+char *format_dominoes_with_valid_moves(const struct Domino *dominoes, const int arr_size) {
   const int max_row_size = 20;
   char *result = calloc(max_row_size * arr_size, sizeof(char));
   char *accumulator = calloc(max_row_size, sizeof(char));
@@ -470,10 +443,7 @@ void guess_selection(const char *command, int *result_index, int *position) {
 
   if (*result_index < 0 || *result_index > (int) strlen(command) * 10) *result_index = 0;
 
-  char *upcase_tmp = calloc(strlen(command), sizeof(char));
-  char *with_padding_tmp = calloc(strlen(command), sizeof(char));
-
-  const char *formatted_command = str_add_padding(upcase_str(command, upcase_tmp), with_padding_tmp);
+  const char *formatted_command = str_add_padding(upcase_str(command));
 
   if (strlen(command) == 2 && is_string_in_string(formatted_command, "L")) {
     *position = LEFT_SIDE;
@@ -500,9 +470,6 @@ void guess_selection(const char *command, int *result_index, int *position) {
       return;
     }
   }
-
-  free(upcase_tmp);
-  free(with_padding_tmp);
 }
 
 bool can_be_put_on_table(const struct Domino domino, const bool left_side) {
@@ -528,8 +495,8 @@ struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left
 }
 
 /**
- * @param index
- * @param left_side
+ * @param index starting from 0
+ * @param left_side boolean value
  * @return 0 if want to interrupt `last_command` processing.
  */
 int put_on_table(const int index, const bool left_side) {
@@ -574,14 +541,7 @@ void process_last_command(void) {
 
   selected_domino_index--;
 
-//  const struct Domino selected = user_dominoes[selected_domino_index];
-
-//  if ((selected_domino_side == LEFT_SIDE && can_place_on_left(selected)) ||
-//      (selected_domino_side == RIGHT_SIDE && can_place_on_right(selected))) {
-
   if (put_on_table(selected_domino_index, selected_domino_side == LEFT_SIDE) == 0) return;
-//    return;
-//  }
 
   /**
    * TODO:
@@ -615,39 +575,6 @@ void acquire_command(void) {
 
   for (int i = 0; i < N; i++) last_command[i] = tmp_command[i];
 }
-
-//void acquire_command() {
-//  char tmp_command[MAX_COMMAND_SIZE];
-//  int i, N = 0;
-//  char ch;
-//
-//  printf("$ ");
-//  ch = getchar();
-//
-//  while (ch != '\n' && N < MAX_COMMAND_SIZE) {
-//    tmp_command[N++] = ch;
-//    ch = getchar();
-//  }
-//
-////  for (i = 0; i < N; i++)
-////    putchar(tmp_command[i]);
-//
-//  free(last_command);
-//  last_command = malloc(sizeof(char) * N);
-//
-//  if (last_command == NULL) {
-//    log_error("Realloc failed.");
-//    exit(EXIT_FAILURE);
-//  }
-//
-//  for (int j = 0; j < MAX_COMMAND_SIZE; j++) {
-//    tmp_command[j] = j < N ? tmp_command[j] : ' ';
-//    if (j < N) last_command[j] = tmp_command[j];
-//  }
-//
-//  log_debug("tmp_command: %s | size: %d", tmp_command, N);
-//  log_debug("last_command: %s", last_command);
-//}
 
 void run_terminal(void) {
   while (user_dominoes_size > 0 && valid_moves_count() > 0) {
@@ -711,6 +638,16 @@ void initialize(void) {
 }
 
 /* ********************* TEST UTILS ********************* */
+void empty_user_dominoes() {
+  user_dominoes = calloc(1, sizeof(struct Domino));
+  user_dominoes_size = 0;
+}
+
+void empty_table_dominoes() {
+  table_dominoes = calloc(1, sizeof(struct Domino));
+  table_dominoes_size = 0;
+}
+
 void set_user_dominoes(const struct Domino *arr, const int arr_size) {
   user_dominoes = malloc(sizeof(struct Domino) * arr_size);
   user_dominoes_size = arr_size;
@@ -755,8 +692,8 @@ char *get_last_command(void) {
 
 void complete(void) {
 //  free(last_command);
-  free(table_dominoes);
-  free(user_dominoes);
+//  free(table_dominoes);
+//  free(user_dominoes);
 }
 
 /**

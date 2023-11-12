@@ -30,6 +30,8 @@ struct Domino {
 //bool have_anything_in_common(const struct Domino, const struct Domino);
 
 /* ********************* TEST UTILS ********************* */
+void empty_user_dominoes(void);
+void empty_table_dominoes(void);
 void set_user_dominoes(const struct Domino* arr, const int arr_size);
 struct Domino* get_user_dominoes(void);
 int get_user_dominoes_size(void);
@@ -45,8 +47,10 @@ bool can_place_on_right(const struct Domino d);
 bool can_place_on_table(const struct Domino d);
 //char* where_can_place(const struct Domino d);
 struct Domino *allocate_memory_for_dominoes(struct Domino **arr, int size);
+void resize_dominoes_array(struct Domino **arr, const int new_size);
 void push(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
 void unshift(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
+struct Domino *add_domino_on_start(struct Domino domino, const struct Domino *domino_arr, int *domino_arr_size);
 void pop(int index, struct Domino* domino_arr, int* domino_arr_size);
 int total_user_dominoes_valid(void);
 void user_dominoes_push(struct Domino);
@@ -56,12 +60,12 @@ void universe_dominoes_push(struct Domino);
 int char_to_int(const char);
 bool is_char_a_number(const char);
 void str_to_int_array(const char*, int*);
-char* upcase_str(const char *, char*);
+char* upcase_str(const char *original);
 bool is_string_in_string(const char*, const char*);
 int first_number_from_string(const char*);
 int valid_move(const struct Domino);
 int valid_moves_count(void);
-char* str_add_padding(const char* original, char* result);
+char* str_add_padding(const char* original);
 int random_between(const int, const int);
 struct Domino random_domino_from_universe(void);
 int run_challenge(void);

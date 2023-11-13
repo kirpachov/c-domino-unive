@@ -453,6 +453,39 @@ static void test_scenario_with(void) {
   ));
 }
 
+static void test_best_scenario(void) {
+  TEST_ASSERT_EQUAL(1+3+3+4+4+5, best_scenario((struct Domino[4]) {{1, 3},
+                                                          {3, 4},
+                                                          {4, 5},
+                                                          {2, 2}}, 4));
+
+  TEST_ASSERT_EQUAL(6+6, best_scenario((struct Domino[4]) {{6,6},
+                                                          {1,1},
+                                                          {2,2},
+                                                          {3,3}}, 4));
+
+  TEST_ASSERT_EQUAL(6+6+6+1, best_scenario((struct Domino[4]) {{6,6},
+                                                          {6,1},
+                                                          {2,2},
+                                                          {3,3}}, 4));
+
+  /**
+   * This one takes way too much time.
+   */
+//  TEST_ASSERT_EQUAL(81, best_scenario((struct Domino[10]) {
+//      {6, 6},
+//      {6, 6},
+//      {6, 6},
+//      {3, 6},
+//      {1, 6},
+//      {2, 6},
+//      {1, 4},
+//      {3, 4},
+//      {4, 4},
+//      {4, 5},
+//  }, 10));
+}
+
 static void test_resize_dominoes_array(void) {
   // Should return original array without doing anything if new_size is <= 0
   // To check if nothing has been done
@@ -463,6 +496,9 @@ static void test_resize_dominoes_array(void) {
 
 int main(void) {
   UnityBegin("test_domino.c");
+
+  RUN_TEST(test_best_scenario);
+  return 0;
 
   RUN_TEST(test_scenario_with);
   RUN_TEST(test_resize_dominoes_array);

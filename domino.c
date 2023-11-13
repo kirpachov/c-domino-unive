@@ -698,7 +698,7 @@ int scenario_with(
     }
 
     if (can_place_on_right(valid_move)) {
-      if (can_place_on_left(valid_move)){
+      if (can_place_on_left(valid_move)) {
         // Left move may have messed up the situation.
         set_user_dominoes(user_arr, user_arr_size);
         set_table_dominoes(table_arr, table_arr_size);
@@ -719,10 +719,29 @@ int scenario_with(
 
       if (tmp_sum > max_sum) max_sum = tmp_sum;
     }
-
   }
 
   return max_sum;
+}
+
+int best_scenario(const struct Domino *dominoes, const int dominoes_size) {
+  int best = dominoes[0].left + dominoes[0].right;
+
+  for (int i = 0; i < dominoes_size; i++) {
+    const struct Domino domino = dominoes[i];
+    const struct Domino *dominoes_without_current = dominoes_without_element(dominoes, dominoes_size, i);
+    const int current_domino_best_scenario = scenario_with(
+        dominoes_without_current, dominoes_size - 1,
+        (struct Domino[1]) {domino}, 1,
+        domino.left + domino.right
+    );
+
+    if (current_domino_best_scenario > best) { best = current_domino_best_scenario; }
+  }
+
+  log_debug("Best scenario: universe is %s | best points are: %d", format_dominoes_for_table(dominoes, dominoes_size), best);
+
+  return best;
 }
 
 void run_terminal(void) {

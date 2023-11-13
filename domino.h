@@ -105,6 +105,7 @@ struct Domino *dominoes_without_element(
 bool dominoes_equal(const struct Domino,const struct Domino);
 int domino_index_in(const struct Domino* arr, const int arr_size, const struct Domino to_find);
 //void list_all_scenarios(const struct Domino *dominoes, const int dominoes_size);
+int best_scenario(const struct Domino* universe, const int universe_size);
 void run_terminal(void);
 int run_interactive(void);
 void parse_params(const int, const char**);

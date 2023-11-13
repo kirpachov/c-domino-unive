@@ -78,6 +78,7 @@ char* format_dominoes_with_valid_moves(const struct Domino*, const int);
 char* format_user_dominoes();
 void print_user_dominoes(void);
 bool is_help_command(const char*);
+int calc_points_from(const struct Domino* arr, const int arr_size);
 int calc_user_points(void);
 char* format_user_points_str(void);
 void print_user_points(void);
@@ -97,7 +98,7 @@ int put_on_table(const int index, const bool left_side);
 void process_last_command(void);
 void acquire_command(void);
 int scenario_with(const struct Domino *user_arr, const int user_arr_size, const struct Domino *table_arr,
-                  const int table_arr_size, const int parent_sum);
+                  const int table_arr_size, const int parent_sum, struct Domino** best_table_possible, int *best_table_possible_size);
 struct Domino *dominoes_without_element(
     const struct Domino *dominoes,
     const int size,
@@ -105,7 +106,7 @@ struct Domino *dominoes_without_element(
 bool dominoes_equal(const struct Domino,const struct Domino);
 int domino_index_in(const struct Domino* arr, const int arr_size, const struct Domino to_find);
 //void list_all_scenarios(const struct Domino *dominoes, const int dominoes_size);
-int best_scenario(const struct Domino* universe, const int universe_size);
+int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino ** best_table_possible, int* best_table_possible_size);
 void run_terminal(void);
 int run_interactive(void);
 void parse_params(const int, const char**);

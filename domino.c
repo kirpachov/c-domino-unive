@@ -12,8 +12,8 @@ const unsigned RIGHT_IDENTIFIERS_COUNT = 2;
 
 void resize_dominoes_array(struct Domino **arr, const int new_size) {
   if (new_size <= 0) {
-    log_error("error! Tried to allocate memory with size %d. Function resize_dominoes_array(arr: %p, new_size: %d)",
-              new_size, arr, new_size);
+//    log_error("error! Tried to allocate memory with size %d. Function resize_dominoes_array(arr: %p, new_size: %d)",
+//              new_size, arr, new_size);
     return;
   }
 
@@ -405,13 +405,15 @@ bool is_help_command(const char *command) {
   return false;
 }
 
+int calc_points_from(const struct Domino *arr, const int arr_size) {
+  int acc = 0;
+  for (int i = 0; i < arr_size; i++) acc += arr[i].left + arr[i].right;
+
+  return acc;
+}
+
 int calc_user_points(void) {
-  int result = 0;
-
-  for (int i = 0; i < table_dominoes_size; i++)
-    result += table_dominoes[i].left + table_dominoes[i].right;
-
-  return result;
+  return calc_points_from(table_dominoes, table_dominoes_size);
 }
 
 char *format_user_points_str(void) {
@@ -546,7 +548,7 @@ int put_on_table(const int index, const bool left_side) {
   const char *selected_str = format_domino(selected);
   last_command_feedback = calloc(100, sizeof(char));
 
-  log_debug("put_on_table | index: %d | side: %s | domino: %s", index, side_str, selected_str);
+//  log_debug("put_on_table | index: %d | side: %s | domino: %s", index, side_str, selected_str);
 
   if (!(can_be_put_on_table(selected, left_side))) {
     sprintf(last_command_feedback, "Domino %s cannot be put on %s side", selected_str, side_str);
@@ -652,24 +654,40 @@ int scenario_with(
     const int user_arr_size,
     const struct Domino *table_arr,
     const int table_arr_size,
-    const int parent_sum) {
+    const int parent_sum,
+    struct Domino **best_table_possible,
+    int *best_table_possible_size
+) {
 
 //  initialize();
 
   set_user_dominoes(user_arr, user_arr_size);
   set_table_dominoes(table_arr, table_arr_size);
 
-  log_debug("scenario_with | user_arr(%d): %s | table_arr(%d): %s | parent_sum: %d | valid_moves(%d): %s",
-            user_arr_size,
-            format_dominoes_for_table(user_arr, user_arr_size),
-            table_arr_size,
-            format_dominoes_for_table(table_arr, table_arr_size),
-            parent_sum,
-            valid_moves_count(),
-            format_dominoes_for_table(valid_moves(), valid_moves_count())
-  );
+//  log_debug("scenario_with | user_arr(%d): %s | table_arr(%d): %s | parent_sum: %d | valid_moves(%d): %s",
+//            user_arr_size,
+//            format_dominoes_for_table(user_arr, user_arr_size),
+//            table_arr_size,
+//            format_dominoes_for_table(table_arr, table_arr_size),
+//            parent_sum,
+//            valid_moves_count(),
+//            format_dominoes_for_table(valid_moves(), valid_moves_count())
+//  );
 
-  if (valid_moves_count() == 0) return parent_sum;
+  if (valid_moves_count() == 0) {
+//    log_debug("\n\nFound solution: table is %s | points are: %d\n\n",
+//              format_dominoes_for_table(table_arr, table_arr_size), parent_sum);
+    const int current_best_table_points = calc_points_from(*best_table_possible, *best_table_possible_size);
+//    log_debug("%d", current_best_table_points);
+    if (current_best_table_points < parent_sum) {
+      *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
+      *best_table_possible_size = table_arr_size;
+
+//      printf("Best table: %s\n", format_dominoes_for_table(*best_table_possible, *best_table_possible_size));
+      *best_table_possible = memcpy(user_dominoes, table_arr, sizeof(struct Domino) * table_arr_size);
+    }
+    return parent_sum;
+  }
 
   int max_sum = parent_sum;
 
@@ -681,7 +699,7 @@ int scenario_with(
     int tmp_sum = 0;
 
     if (can_place_on_left(valid_move)) {
-      log_debug("putting %s on left of %s.", format_domino(valid_move), format_table_dominoes());
+//      log_debug("putting %s on left of %s.", format_domino(valid_move), format_table_dominoes());
       put_on_table(i, true);
 
       tmp_sum = scenario_with(
@@ -689,10 +707,12 @@ int scenario_with(
           user_dominoes_size,
           table_dominoes,
           table_dominoes_size,
-          calc_user_points()
+          calc_user_points(),
+          best_table_possible,
+          best_table_possible_size
       );
 
-      log_debug("left tmp sum: %d", tmp_sum);
+//      log_debug("left tmp sum: %d", tmp_sum);
 
       if (tmp_sum > max_sum) max_sum = tmp_sum;
     }
@@ -704,7 +724,7 @@ int scenario_with(
         set_table_dominoes(table_arr, table_arr_size);
       }
 
-      log_debug("putting %s on right of %s.", format_domino(valid_move), format_table_dominoes());
+//      log_debug("putting %s on right of %s.", format_domino(valid_move), format_table_dominoes());
       put_on_table(i, false);
 
       tmp_sum = scenario_with(
@@ -712,10 +732,12 @@ int scenario_with(
           user_dominoes_size,
           table_dominoes,
           table_dominoes_size,
-          calc_user_points()
+          calc_user_points(),
+          best_table_possible,
+          best_table_possible_size
       );
 
-      log_debug("right tmp sum: %d", tmp_sum);
+//      log_debug("right tmp sum: %d", tmp_sum);
 
       if (tmp_sum > max_sum) max_sum = tmp_sum;
     }
@@ -724,22 +746,29 @@ int scenario_with(
   return max_sum;
 }
 
-int best_scenario(const struct Domino *dominoes, const int dominoes_size) {
+int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino **best_table_possible, int* best_table_possible_size) {
   int best = dominoes[0].left + dominoes[0].right;
 
   for (int i = 0; i < dominoes_size; i++) {
     const struct Domino domino = dominoes[i];
     const struct Domino *dominoes_without_current = dominoes_without_element(dominoes, dominoes_size, i);
     const int current_domino_best_scenario = scenario_with(
-        dominoes_without_current, dominoes_size - 1,
-        (struct Domino[1]) {domino}, 1,
-        domino.left + domino.right
+        dominoes_without_current,
+        dominoes_size - 1,
+        (struct Domino[1]) {domino},
+        1,
+        domino.left + domino.right,
+        best_table_possible,
+        best_table_possible_size
     );
 
     if (current_domino_best_scenario > best) { best = current_domino_best_scenario; }
   }
 
-  log_debug("Best scenario: universe is %s | best points are: %d", format_dominoes_for_table(dominoes, dominoes_size), best);
+  log_debug("Best scenario: universe is %s | best scenario is: %s | points: %d",
+            format_dominoes_for_table(dominoes, dominoes_size),
+            format_dominoes_for_table(*best_table_possible, *best_table_possible_size),
+            best);
 
   return best;
 }

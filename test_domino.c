@@ -375,6 +375,9 @@ static void test_interactive_0(void) {
 }
 
 static void test_scenario_with(void) {
+  struct Domino *best_table = calloc(3, sizeof(struct Domino));
+  int best_table_size = 3;
+
   TEST_ASSERT_EQUAL(1 + 2 + 2 + 3 + 3 + 4,
                     scenario_with(
                         (struct Domino[2]) {{2, 3},
@@ -384,8 +387,12 @@ static void test_scenario_with(void) {
 
                         (struct Domino[1]) {{1, 2}},
                         1,
-                        1 + 2
+                        1 + 2,
+                        &best_table,
+                        &best_table_size
                     ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(6 + 6 + 6 + 1, scenario_with(
       (struct Domino[2]) {{2, 3},
@@ -394,9 +401,12 @@ static void test_scenario_with(void) {
       (struct Domino[2]) {{6, 6},
                           {6, 1}},
       2,
-      6 + 6 + 6 + 1
+      6 + 6 + 6 + 1,
+      &best_table,
+      &best_table_size
   ));
 
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(6 + 6, scenario_with(
       (struct Domino[2]) {{2, 3},
@@ -404,8 +414,12 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{6, 6}},
       1,
-      6 + 6
+      6 + 6,
+      &best_table,
+      &best_table_size
   ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(2 + 3 + 2 + 2 + 2 + 3, scenario_with(
       (struct Domino[2]) {{2, 3},
@@ -413,8 +427,12 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{2, 3}},
       1,
-      2 + 3
+      2 + 3,
+      &best_table,
+      &best_table_size
   ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(3 + 2 + 2 + 2 + 2 + 3, scenario_with(
       (struct Domino[2]) {{2, 3},
@@ -422,8 +440,12 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{3, 2}},
       1,
-      2 + 3
+      2 + 3,
+      &best_table,
+      &best_table_size
   ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(2 + 2 + 2 + 2, scenario_with(
       (struct Domino[2]) {{3, 3},
@@ -431,8 +453,12 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{2, 2}},
       1,
-      2 + 2
+      2 + 2,
+      &best_table,
+      &best_table_size
   ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(1 + 1, scenario_with(
       (struct Domino[2]) {{3, 3},
@@ -440,8 +466,12 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{1, 1}},
       1,
-      1 + 1
+      1 + 1,
+      &best_table,
+      &best_table_size
   ));
+
+  best_table = calloc(3, sizeof(struct Domino));
 
   TEST_ASSERT_EQUAL(1 + 2 + 2 + 3 + 3 + 3, scenario_with(
       (struct Domino[2]) {{3, 3},
@@ -449,32 +479,95 @@ static void test_scenario_with(void) {
       2,
       (struct Domino[1]) {{1, 2}},
       1,
-      1 + 2
+      1 + 2,
+      &best_table,
+      &best_table_size
   ));
 }
 
 static void test_best_scenario(void) {
-  TEST_ASSERT_EQUAL(1+3+3+4+4+5, best_scenario((struct Domino[4]) {{1, 3},
+  struct Domino *best_table = calloc(1, sizeof(struct Domino));
+  int best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(1 + 3 + 3 + 4 + 4 + 5, best_scenario((struct Domino[]) {{1, 3},
+                                                                            {3, 4},
+                                                                            {4, 5},
+                                                                            {2, 2}}, 4,
+                                                         &best_table, &best_table_size));
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(
+      format_dominoes_for_table((struct Domino[]) {{1, 3},
+                                                   {3, 4},
+                                                   {4, 5}}, 3),
+      format_dominoes_for_table(best_table, best_table_size),
+      strlen(format_dominoes_for_table((struct Domino[]) {{1, 3},
                                                           {3, 4},
-                                                          {4, 5},
-                                                          {2, 2}}, 4));
+                                                          {4, 5}}, 3))
+  );
 
-  TEST_ASSERT_EQUAL(6+6, best_scenario((struct Domino[4]) {{6,6},
-                                                          {1,1},
-                                                          {2,2},
-                                                          {3,3}}, 4));
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
 
-  TEST_ASSERT_EQUAL(6+6+6+1, best_scenario((struct Domino[4]) {{6,6},
-                                                          {6,1},
-                                                          {2,2},
-                                                          {3,3}}, 4));
+  TEST_ASSERT_EQUAL(6 + 6, best_scenario((struct Domino[4]) {{6, 6},
+                                                             {1, 1},
+                                                             {2, 2},
+                                                             {3, 3}}, 4,
+                                         &best_table, &best_table_size));
 
-  /**
-   * This one takes way too much time.
-   */
-//  TEST_ASSERT_EQUAL(81, best_scenario((struct Domino[10]) {
-//      {6, 6},
-//      {6, 6},
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(
+      format_dominoes_for_table((struct Domino[]) {{6, 6}}, 1),
+      format_dominoes_for_table(best_table, best_table_size),
+      strlen(format_dominoes_for_table((struct Domino[]) {{6, 6}}, 1))
+  );
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(6 + 6 + 6 + 1, best_scenario((struct Domino[4]) {{6, 6},
+                                                                     {6, 1},
+                                                                     {2, 2},
+                                                                     {3, 3}}, 4,
+                                                 &best_table, &best_table_size));
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY(
+      format_dominoes_for_table((struct Domino[]) {{1, 6},
+                                                   {6, 6}}, 2),
+      format_dominoes_for_table(best_table, best_table_size),
+      strlen(format_dominoes_for_table((struct Domino[]) {{1, 6},
+                                                          {6, 6}}, 2))
+  );
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(57, best_scenario((struct Domino[]) {
+      {6, 6},
+      {6, 6},
+      {6, 6},
+      {3, 6},
+      {1, 6},
+      {2, 6},
+      {1, 4},
+  }, 7, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(60, best_scenario((struct Domino[]) {
+      {6, 6},
+      {6, 6},
+      {6, 6},
+      {3, 6},
+      {1, 6},
+      {2, 6},
+      {3, 4},
+  }, 7, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  // TODO: this is raising an error.
+//  TEST_ASSERT_EQUAL(57, best_scenario((struct Domino[]) {
 //      {6, 6},
 //      {3, 6},
 //      {1, 6},
@@ -482,8 +575,7 @@ static void test_best_scenario(void) {
 //      {1, 4},
 //      {3, 4},
 //      {4, 4},
-//      {4, 5},
-//  }, 10));
+//  }, 7, &best_table, &best_table_size));
 }
 
 static void test_resize_dominoes_array(void) {
@@ -498,8 +590,6 @@ int main(void) {
   UnityBegin("test_domino.c");
 
   RUN_TEST(test_best_scenario);
-  return 0;
-
   RUN_TEST(test_scenario_with);
   RUN_TEST(test_resize_dominoes_array);
   RUN_TEST(test_interactive_0);

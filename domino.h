@@ -51,7 +51,7 @@ void resize_dominoes_array(struct Domino **arr, const int new_size);
 void push(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
 void unshift(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
 struct Domino *add_domino_on_start(struct Domino domino, const struct Domino *domino_arr, int *domino_arr_size);
-void pop(int index, struct Domino* domino_arr, int* domino_arr_size);
+void pop(const int index, struct Domino* domino_arr, int* domino_arr_size);
 int total_user_dominoes_valid(void);
 void user_dominoes_push(struct Domino);
 void user_dominoes_pop(const int);
@@ -63,8 +63,9 @@ void str_to_int_array(const char*, int*);
 char* upcase_str(const char *original);
 bool is_string_in_string(const char*, const char*);
 int first_number_from_string(const char*);
-int valid_move(const struct Domino);
+//int valid_move(const struct Domino);
 int valid_moves_count(void);
+struct Domino* valid_moves(void);
 char* str_add_padding(const char* original);
 int random_between(const int, const int);
 struct Domino random_domino_from_universe(void);
@@ -95,6 +96,15 @@ struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left
 int put_on_table(const int index, const bool left_side);
 void process_last_command(void);
 void acquire_command(void);
+int scenario_with(const struct Domino *user_arr, const int user_arr_size, const struct Domino *table_arr,
+                  const int table_arr_size, const int parent_sum);
+struct Domino *dominoes_without_element(
+    const struct Domino *dominoes,
+    const int size,
+    const int index_of_element_to_remove);
+bool dominoes_equal(const struct Domino,const struct Domino);
+int domino_index_in(const struct Domino* arr, const int arr_size, const struct Domino to_find);
+//void list_all_scenarios(const struct Domino *dominoes, const int dominoes_size);
 void run_terminal(void);
 int run_interactive(void);
 void parse_params(const int, const char**);

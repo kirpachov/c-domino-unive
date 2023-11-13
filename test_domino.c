@@ -374,9 +374,98 @@ static void test_interactive_0(void) {
                                strlen(format_dominoes_with_valid_moves(domino_arr, 3)));
 }
 
+static void test_scenario_with(void) {
+  TEST_ASSERT_EQUAL(1 + 2 + 2 + 3 + 3 + 4,
+                    scenario_with(
+                        (struct Domino[2]) {{2, 3},
+                                            {3, 4}},
+
+                        2,
+
+                        (struct Domino[1]) {{1, 2}},
+                        1,
+                        1 + 2
+                    ));
+
+  TEST_ASSERT_EQUAL(6 + 6 + 6 + 1, scenario_with(
+      (struct Domino[2]) {{2, 3},
+                          {3, 4}},
+      2,
+      (struct Domino[2]) {{6, 6},
+                          {6, 1}},
+      2,
+      6 + 6 + 6 + 1
+  ));
+
+
+  TEST_ASSERT_EQUAL(6 + 6, scenario_with(
+      (struct Domino[2]) {{2, 3},
+                          {3, 4}},
+      2,
+      (struct Domino[1]) {{6, 6}},
+      1,
+      6 + 6
+  ));
+
+  TEST_ASSERT_EQUAL(2 + 3 + 2 + 2 + 2 + 3, scenario_with(
+      (struct Domino[2]) {{2, 3},
+                          {2, 2}},
+      2,
+      (struct Domino[1]) {{2, 3}},
+      1,
+      2 + 3
+  ));
+
+  TEST_ASSERT_EQUAL(3 + 2 + 2 + 2 + 2 + 3, scenario_with(
+      (struct Domino[2]) {{2, 3},
+                          {2, 2}},
+      2,
+      (struct Domino[1]) {{3, 2}},
+      1,
+      2 + 3
+  ));
+
+  TEST_ASSERT_EQUAL(2 + 2 + 2 + 2, scenario_with(
+      (struct Domino[2]) {{3, 3},
+                          {2, 2}},
+      2,
+      (struct Domino[1]) {{2, 2}},
+      1,
+      2 + 2
+  ));
+
+  TEST_ASSERT_EQUAL(1 + 1, scenario_with(
+      (struct Domino[2]) {{3, 3},
+                          {2, 2}},
+      2,
+      (struct Domino[1]) {{1, 1}},
+      1,
+      1 + 1
+  ));
+
+  TEST_ASSERT_EQUAL(1 + 2 + 2 + 3 + 3 + 3, scenario_with(
+      (struct Domino[2]) {{3, 3},
+                          {3, 2}},
+      2,
+      (struct Domino[1]) {{1, 2}},
+      1,
+      1 + 2
+  ));
+}
+
+static void test_resize_dominoes_array(void) {
+  // Should return original array without doing anything if new_size is <= 0
+  // To check if nothing has been done
+
+//  struct Domino* arr0 = calloc(5, sizeof(struct Domino));
+//  struct Domino* arr1 = calloc(5, sizeof(struct Domino));
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
 
+  RUN_TEST(test_scenario_with);
+  RUN_TEST(test_resize_dominoes_array);
   RUN_TEST(test_interactive_0);
   RUN_TEST(test_table_dominoes_push);
   RUN_TEST(test_first_number_from_string);

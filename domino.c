@@ -162,39 +162,6 @@ char *upcase_str(const char *original) {
 
 bool is_string_in_string(const char *str, const char *to_find) {
   return strstr(str, to_find) != NULL;
-
-  // TODO fix or remove this alg
-//  printf("is_string_in_string? | str: %s | to_find: %s | strlen(str): %d | strlen(to_find) : %d\n", str, to_find, (int) strlen(str), (int) strlen(to_find));
-//
-//  if (strcmp(str, to_find) || strcmp(to_find, "") || (strcmp("", str))) return true;
-//
-//  // Something smaller cannot contain something bigger
-//  if (strlen(to_find) > strlen(str)) return false;
-//
-//  unsigned str_index = 0;
-//  while (str_index < strlen(str)) {
-//    unsigned to_find_index = 0;
-//    while (to_find_index < strlen(to_find)) {
-//      const char s = str[str_index];
-//      const char f = to_find[to_find_index];
-//
-//      printf("str[%d]: %c | to_find[%d]: %c | ", str_index, s, to_find_index, f);
-//      printf("s != f : %d | ", s != f);
-//      printf("\n");
-//
-//      if (s != f) break;
-//
-//      to_find_index++;
-//      str_index++;
-//
-//      if (to_find_index >= strlen(to_find) - 1) return true;
-//    }
-//
-//    printf("Increasing str_index from %d\n", str_index);
-//    str_index++;
-//  }
-//
-//  return false;
 }
 
 int first_number_from_string(const char *string) {
@@ -275,7 +242,20 @@ char *str_add_padding(const char *original) {
 
 char *format_domino(const struct Domino d) {
   char *str = calloc(100, sizeof(char));
+  if (str == NULL) {
+    log_error("Failed to allocate memory for 'format_domino'");
+    exit(EXIT_FAILURE);
+  }
+
   sprintf(str, "[%d|%d]", d.left, d.right);
+
+  str = realloc(str, strlen(str));
+
+  if (str == NULL) {
+    log_debug("Failed to re-allocate memory for 'format_domino'");
+    exit(EXIT_FAILURE);
+  }
+
   return str;
 }
 
@@ -291,9 +271,38 @@ struct Domino random_domino_from_universe(void) {
   return universe_dominoes[random_between(0, universe_dominoes_size - 1)];
 }
 
+int run_challenge_1(void){
+  log_debug("***** RUNNING CHALLENGE 1 *****");
+  int dominoes_size;
+  log_debug("scanf returned %d", scanf("%d", &dominoes_size));
+  log_debug("We'll have %d dominoes.", dominoes_size);
+  struct Domino* dominoes = calloc(dominoes_size, sizeof(struct Domino));
+  for(int i = 0; i < dominoes_size; i++){
+    int left;
+    int right;
+
+    log_debug("scanf returned %d", scanf("%d", &left));
+    log_debug("scanf returned %d", scanf("%d", &right));
+
+    const struct Domino domino = (struct Domino){left, right};
+    char* formatted_domino = format_domino(domino);
+    log_debug("Adding %s to list of dominoes", formatted_domino);
+    free(formatted_domino);
+
+    dominoes[i] = domino;
+  }
+
+  log_debug("Completed the acquisition of the dominoes. Got: %s", format_dominoes_for_table(dominoes, dominoes_size));
+
+  printf("%s", process_challenge_1(dominoes, dominoes_size));
+
+  return 0;
+}
+
 int run_challenge(void) {
   log_info("Running in challenge mode.");
-  return 0;
+
+  return run_challenge_1();
 }
 
 void populate_universe_dominoes(void) {
@@ -308,7 +317,10 @@ void populate_universe_dominoes(void) {
   for (int i = SMALLES_DOMINO_VALUE; i <= LARGEST_DOMINO_VALUE; i++) {
     for (int j = i; j <= LARGEST_DOMINO_VALUE; j++) {
       const struct Domino d = {i, j};
-      log_debug("Adding %s to universe.", format_domino(d));
+//      char *formatted_domino = format_domino(d);
+//      log_debug("Adding %s to universe.", formatted_domino);
+//      free(formatted_domino);
+
       universe_dominoes_push(d);
     }
   }
@@ -320,7 +332,9 @@ char *format_dominoes_for_table(const struct Domino *dominoes, const int size) {
   char *result = calloc(100, sizeof(char));
 
   for (int i = 0; i < size; i++) {
-    strcat(result, format_domino(dominoes[i]));
+    char *formatted = format_domino(dominoes[i]);
+    strcat(result, formatted);
+    free(formatted);
 
     if (i < size - 1) strcat(result, " ");
   }
@@ -364,7 +378,9 @@ char *format_dominoes_with_valid_moves(const struct Domino *dominoes, const int 
     const bool left = can_place_on_left(d);
     const bool right = can_place_on_right(d);
     const bool can_place = left || right;
-    strcat(result, format_domino(d));
+    char *formatted_domino = format_domino(d);
+    strcat(result, formatted_domino);
+    free(formatted_domino);
 
     if (can_place) {
       strcat(result, "  ");
@@ -465,7 +481,9 @@ void print_everything() {
 void assign_user_random_dominoes(void) {
   while (user_dominoes_size < total_user_dominoes_valid()) {
     const struct Domino d = random_domino_from_universe();
-    log_debug("Adding %s to user's hand", format_domino(d));
+    char *formatted_domino = format_domino(d);
+    log_debug("Adding %s to user's hand", formatted_domino);
+    free(formatted_domino);
     user_dominoes_push(d);
   }
 }
@@ -544,7 +562,7 @@ struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left
 int put_on_table(const int index, const bool left_side) {
   const struct Domino selected = user_dominoes[index];
   const char *side_str = left_side ? "left" : "right";
-  const char *selected_str = format_domino(selected);
+  char *selected_str = format_domino(selected);
   last_command_feedback = calloc(100, sizeof(char));
 
 //  log_debug("put_on_table | index: %d | side: %s | domino: %s", index, side_str, selected_str);
@@ -559,6 +577,8 @@ int put_on_table(const int index, const bool left_side) {
   user_dominoes_pop(index);
 
   sprintf(last_command_feedback, "Domino %s has been put on %s side", selected_str, side_str);
+
+  free(selected_str);
 
   return 0;
 }
@@ -700,7 +720,7 @@ int scenario_with(
       *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
       *best_table_possible_size = table_arr_size;
 
-      *best_table_possible = memcpy(user_dominoes, table_arr, sizeof(struct Domino) * table_arr_size);
+       memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
     }
 
     return current_points;
@@ -758,7 +778,8 @@ int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct
     if (current_domino_best_scenario > best) { best = current_domino_best_scenario; }
 
     if (dominoes_size - *best_table_possible_size <= 0) {
-      log_debug("Exiting for since all of the dominoes have been used. If they all have been used, we cannot do better. We would find only different combinations, but same points.");
+      log_debug(
+          "Exiting for since all of the dominoes have been used. If they all have been used, we cannot do better. We would find only different combinations, but same points.");
       break;
     }
   }
@@ -772,6 +793,63 @@ int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct
   );
 
   return best;
+}
+
+/**
+ * Formats domino as commands to execute.
+ * Example: [2|3] [3|5] [5|1] [1|5] => "S 2 3 R 3 5 R 5 1 R 1 5"
+ * @param dominoes array of dominoes to format
+ * @param dominoes_size size of the array to format
+ * @return char array - formatted commands
+ */
+char *format_dominoes_as_commands(const struct Domino *dominoes, const int dominoes_size) {
+  char *str = calloc((strlen("S DD GG ") * dominoes_size), sizeof(char));
+
+  for (int i = 0; i < dominoes_size; i++) {
+    char *tmp = calloc(20, sizeof(char));
+    sprintf(tmp, "%c %d %d", i == 0 ? 'S' : 'R', dominoes[i].left, dominoes[i].right);
+    strcat(str, tmp);
+
+    free(tmp);
+
+    if (i + 1 < dominoes_size) strcat(str, " ");
+  }
+
+  return str;
+}
+
+/**
+ * Given an array of dominoes, first challenge is about returning the commands to execute in order to have the best
+ * points possible.
+ * @param dominoes array of dominoes - dominoes user can play
+ * @param dominoes_size length of array of dominoes
+ * @return formatted string with the commands to execute to get the maximum amount of points with the given dominoes.
+ */
+char *process_challenge_1(const struct Domino *dominoes, const int dominoes_size) {
+  struct Domino *best_table = calloc(100, sizeof(struct Domino));
+  if (best_table == NULL) {
+    log_error("Failed to allocate memory for best_table at line %d", __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
+  int best_table_size = 1;
+  int best_points = best_scenario(dominoes, dominoes_size, &best_table, &best_table_size);
+
+  char *commands = format_dominoes_as_commands(best_table, best_table_size);
+//  best_table = realloc(best_table, sizeof(struct Domino) * best_table_size);
+  if (best_table == NULL) {
+    log_error("Failed to reallocate memory for best_table at line %d", __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
+  log_debug("process_challenge_1: universe: %s | best table is %s | max points: %d | commands: %s",
+            format_dominoes_for_table(dominoes, dominoes_size),
+            format_dominoes_for_table(best_table, best_table_size),
+            best_points,
+            commands
+  );
+
+  return commands;
 }
 
 void run_terminal(void) {
@@ -817,9 +895,12 @@ void parse_params(const int argc, const char **argv) {
    * -c=2
    */
   for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "--challenge") != 0) is_challenge = true;
-
-    log_debug("argv[%d]: %s", i, argv[i]);
+    if (strcmp(argv[i], "--challenge") == 0) {
+      is_challenge = true;
+      log_debug("challenge is true");
+    }else{
+      log_debug("argv[%d]: %s != \"--challenge\"", i, argv[i]);
+    }
   }
 }
 

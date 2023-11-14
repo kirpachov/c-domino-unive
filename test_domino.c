@@ -449,10 +449,75 @@ static void test_best_scenario(void) {
   }, 7, &best_table, &best_table_size));
 }
 
+static void test_format_dominoes_as_commands(void) {
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {{1, 3},
+                                                                          {3, 5},
+                                                                          {5, 7},
+                                                                          {7, 9}}, 4), "S 1 3 R 3 5 R 5 7 R 7 9");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {{1, 3},
+                                                                          {3, 4},
+                                                                          {4, 5},}, 3), "S 1 3 R 3 4 R 4 5");
+}
+
+static void test_format_domino(void) {
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {1, 2}), "[1|2]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {2, 3}), "[2|3]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {10, 20}), "[10|20]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {15, 200}), "[15|200]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {4, 1}), "[4|1]");
+}
+
+static void test_process_challenge_1(void) {
+  char *challenge;
+
+  challenge = process_challenge_1((struct Domino[]) {
+      {6, 6},
+      {6, 6},
+      {6, 6},
+      {3, 6},
+      {1, 6},
+      {2, 6},
+      {1, 4},
+      {3, 4},
+      {4, 4},
+      {4, 5},
+  }, 10);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 4 4 R 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 5");
+  free(challenge);
+
+  challenge = process_challenge_1((struct Domino[]) {{1, 2},
+                                                     {2, 3}}, 2);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 1 2 R 2 3");
+  free(challenge);
+
+  challenge = process_challenge_1((struct Domino[]) {{2, 2},
+                                                     {2, 3}}, 2);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 2 2 R 2 3");
+  free(challenge);
+
+  challenge = process_challenge_1((struct Domino[]) {{1, 1},
+                                                     {2, 3}}, 2);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 2 3");
+  free(challenge);
+
+  challenge = process_challenge_1((struct Domino[]) {{3, 4},
+                                                     {1, 3},
+                                                     {4, 5},
+                                                     {2, 2}}, 4);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 1 3 R 3 4 R 4 5");
+//  free(challenge);
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
 
+//  freopen("filename", "r", stdin);
+  RUN_TEST(test_process_challenge_1);
+//  return 0;
   RUN_TEST(test_best_scenario);
+  RUN_TEST(test_format_domino);
+  RUN_TEST(test_format_dominoes_as_commands);
   RUN_TEST(test_interactive_0);
   RUN_TEST(test_table_dominoes_push);
   RUN_TEST(test_first_number_from_string);

@@ -378,6 +378,24 @@ static void test_best_scenario(void) {
   struct Domino *best_table = calloc(1, sizeof(struct Domino));
   int best_table_size = 1;
 
+  TEST_ASSERT_EQUAL(1 + 3 + 3 + 3 + 6 + 3, best_scenario((struct Domino[]) {
+      {1, 3},
+      {6, 3},
+      {3, 3},
+  }, 3, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(1 + 3 + 3 + 3 + 6 + 3, best_scenario((struct Domino[]) {
+      {1, 3},
+      {3, 3},
+      {6, 3},
+  }, 3, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
   TEST_ASSERT_EQUAL(28, best_scenario((struct Domino[]) {
       {1, 6},
       {3, 6},

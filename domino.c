@@ -82,6 +82,11 @@ void table_dominoes_push(const struct Domino d, const bool left_side) {
   else push(d, table_dominoes, &table_dominoes_size);
 }
 
+void table_dominoes_pop(const int index) {
+  pop(index, table_dominoes, &table_dominoes_size);
+  resize_dominoes_array(&table_dominoes, table_dominoes_size - 1);
+}
+
 /**
  * All available dominoes
  */
@@ -120,20 +125,14 @@ bool is_char_a_number(const char ch) {
  * Separator between numbers can be literally anything than a number.
  * @param str "10 20 30"
  * @param integers {10, 20, 30}
- * @return void
- *
- * How it works:
- * It iterates param str and when it finds a number char,
- * it writes the value of the char converted into a integer inside the param integers
- * at the `integer_index` value. When it finds multiple chars that are numbers consecutively,
- * it multiplies the value of the current value of that index of our array of numbers `integers` by 10 and
- * then it adds the value of the current char converted in integer.
- * Then, when it fids a non-number char, it increases the value of `integer_index`.
+ * @return number of components
  */
-void str_to_int_array(const char *str, int *integers) {
+int str_to_int_array(const char *str, int **integers) {
   const int str_length = (int) strlen(str);
   int integer_index = 0;
   int last_was_integer = false;
+  *integers = calloc(strlen(str), sizeof(int));
+
   for (int i = 0; i < str_length + 1; i++) {
     const bool is_last_run = i == str_length;
     const char ch = is_last_run ? ' ' : str[i];
@@ -141,8 +140,8 @@ void str_to_int_array(const char *str, int *integers) {
 
     if (is_number) {
       int integer = char_to_int(ch);
-      if (last_was_integer) integers[integer_index] = integers[integer_index] * 10 + integer;
-      else integers[integer_index] = integer;
+      if (last_was_integer) (*integers)[integer_index] = (*integers)[integer_index] * 10 + integer;
+      else (*integers)[integer_index] = integer;
 
       last_was_integer = true;
     } else {
@@ -150,6 +149,10 @@ void str_to_int_array(const char *str, int *integers) {
       last_was_integer = false;
     }
   }
+
+  *integers = realloc(*integers, sizeof(int) * integer_index);
+
+  return integer_index;
 }
 
 char *upcase_str(const char *original) {
@@ -165,8 +168,13 @@ bool is_string_in_string(const char *str, const char *to_find) {
 }
 
 int first_number_from_string(const char *string) {
-  int *int_arr = malloc(sizeof(int) * strlen(string));
-  str_to_int_array(string, int_arr);
+  int *int_arr = calloc(1, sizeof(int));
+  int count = str_to_int_array(string, &int_arr);
+  if (count < 1) {
+    log_error("Something went wrong while getting first number from string. line %d", __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
   int result = int_arr[0];
   free(int_arr);
   return result;
@@ -226,6 +234,23 @@ int valid_moves_count(void) {
   for (int i = 0; i < user_dominoes_size; i++) {
     if (can_place_on_table(user_dominoes[i])) count++;
   }
+
+  return count;
+}
+
+int valid_moves_count_side(const bool left_side, struct Domino *valid_moves) {
+  int count = 0;
+
+  for (int i = 0; i < user_dominoes_size; i++) {
+    const struct Domino domino = user_dominoes[i];
+    if ((left_side && !can_place_on_left(domino)) || (!left_side && !can_place_on_right(domino)))
+      continue;
+
+    valid_moves[count] = domino;
+    count++;
+  }
+
+//  valid_moves = realloc(valid_moves, sizeof(struct Domino) * count);
 
   return count;
 }
@@ -559,13 +584,13 @@ struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left
  * @param left_side boolean value
  * @return 0 if want to interrupt `last_command` processing.
  */
-int put_on_table(const int index, const bool left_side) {
-  const struct Domino selected = user_dominoes[index];
+int put_on_table(const int user_dominoes_index, const bool left_side) {
+  const struct Domino selected = user_dominoes[user_dominoes_index];
   const char *side_str = left_side ? "left" : "right";
   char *selected_str = format_domino(selected);
   last_command_feedback = calloc(100, sizeof(char));
 
-//  log_debug("put_on_table | index: %d | side: %s | domino: %s", index, side_str, selected_str);
+//  log_debug("put_on_table | user_dominoes_index: %d | side: %s | domino: %s", user_dominoes_index, side_str, selected_str);
 
   if (!(can_be_put_on_table(selected, left_side))) {
     sprintf(last_command_feedback, "Domino %s cannot be put on %s side", selected_str, side_str);
@@ -574,7 +599,7 @@ int put_on_table(const int index, const bool left_side) {
 
   table_dominoes_push(rotate_if_necessary(selected, left_side), left_side);
 
-  user_dominoes_pop(index);
+  user_dominoes_pop(user_dominoes_index);
 
   sprintf(last_command_feedback, "Domino %s has been put on %s side", selected_str, side_str);
 
@@ -679,61 +704,81 @@ bool dominoes_equal(const struct Domino a, const struct Domino b) {
 int scenario_with(
     const struct Domino *user_arr,
     const int user_arr_size,
+
     const struct Domino *table_arr,
     const int table_arr_size,
+
     struct Domino **best_table_possible,
     int *best_table_possible_size
 ) {
-
-
-//  initialize();
-
-  set_user_dominoes(user_arr, user_arr_size);
   set_table_dominoes(table_arr, table_arr_size);
+  set_user_dominoes(user_arr, user_arr_size);
+  struct Domino *valid_moves = calloc(user_dominoes_size, sizeof(struct Domino));
+  int valid_moves_count = valid_moves_count_side(false, valid_moves);
 
-  int current_points = calc_user_points();
-
-//  log_debug("scenario_with | user_arr(%d): %s | table_arr(%d): %s | current_points: %d | valid_moves(%d): %s",
-//            user_arr_size,
-//            format_dominoes_for_table(user_arr, user_arr_size),
-//            table_arr_size,
-//            format_dominoes_for_table(table_arr, table_arr_size),
-//            current_points,
-//            valid_moves_count(),
-//            format_dominoes_for_table(valid_moves(), valid_moves_count())
+//  log_debug("SCENARIO_WITH | user_dominoes: %s | table_dominoes: %s | valid_moves: %s",
+//            format_dominoes_for_table(user_dominoes, user_dominoes_size),
+//            format_dominoes_for_table(table_dominoes, table_dominoes_size),
+//            format_dominoes_for_table(valid_moves, valid_moves_count)
 //  );
 
-  if (valid_moves_count() == 0) {
-//    log_debug("Found solution: table is %s | points are: %d\n\n",
-//              format_dominoes_for_table(table_arr, table_arr_size), current_points);
-    if (calc_points_from(*best_table_possible, *best_table_possible_size) < current_points) {
+  if (valid_moves_count == 0) {
+    log_debug("No more valid moves. | points: %d | Table: %s ", calc_user_points(),
+              format_dominoes_for_table(table_dominoes, table_dominoes_size)
+    );
+
+    if (calc_points_from(*best_table_possible, *best_table_possible_size) < calc_user_points()) {
       *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
       *best_table_possible_size = table_arr_size;
 
       memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
     }
 
-    return current_points;
+    return calc_user_points();
   }
 
-  int max_sum = current_points;
+  int best_until_now = calc_user_points();
 
-  for (int i = 0; i < user_dominoes_size; i++) {
-    const struct Domino domino = user_dominoes[i];
-    if (!can_place_on_table(domino)) continue;
+  for (int i = 0; i < user_arr_size; i++) {
+    const struct Domino domino = user_arr[i];
 
-    int tmp_sum = domino.left + domino.right;
+    if (!(can_place_on_right(domino))) {
+      log_debug("Cannot place on right %s", format_domino(domino));
+      continue;
+    }
 
-    set_user_dominoes(user_arr, user_arr_size);
-    set_table_dominoes(table_arr, table_arr_size);
+//    log_debug("for has now domino = %s | Table is %s | user has %s", format_domino(domino),
+//              format_dominoes_for_table(table_dominoes, table_dominoes_size),
+//              format_dominoes_for_table(user_dominoes, user_dominoes_size));
 
-    bool was_placed_on_left = false;
+    int first_valid_move_index_in_user_arr = -1;
+    for (int j = 0; j < user_dominoes_size; j++) {
+      if (!dominoes_equal(user_dominoes[j], domino)) continue;
 
-    if (can_place_on_left(domino)) {
-      put_on_table(i, true);
-      was_placed_on_left = true;
+      first_valid_move_index_in_user_arr = j;
+      break;
+    }
 
-      tmp_sum = scenario_with(
+    if (first_valid_move_index_in_user_arr == -1) {
+      log_error("I was unable to find domino %s in user dominoes (%s)", format_domino(domino),
+                format_dominoes_for_table(user_dominoes, user_dominoes_size));
+
+      exit(EXIT_FAILURE);
+    }
+
+    bool was_put_unrotated = false;
+
+    if (table_dominoes_size == 0 || table_dominoes[table_dominoes_size - 1].right == domino.left) {
+//      log_debug("Putting domino %s NOT rotated on table %s",
+//                format_domino(domino),
+//                format_dominoes_for_table(table_dominoes, table_dominoes_size)
+//      );
+
+      was_put_unrotated = true;
+      table_dominoes_push(domino, false);
+      user_dominoes_pop(first_valid_move_index_in_user_arr);
+
+      int current = scenario_with(
           user_dominoes,
           user_dominoes_size,
           table_dominoes,
@@ -742,23 +787,23 @@ int scenario_with(
           best_table_possible_size
       );
 
-      if (tmp_sum > max_sum) max_sum = tmp_sum;
-    }
-
-
-    if (can_place_on_right(domino)) {
-      if (was_placed_on_left && user_arr_size == 1) {
-        log_debug("was placed on left and points would be the same | user_arr: %s",
-                  format_dominoes_for_table(user_arr, user_arr_size));
-        continue;
+      if (best_until_now < current) {
+        best_until_now = current;
       }
 
-      set_user_dominoes(user_arr, user_arr_size);
-      set_table_dominoes(table_arr, table_arr_size);
+      table_dominoes_pop(table_dominoes_size - 1);
+    }
 
-      put_on_table(i, false);
+    if (table_dominoes_size == 0 || table_dominoes[table_dominoes_size - 1].right == domino.right) {
+//      log_debug("Putting domino %s rotated on table %s",
+//                format_domino(rotate_domino(domino)),
+//                format_dominoes_for_table(table_dominoes, table_dominoes_size)
+//      );
 
-      tmp_sum = scenario_with(
+      table_dominoes_push(rotate_domino(domino), false);
+      if (!was_put_unrotated) user_dominoes_pop(first_valid_move_index_in_user_arr);
+
+      int current = scenario_with(
           user_dominoes,
           user_dominoes_size,
           table_dominoes,
@@ -767,11 +812,21 @@ int scenario_with(
           best_table_possible_size
       );
 
-      if (tmp_sum > max_sum) max_sum = tmp_sum;
+      if (best_until_now < current) {
+        best_until_now = current;
+      }
     }
+
+
+    set_table_dominoes(table_arr, table_arr_size);
+    set_user_dominoes(user_arr, user_arr_size);
+//    log_debug("Ending block where domino was %s | Table domino is %s | User domino is %s",
+//              format_domino(domino), format_dominoes_for_table(table_dominoes, table_dominoes_size),
+//              format_dominoes_for_table(user_dominoes, user_dominoes_size));
   }
 
-  return max_sum;
+
+  return best_until_now;
 }
 
 /**

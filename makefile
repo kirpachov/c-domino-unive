@@ -40,6 +40,10 @@ tests.out: ./*.c ./*.h
 run: compile
 	./main.out
 
+.PHONY: challenge
+challenge: compile
+	./main.out --challenge
+
 .PHONY: compile
 compile: src/main.c ./*.c ./*.h
 	@echo Compiling $@

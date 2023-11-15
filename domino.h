@@ -56,10 +56,11 @@ int total_user_dominoes_valid(void);
 void user_dominoes_push(struct Domino);
 void user_dominoes_pop(const int);
 void table_dominoes_push(struct Domino domino, const bool left_side);
+void table_dominoes_pop(const int index);
 void universe_dominoes_push(struct Domino);
 int char_to_int(const char);
 bool is_char_a_number(const char);
-void str_to_int_array(const char*, int*);
+int str_to_int_array(const char*, int**);
 char* upcase_str(const char *original);
 bool is_string_in_string(const char*, const char*);
 int first_number_from_string(const char*);
@@ -113,5 +114,6 @@ int run_interactive(void);
 void parse_params(const int, const char**);
 void initialize(void);
 void complete(void);
+int valid_moves_count_side(const bool left_side, struct Domino *valid_moves);
 
 #endif //C_DOMINO_UNIVE_DOMINO_H

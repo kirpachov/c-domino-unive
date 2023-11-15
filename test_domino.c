@@ -374,9 +374,45 @@ static void test_interactive_0(void) {
                                strlen(format_dominoes_with_valid_moves(domino_arr, 3)));
 }
 
+static void test_scenario_with(void) {
+  int points;
+  struct Domino *best_table = calloc(1, sizeof(struct Domino));
+  int best_table_size = 1;
+
+  points = scenario_with(
+      (struct Domino[]) {{2, 1},
+                         {2, 4}},
+      2,
+      (struct Domino[1]) {{3, 2}},
+      1,
+      &best_table,
+      &best_table_size
+  );
+
+  TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, points);
+}
+
 static void test_best_scenario(void) {
   struct Domino *best_table = calloc(1, sizeof(struct Domino));
   int best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, best_scenario((struct Domino[]) {
+      {2, 1},
+      {3, 2},
+      {2, 4},
+  }, 3, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+
+  TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, best_scenario((struct Domino[]) {
+      {3, 2},
+      {2, 1},
+      {2, 4},
+  }, 3, &best_table, &best_table_size));
+
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
 
   TEST_ASSERT_EQUAL(1 + 3 + 3 + 3 + 6 + 3, best_scenario((struct Domino[]) {
       {1, 3},
@@ -534,9 +570,9 @@ static void test_process_challenge_1(void) {
 int main(void) {
   UnityBegin("test_domino.c");
 
-  RUN_TEST(test_process_challenge_1);
-//  return 0;
+  RUN_TEST(test_scenario_with);
   RUN_TEST(test_best_scenario);
+  RUN_TEST(test_process_challenge_1);
   RUN_TEST(test_format_domino);
   RUN_TEST(test_format_dominoes_as_commands);
   RUN_TEST(test_interactive_0);

@@ -22,7 +22,7 @@ puts "Running iap --challenge with params: 4 3 4 1 3 4 5  2 2"
 puts "Output:"
 a = system(%(cd submit && echo "4 3 4 1 3 4 5 2 2" | ./iap --challenge))
 
-system("rm -rf submit/iap")
+# system("rm -rf submit/iap")
 
 # system("cp Relazione.* submit")
 

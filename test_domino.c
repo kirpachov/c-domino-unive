@@ -501,17 +501,21 @@ static void test_process_challenge_1(void) {
       {4, 4},
       {4, 5},
   }, 10);
-  TEST_ASSERT_EQUAL_STRING(challenge, "S 4 4 R 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 5");
+  TEST_ASSERT_EQUAL_STRING("S 5 4 R 4 4 R 4 3 R 3 6 R 6 6 R 6 6 R 6 6 R 6 1 R 1 4", challenge);
   free(challenge);
 
-  challenge = process_challenge_1((struct Domino[]) {{1, 2},
-                                                     {2, 3}}, 2);
-  TEST_ASSERT_EQUAL_STRING(challenge, "S 1 2 R 2 3");
+  challenge = process_challenge_1((struct Domino[]) {
+      {1, 2},
+      {2, 3}
+  }, 2);
+  TEST_ASSERT_EQUAL_STRING("S 1 2 R 2 3", challenge);
   free(challenge);
 
-  challenge = process_challenge_1((struct Domino[]) {{2, 2},
-                                                     {2, 3}}, 2);
-  TEST_ASSERT_EQUAL_STRING(challenge, "S 2 2 R 2 3");
+  challenge = process_challenge_1((struct Domino[]) {
+      {2, 2},
+      {2, 3}
+  }, 2);
+  TEST_ASSERT_EQUAL_STRING(challenge, "S 3 2 R 2 2");
   free(challenge);
 
   challenge = process_challenge_1((struct Domino[]) {{1, 1},
@@ -524,13 +528,12 @@ static void test_process_challenge_1(void) {
                                                      {4, 5},
                                                      {2, 2}}, 4);
   TEST_ASSERT_EQUAL_STRING(challenge, "S 1 3 R 3 4 R 4 5");
-//  free(challenge);
+  free(challenge);
 }
 
 int main(void) {
   UnityBegin("test_domino.c");
 
-//  freopen("filename", "r", stdin);
   RUN_TEST(test_process_challenge_1);
 //  return 0;
   RUN_TEST(test_best_scenario);

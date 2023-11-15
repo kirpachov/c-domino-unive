@@ -271,21 +271,21 @@ struct Domino random_domino_from_universe(void) {
   return universe_dominoes[random_between(0, universe_dominoes_size - 1)];
 }
 
-int run_challenge_1(void){
+int run_challenge_1(void) {
   log_debug("***** RUNNING CHALLENGE 1 *****");
   int dominoes_size;
   log_debug("scanf returned %d", scanf("%d", &dominoes_size));
   log_debug("We'll have %d dominoes.", dominoes_size);
-  struct Domino* dominoes = calloc(dominoes_size, sizeof(struct Domino));
-  for(int i = 0; i < dominoes_size; i++){
+  struct Domino *dominoes = calloc(dominoes_size, sizeof(struct Domino));
+  for (int i = 0; i < dominoes_size; i++) {
     int left;
     int right;
 
     log_debug("scanf returned %d", scanf("%d", &left));
     log_debug("scanf returned %d", scanf("%d", &right));
 
-    const struct Domino domino = (struct Domino){left, right};
-    char* formatted_domino = format_domino(domino);
+    const struct Domino domino = (struct Domino) {left, right};
+    char *formatted_domino = format_domino(domino);
     log_debug("Adding %s to list of dominoes", formatted_domino);
     free(formatted_domino);
 
@@ -294,7 +294,7 @@ int run_challenge_1(void){
 
   log_debug("Completed the acquisition of the dominoes. Got: %s", format_dominoes_for_table(dominoes, dominoes_size));
 
-  printf("%s", process_challenge_1(dominoes, dominoes_size));
+  printf("%s\n", process_challenge_1(dominoes, dominoes_size));
 
   return 0;
 }
@@ -659,15 +659,6 @@ bool dominoes_equal(const struct Domino a, const struct Domino b) {
   return (a.left == b.left && a.right == b.right) || (a.right == b.left && a.left == b.right);
 }
 
-int domino_index_in(const struct Domino *arr, const int arr_size, const struct Domino to_find) {
-  for (int i = 0; i < arr_size; i++) {
-    const struct Domino domino = arr[i];
-    if (dominoes_equal(domino, to_find)) return i;
-  }
-
-  return -1;
-}
-
 /**
  * Function scenario_with will return the max points you can make from a given point.
  * You'll pass the actual situation to this function, such as:
@@ -715,12 +706,11 @@ int scenario_with(
   if (valid_moves_count() == 0) {
 //    log_debug("Found solution: table is %s | points are: %d\n\n",
 //              format_dominoes_for_table(table_arr, table_arr_size), current_points);
-//    const int current_best_table_points = ;
     if (calc_points_from(*best_table_possible, *best_table_possible_size) < current_points) {
       *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
       *best_table_possible_size = table_arr_size;
 
-       memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
+      memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
     }
 
     return current_points;
@@ -729,23 +719,56 @@ int scenario_with(
   int max_sum = current_points;
 
   for (int i = 0; i < user_dominoes_size; i++) {
-    if (!can_place_on_right(user_dominoes[i])) continue;
+    const struct Domino domino = user_dominoes[i];
+    if (!can_place_on_table(domino)) continue;
+
+    int tmp_sum = domino.left + domino.right;
 
     set_user_dominoes(user_arr, user_arr_size);
     set_table_dominoes(table_arr, table_arr_size);
 
-    put_on_table(i, false);
+    bool was_placed_on_left = false;
 
-    int tmp_sum = scenario_with(
-        user_dominoes,
-        user_dominoes_size,
-        table_dominoes,
-        table_dominoes_size,
-        best_table_possible,
-        best_table_possible_size
-    );
+    if (can_place_on_left(domino)) {
+      put_on_table(i, true);
+      was_placed_on_left = true;
 
-    if (tmp_sum > max_sum) max_sum = tmp_sum;
+      tmp_sum = scenario_with(
+          user_dominoes,
+          user_dominoes_size,
+          table_dominoes,
+          table_dominoes_size,
+          best_table_possible,
+          best_table_possible_size
+      );
+
+      if (tmp_sum > max_sum) max_sum = tmp_sum;
+    }
+
+
+    if (can_place_on_right(domino)) {
+      if (was_placed_on_left && user_arr_size == 1) {
+        log_debug("was placed on left and points would be the same | user_arr: %s",
+                  format_dominoes_for_table(user_arr, user_arr_size));
+        continue;
+      }
+
+      set_user_dominoes(user_arr, user_arr_size);
+      set_table_dominoes(table_arr, table_arr_size);
+
+      put_on_table(i, false);
+
+      tmp_sum = scenario_with(
+          user_dominoes,
+          user_dominoes_size,
+          table_dominoes,
+          table_dominoes_size,
+          best_table_possible,
+          best_table_possible_size
+      );
+
+      if (tmp_sum > max_sum) max_sum = tmp_sum;
+    }
   }
 
   return max_sum;
@@ -898,7 +921,7 @@ void parse_params(const int argc, const char **argv) {
     if (strcmp(argv[i], "--challenge") == 0) {
       is_challenge = true;
       log_debug("challenge is true");
-    }else{
+    } else {
       log_debug("argv[%d]: %s != \"--challenge\"", i, argv[i]);
     }
   }

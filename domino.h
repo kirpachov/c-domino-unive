@@ -105,8 +105,6 @@ struct Domino *dominoes_without_element(
     const int size,
     const int index_of_element_to_remove);
 bool dominoes_equal(const struct Domino,const struct Domino);
-int domino_index_in(const struct Domino* arr, const int arr_size, const struct Domino to_find);
-//void list_all_scenarios(const struct Domino *dominoes, const int dominoes_size);
 int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino ** best_table_possible, int* best_table_possible_size);
 char* format_dominoes_as_commands(const struct Domino* dominoes, const int dominoes_size);
 char *process_challenge_1(const struct Domino *dominoes, const int dominoes_size);

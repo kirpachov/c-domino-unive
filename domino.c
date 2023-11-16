@@ -66,7 +66,7 @@ void user_dominoes_push(const struct Domino d) {
 
 void user_dominoes_pop(const int index) {
   pop(index, user_dominoes, &user_dominoes_size);
-  resize_dominoes_array(&user_dominoes, user_dominoes_size - 1);
+  resize_dominoes_array(&user_dominoes, user_dominoes_size);
 }
 
 /**

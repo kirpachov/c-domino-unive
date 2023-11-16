@@ -559,7 +559,6 @@ static void test_best_scenario(void) {
   }, 7, &best_table, &best_table_size);
   best_table = calloc(1, sizeof(struct Domino));
   best_table_size = 1;
-//  printf("Best result is %d | table is %s\n", result, format_dominoes_for_table(best_table, best_table_size));
   TEST_ASSERT_EQUAL(60, result);
 }
 
@@ -583,20 +582,8 @@ static void test_format_domino(void) {
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {4, 1}), "[4|1]");
 }
 
-static int sum_array(const int *arr, const int arr_size) {
-  int result = 0;
-  for (int i = 0; i < arr_size; i++)
-    result += arr[i];
-
-  return result;
-}
-
 static void test_process_challenge_1(void) {
   char *challenge;
-  int *integers = calloc(1, sizeof(int));
-  int *ch_integers = calloc(1, sizeof(int));
-  int integers_size = 1;
-  int ch_integers_size = 1;
 
   challenge = process_challenge_1((struct Domino[]) {
       {6, 6},
@@ -610,9 +597,7 @@ static void test_process_challenge_1(void) {
       {4, 4},
       {4, 5},
   }, 10);
-  integers_size = str_to_int_array("S 4 4 R 4 3 R 3 6 R 6 6 R 6 6 R 6 6 R 6 1 R 1 4 R 4 5", &integers);
-  ch_integers_size = str_to_int_array(challenge, &ch_integers);
-  TEST_ASSERT_EQUAL(sum_array(integers, integers_size), sum_array(ch_integers, ch_integers_size));
+  TEST_ASSERT_EQUAL_STRING("S 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 4 R 4 5", challenge);
   free(challenge);
 
   challenge = process_challenge_1((struct Domino[]) {
@@ -627,9 +612,7 @@ static void test_process_challenge_1(void) {
       {3, 4},
       {4, 4},
   }, 10);
-  integers_size = str_to_int_array("S 4 4 R 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 5", &integers);
-  ch_integers_size = str_to_int_array(challenge, &ch_integers);
-  TEST_ASSERT_EQUAL(sum_array(integers, integers_size), sum_array(ch_integers, ch_integers_size));
+  TEST_ASSERT_EQUAL_STRING("S 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 4 R 4 5", challenge);
   free(challenge);
 
   challenge = process_challenge_1((struct Domino[]) {
@@ -663,7 +646,6 @@ int main(void) {
   UnityBegin("test_domino.c");
 
   RUN_TEST(test_process_challenge_1);
-  RUN_TEST(test_str_to_int_array);
   RUN_TEST(test_scenario_with);
   RUN_TEST(test_format_domino);
   RUN_TEST(test_format_dominoes_as_commands);

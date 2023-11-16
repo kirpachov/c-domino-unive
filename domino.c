@@ -171,8 +171,8 @@ int first_number_from_string(const char *string) {
   int *int_arr = calloc(1, sizeof(int));
   int count = str_to_int_array(string, &int_arr);
   if (count < 1) {
-    log_error("Something went wrong while getting first number from string. line %d", __LINE__);
-    exit(EXIT_FAILURE);
+    log_warn("Something went wrong while getting first number from string. string was %s. Line %d", string, __LINE__);
+    return 0;
   }
 
   int result = int_arr[0];
@@ -837,40 +837,20 @@ int scenario_with(
  * @param best_table_possible_size size of the array with the best combination possible.
  * @return max points you can get with that dominoes.
  */
-int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino **best_table_possible,
-                  int *best_table_possible_size) {
-  int best = dominoes[0].left + dominoes[0].right;
-
-  for (int i = 0; i < dominoes_size; i++) {
-    const struct Domino domino = dominoes[i];
-    const struct Domino *dominoes_without_current = dominoes_without_element(dominoes, dominoes_size, i);
-    const int current_domino_best_scenario = scenario_with(
-        dominoes_without_current,
-        dominoes_size - 1,
-        (struct Domino[1]) {domino},
-        1,
-        best_table_possible,
-        best_table_possible_size
-    );
-
-    if (current_domino_best_scenario > best) { best = current_domino_best_scenario; }
-
-    if (dominoes_size - *best_table_possible_size <= 0) {
-      log_debug(
-          "Exiting for since all of the dominoes have been used. If they all have been used, we cannot do better. We would find only different combinations, but same points.");
-      break;
-    }
-  }
-
-  log_debug(
-      "Best scenario: universe is %s | best scenario is: %s | points: %d | not-included dominoes count: %d",
-      format_dominoes_for_table(dominoes, dominoes_size),
-      format_dominoes_for_table(*best_table_possible, *best_table_possible_size),
-      best,
-      dominoes_size - *best_table_possible_size
+int best_scenario(
+    const struct Domino *dominoes,
+    const int dominoes_size,
+    struct Domino **best_table_possible,
+    int *best_table_possible_size
+) {
+  return scenario_with(
+      dominoes,
+      dominoes_size,
+      (struct Domino[]) {{0, 0}},
+      0,
+      best_table_possible,
+      best_table_possible_size
   );
-
-  return best;
 }
 
 /**

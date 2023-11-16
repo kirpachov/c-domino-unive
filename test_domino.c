@@ -408,14 +408,14 @@ static void test_best_scenario(void) {
   best_table = calloc(1, sizeof(struct Domino));
   best_table_size = 1;
 
-//  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
-//      {4, 3},
-//      {3, 1},
-//      {4, 5},
-//      {2, 2},
-//  }, 4, &best_table, &best_table_size));
-//  best_table = calloc(1, sizeof(struct Domino));
-//  best_table_size = 1;
+  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+      {4, 3},
+      {3, 1},
+      {4, 5},
+      {2, 2},
+  }, 4, &best_table, &best_table_size));
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
 
   TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
       {1, 3},
@@ -536,10 +536,8 @@ static void test_best_scenario(void) {
       {2, 6},
       {1, 4},
   }, 7, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
 
-  TEST_ASSERT_EQUAL(60, best_scenario((struct Domino[]) {
+  int result = best_scenario((struct Domino[]) {
       {6, 6},
       {6, 6},
       {6, 6},
@@ -547,7 +545,11 @@ static void test_best_scenario(void) {
       {1, 6},
       {2, 6},
       {3, 4},
-  }, 7, &best_table, &best_table_size));
+  }, 7, &best_table, &best_table_size);
+  best_table = calloc(1, sizeof(struct Domino));
+  best_table_size = 1;
+//  printf("Best result is %d | table is %s\n", result, format_dominoes_for_table(best_table, best_table_size));
+  TEST_ASSERT_EQUAL(60, result);
 }
 
 static void test_format_dominoes_as_commands(void) {
@@ -653,7 +655,9 @@ static void test_process_challenge_1(void) {
       {3, 4},
       {4, 4},
   }, 10);
-  TEST_ASSERT_EQUAL_STRING("S 4 4 R 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 5", challenge);
+  integers_size = str_to_int_array("S 4 4 R 4 1 R 1 6 R 6 6 R 6 6 R 6 6 R 6 3 R 3 4 R 4 5", &integers);
+  ch_integers_size = str_to_int_array(challenge, &ch_integers);
+  TEST_ASSERT_EQUAL(sum_array(integers, integers_size), sum_array(ch_integers, ch_integers_size));
   free(challenge);
 
   challenge = process_challenge_1((struct Domino[]) {
@@ -689,7 +693,6 @@ int main(void) {
   RUN_TEST(test_process_challenge_1);
   RUN_TEST(test_str_to_int_array);
   RUN_TEST(test_scenario_with);
-  RUN_TEST(test_best_scenario);
   RUN_TEST(test_format_domino);
   RUN_TEST(test_format_dominoes_as_commands);
   RUN_TEST(test_interactive_0);
@@ -702,6 +705,7 @@ int main(void) {
   RUN_TEST(test_rotate_domino);
   RUN_TEST(test_get_and_set_user_dominoes);
   RUN_TEST(test_needs_to_be_rotated_before_putting_on_table);
+  RUN_TEST(test_best_scenario);
 
   return UnityEnd();
 }

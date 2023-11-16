@@ -1,6 +1,6 @@
 game.log
 cmake-build-debug
-iap
+./iap
 *.out
 .idea
 submit

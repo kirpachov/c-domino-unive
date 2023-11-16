@@ -60,7 +60,6 @@ void table_dominoes_pop(const int index);
 void universe_dominoes_push(struct Domino);
 int char_to_int(const char);
 bool is_char_a_number(const char);
-int str_to_int_array(const char*, int**);
 char* upcase_str(const char *original);
 bool is_string_in_string(const char*, const char*);
 int first_number_from_string(const char*);

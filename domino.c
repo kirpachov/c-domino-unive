@@ -120,41 +120,6 @@ bool is_char_a_number(const char ch) {
   return ((int) ch >= 48) && ((int) ch <= 57);
 }
 
-/**
- * Transforms a string with numbers to array of numbers.
- * Separator between numbers can be literally anything than a number.
- * @param str "10 20 30"
- * @param integers {10, 20, 30}
- * @return number of components
- */
-int str_to_int_array(const char *str, int **integers) {
-  const int str_length = (int) strlen(str);
-  int integer_index = 0;
-  int last_was_integer = false;
-  *integers = calloc(strlen(str), sizeof(int));
-
-  for (int i = 0; i < str_length + 1; i++) {
-    const bool is_last_run = i == str_length;
-    const char ch = is_last_run ? ' ' : str[i];
-    const bool is_number = is_char_a_number(ch);
-
-    if (is_number) {
-      int integer = char_to_int(ch);
-      if (last_was_integer) (*integers)[integer_index] = (*integers)[integer_index] * 10 + integer;
-      else (*integers)[integer_index] = integer;
-
-      last_was_integer = true;
-    } else {
-      if (last_was_integer) integer_index++;
-      last_was_integer = false;
-    }
-  }
-
-  *integers = realloc(*integers, sizeof(int) * integer_index);
-
-  return integer_index;
-}
-
 char *upcase_str(const char *original) {
   char *result = calloc(strlen(original), sizeof(char));
   for (unsigned i = 0; i < strlen(original); i++)
@@ -167,16 +132,28 @@ bool is_string_in_string(const char *str, const char *to_find) {
   return strstr(str, to_find) != NULL;
 }
 
-int first_number_from_string(const char *string) {
-  int *int_arr = calloc(1, sizeof(int));
-  int count = str_to_int_array(string, &int_arr);
-  if (count < 1) {
-    log_warn("Something went wrong while getting first number from string. string was %s. Line %d", string, __LINE__);
-    return 0;
+int first_number_from_string(const char *str) {
+  const int str_length = (int) strlen(str);
+  int last_was_integer = false;
+  int result = 0;
+
+  for (int i = 0; i < str_length + 1; i++) {
+    const bool is_last_run = i == str_length;
+    const char ch = is_last_run ? ' ' : str[i];
+    const bool is_number = is_char_a_number(ch);
+
+    if (is_number) {
+      int integer = char_to_int(ch);
+      if (last_was_integer) result = result * 10 + integer;
+      else result = integer;
+
+      last_was_integer = true;
+    } else {
+      if (result > 0) return result;
+      last_was_integer = false;
+    }
   }
 
-  int result = int_arr[0];
-  free(int_arr);
   return result;
 }
 

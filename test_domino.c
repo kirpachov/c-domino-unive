@@ -15,6 +15,17 @@ static void test_first_number_from_string(void) {
   TEST_ASSERT_EQUAL(first_number_from_string("10 banana"), 10);
   TEST_ASSERT_EQUAL(first_number_from_string("1 banana"), 1);
   TEST_ASSERT_EQUAL(first_number_from_string("1"), 1);
+  TEST_ASSERT_EQUAL(first_number_from_string("1 2 3"), 1);
+  TEST_ASSERT_EQUAL(first_number_from_string("3 2 3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("3l"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("3r"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("r3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("R3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("L3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("LEFT3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("LEFT 3"), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("3LEFT "), 3);
+  TEST_ASSERT_EQUAL(first_number_from_string("3 LEFT "), 3);
   TEST_ASSERT_EQUAL(first_number_from_string("100"), 100);
   TEST_ASSERT_EQUAL(first_number_from_string("102"), 102);
   TEST_ASSERT_EQUAL(first_number_from_string("gang 102"), 102);
@@ -570,45 +581,6 @@ static void test_format_domino(void) {
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {10, 20}), "[10|20]");
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {15, 200}), "[15|200]");
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {4, 1}), "[4|1]");
-}
-
-static void test_str_to_int_array(void) {
-  int *arr = calloc(1, sizeof(int));
-  int *integers;
-
-  integers = (int[]) {1, 2, 3};
-  TEST_ASSERT_EQUAL(3, str_to_int_array("1 2 3", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 3);
-
-  integers = (int[]) {1};
-  TEST_ASSERT_EQUAL(1, str_to_int_array("1 banana gang", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 1);
-
-  integers = (int[]) {10};
-  TEST_ASSERT_EQUAL(1, str_to_int_array("10 banana gang", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 1);
-
-  integers = (int[]) {10};
-  TEST_ASSERT_EQUAL(1, str_to_int_array("10", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 1);
-
-  integers = (int[]) {10, 30, 1};
-  TEST_ASSERT_EQUAL(3, str_to_int_array("10 30banana 1", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 3);
-
-  integers = (int[]) {10, 30, 1};
-  TEST_ASSERT_EQUAL(3, str_to_int_array("10gang30banana1", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 3);
-
-  integers = (int[]) {5, 9, 10050};
-  TEST_ASSERT_EQUAL(3, str_to_int_array("5_9-10050", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 3);
-
-  integers = (int[]) {4, 4, 4, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 1, 1, 4, 4, 5};
-  TEST_ASSERT_EQUAL(18, str_to_int_array("S 4 4 R 4 3 R 3 6 R 6 6 R 6 6 R 6 6 R 6 1 R 1 4 R 4 5", &arr));
-  TEST_ASSERT_EQUAL_INT_ARRAY(integers, arr, 18);
-
-  free(arr);
 }
 
 static int sum_array(const int *arr, const int arr_size) {

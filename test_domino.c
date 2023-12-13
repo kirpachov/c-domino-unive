@@ -270,51 +270,19 @@ static void test_table_dominoes_push(void) {
   TEST_ASSERT_EQUAL(2, get_user_dominoes_size());
 }
 
-static void test_interactive_0(void) {
+static void test_interactive_1(void) {
   const bool verbose = false;
 
-  /**
-   * Initial situation:
-   * Table:
-   * [2|6] [6|1] [1|4] [4|6] [1|6]
-   *
-   * Your dominoes:
-   * [6|1]  (1R)
-   * [4|4]
-   * [4|4]
-   * [2|5]  (4L)
-   * [2|4]  (5L)
-   *
-   */
-  set_table_dominoes((struct Domino[5]) {
-      {2, 6},
-      {6, 1},
-      {1, 4},
-      {4, 6},
-      {1, 6},
-  }, 5);
+  set_table_dominoes((struct Domino[]) {
+      {1, 1},
+  }, 1);
 
-  set_user_dominoes((struct Domino[5]) {
-      {6, 1},
-      {4, 4},
-      {4, 4},
-      {2, 5},
-      {2, 4},
-  }, 5);
+  set_user_dominoes((struct Domino[]) {
+      {0, 0},
+      {2, 2},
+  }, 2);
 
-  /**
-   * situation after "1r"
-   *
-   * Table:
-   * [2|6] [6|1] [1|4] [4|6] [1|6] [6|1]
-   *
-   * Your dominoes:
-   * [4|4]
-   * [4|4]
-   * [2|5]  (3L)
-   * [2|4]  (4L)
-   *
-   */
+  TEST_ASSERT_EQUAL(calc_user_points(), 2);
 
   if (verbose) print_everything();
   set_last_command("1 r");
@@ -322,72 +290,162 @@ static void test_interactive_0(void) {
   process_last_command();
   if (verbose) print_everything();
 
-  struct Domino *domino_arr = (struct Domino[4]) {{4, 4},
-                                                  {4, 4},
-                                                  {2, 5},
-                                                  {2, 4}};
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(domino_arr, 4), format_user_dominoes(),
-                               strlen(format_dominoes_with_valid_moves(domino_arr, 4)));
+  TEST_ASSERT_EQUAL(calc_user_points(), 2);
 
-  domino_arr = (struct Domino[6]) {{2, 6},
-                                   {6, 1},
-                                   {1, 4},
-                                   {4, 6},
-                                   {1, 6},
-                                   {6, 1}};
-
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_for_table(domino_arr, 6), format_table_dominoes(),
-                               strlen(format_dominoes_for_table(domino_arr, 6)));
-
-  /**
-   * UPDATED SITUATION:
-   *
-   *
-   * Table:
-   * [2|6] [6|1] [1|4] [4|6] [1|6] [6|1]
-   *
-   * Your dominoes:
-   * 1) [4|4]
-   * 2) [4|4]
-   * 3) [2|5] (L)
-   * 4) [2|4] (L)
-   *
-   * Domino [6|1] has been put on right side
-   *
-   */
-
-  set_last_command("3 l");
-
+  if (verbose) print_everything();
+  set_last_command("1 r");
   if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
-  if (verbose) log_debug("AFTER 3l\n\n\n");
-  if (verbose) printf("AFTER 3l \n\n\n");
   process_last_command();
   if (verbose) print_everything();
-  TEST_ASSERT_EQUAL(7, get_table_dominoes_size());
-  TEST_ASSERT_EQUAL(3, get_user_dominoes_size());
 
-  domino_arr = (struct Domino[]) {{5, 2},
-                                  {2, 6},
-                                  {6, 1},
-                                  {1, 4},
-                                  {4, 6},
-                                  {1, 6},
-                                  {6, 1}};
+  TEST_ASSERT_EQUAL(calc_user_points(), 2 * 3);
+}
 
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_for_table(domino_arr, 7), format_table_dominoes(),
-                               strlen(format_dominoes_for_table(domino_arr, 7)));
+static void test_interactive_2(void) {
+  const bool verbose = false;
 
-  domino_arr = (struct Domino[]) {{4, 4},
-                                  {4, 4},
-                                  {2, 4}};
+  set_table_dominoes((struct Domino[]) {
+      {1, 1},
+  }, 1);
 
-  TEST_ASSERT_EQUAL_CHAR_ARRAY(format_dominoes_with_valid_moves(domino_arr, 3), format_user_dominoes(),
-                               strlen(format_dominoes_with_valid_moves(domino_arr, 3)));
+  set_user_dominoes((struct Domino[]) {
+      {11, 11},
+      {2,  2},
+  }, 2);
+
+  TEST_ASSERT_EQUAL(2, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(2 * 4, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 l");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(2 * 6, calc_user_points());
+}
+
+static void test_interactive_3(void) {
+  const bool verbose = false;
+
+  set_table_dominoes((struct Domino[]) {
+      {6, 6},
+  }, 1);
+
+  set_user_dominoes((struct Domino[]) {
+      {11, 11},
+      {1,  1},
+  }, 2);
+
+  TEST_ASSERT_EQUAL(12, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(1 * 4, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(1 * 6, calc_user_points());
+}
+
+static void test_interactive_4(void) {
+  const bool verbose = false;
+
+  set_table_dominoes((struct Domino[]) {
+      {2, 3},
+  }, 1);
+
+  set_user_dominoes((struct Domino[]) {
+      {12, 21},
+      {2,  3},
+      {11, 11}
+  }, 3);
+
+  TEST_ASSERT_EQUAL(5, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(2 + 3 + 3 + 2, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(2 + 3 + 3 + 2 + 2 + 3, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 l");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+  TEST_ASSERT_EQUAL(3 + 3 + 3 + 4 + 4 + 3 + 3 + 4, calc_user_points());
+}
+
+static void test_interactive_5(void) {
+  const bool verbose = false;
+
+  set_table_dominoes((struct Domino[]) {
+      {2, 3},
+  }, 1);
+
+  set_user_dominoes((struct Domino[]) {
+      {11, 11},
+      {4,  5},
+      {11, 11}
+  }, 3);
+
+  TEST_ASSERT_EQUAL(5, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 l");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(3 + 3 + 3 + 4, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 r");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(3 + 3 + 3 + 4 + 4 + 5, calc_user_points());
+
+  if (verbose) print_everything();
+  set_last_command("1 l");
+  if (verbose) printf("<<< COMMAND: \"%s\" >>>\n", get_last_command());
+  process_last_command();
+  if (verbose) print_everything();
+
+  TEST_ASSERT_EQUAL(4 + 4 + 4 + 4 + 4 + 5 + 5 + 6, calc_user_points());
 }
 
 static void test_scenario_with(void) {
   int points;
   struct Domino *best_table = calloc(1, sizeof(struct Domino));
+  struct Domino *best_table_original = calloc(1, sizeof(struct Domino));
   int best_table_size = 1;
 
   points = scenario_with(
@@ -399,179 +457,536 @@ static void test_scenario_with(void) {
       3,
       (struct Domino[]) {{0, 0}},
       0,
+      (struct Domino[]) {{0, 0}},
       &best_table,
-      &best_table_size
+      &best_table_size,
+      &best_table_original
   );
 
   TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, points);
 }
 
-static void test_best_scenario(void) {
-  struct Domino *best_table = calloc(1, sizeof(struct Domino));
-  int best_table_size = 1;
+static void shuffle_dominoes(struct Domino *dominoes, const int dominoes_size) {
+  for (int i = 0; i < dominoes_size; i++) {
+    struct Domino tmp = dominoes[i];
+    int random_index = random_between(0, dominoes_size - 1);
+    dominoes[i] = dominoes[random_index];
+    dominoes[random_index] = tmp;
+  }
+}
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+static void
+test_best_scenario_case(const int expected_best_points, const struct Domino *dominoes, const int dominoes_size,
+                        const int callee_row) {
+  struct Domino *best_table_possible = calloc(1, sizeof(struct Domino));
+  struct Domino *best_table_possible_original = calloc(1, sizeof(struct Domino));
+  int best_table_possible_size = 1;
+  const int actual_best_points = best_scenario(dominoes, dominoes_size, &best_table_possible,
+                                               &best_table_possible_size, &best_table_possible_original);
+
+  char *error_message = calloc(1000, sizeof(char));
+
+  sprintf(error_message, "Best table: %s | Original dominoes: %s",
+          format_dominoes_for_table(best_table_possible, best_table_possible_size),
+          format_dominoes_for_table(best_table_possible_original, best_table_possible_size));
+
+  UNITY_TEST_ASSERT_EQUAL_INT((expected_best_points), (actual_best_points), callee_row, error_message);
+
+  free(best_table_possible);
+  free(error_message);
+}
+
+static void
+test_best_scenario_shuffle(const int expected_best_points, const struct Domino *dominoes, const int dominoes_size,
+                           const int callee_row) {
+
+//  printf("Dominoes: %s\n", format_dominoes_for_table(dominoes, dominoes_size));
+
+  test_best_scenario_case(expected_best_points, dominoes, dominoes_size, callee_row);
+
+  for (int i = 0; i < 10; i++) {
+    struct Domino *dominoes_shuffle = calloc(dominoes_size, sizeof(struct Domino));
+    memcpy(dominoes_shuffle, dominoes, dominoes_size * sizeof(struct Domino));
+    shuffle_dominoes((struct Domino *) dominoes_shuffle, dominoes_size);
+
+    test_best_scenario_case(expected_best_points, dominoes_shuffle, dominoes_size, callee_row);
+    free(dominoes_shuffle);
+  }
+}
+
+static void test_best_scenario_long(void) {
+  test_best_scenario_case(103, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11}, // should not use one [11|11]
+  }, 9, __LINE__);
+
+  test_best_scenario_case(91, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+  }, 8, __LINE__);
+
+  test_best_scenario_case(57, (struct Domino[]) {
+      {6, 6},
+      {6, 6},
+      {6, 6},
+      {3, 6},
+      {1, 6},
+      {2, 6},
+      {1, 4},
+  }, 7, __LINE__);
+
+  test_best_scenario_case(60, (struct Domino[]) {
+      {6, 6},
+      {6, 6},
+      {6, 6},
+      {3, 6},
+      {1, 6},
+      {2, 6},
+      {3, 4},
+  }, 7, __LINE__);
+
+  test_best_scenario_case(6 * 10, (struct Domino[]) {
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11}
+  }, 6, __LINE__);
+
+  test_best_scenario_case(83, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+  }, 7, __LINE__);
+
+  test_best_scenario_case(6 * 10, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11}
+  }, 6, __LINE__);
+
+  test_best_scenario_case(6 * 10, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11}
+  }, 6, __LINE__);
+}
+
+static void test_best_scenario_with_specials(void) {
+  /**
+   * Card [0|0] can be placed everywhere. Will allow two incompatible dominoes to sit nearby.
+   * E.g: [1|2][0|0][5|6]
+   */
+
+  test_best_scenario_shuffle(1 + 1 + 6 + 6, (struct Domino[]) {
+      {1, 1},
+      {6, 6},
+      {0, 0},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(1 + 1 + 1 + 1, (struct Domino[]) {
+      {1, 1},
+      {1, 1},
+      {0, 0},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(1 + 1 + 6 + 6, (struct Domino[]) {
+      {1, 1},
+      {0, 0},
+      {6, 6},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(1 + 1 + 6 + 6, (struct Domino[]) {
+      {0, 0},
+      {1, 1},
+      {6, 6},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(1 + 1 + 6 + 6, (struct Domino[]) {
+      {6, 6},
+      {0, 0},
+      {1, 1},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 + 6 + 6 + 6, (struct Domino[]) {
+      {6, 6},
+      {0, 0},
+      {6, 6},
+  }, 3, __LINE__);
+
+  /**
+   * CARD [11|11]: will add 1 to the closest domino. If it's 6, will become 1.
+   * E.g:  [1|6][6|3][11|11] => [2|1][1|4][4|4]
+   *
+   */
+
+  // [1|6][6|3][11|11] (16) => [2|1][1|4][4|4] (16)
+  test_best_scenario_shuffle(16, (struct Domino[]) {
+      {1,  6},
+      {6,  3},
+      {11, 11},
+  }, 3, __LINE__);
+
+  // [5|5][5|5][11|11] (20) => [6|6][6|6][6|6] (36)
+  test_best_scenario_shuffle(6 * 6, (struct Domino[]) {
+      {5,  5},
+      {5,  5},
+      {11, 11},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 6, (struct Domino[]) {
+      {5,  5},
+      {11, 11},
+      {5,  5},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 6, (struct Domino[]) {
+      {11, 11},
+      {5,  5},
+      {5,  5},
+  }, 3, __LINE__);
+
+  // [4|4][11|11] (8) => [5|5][5|5] (20) => [5|5][5|5][5|5] (30)
+  test_best_scenario_shuffle(30, (struct Domino[]) {
+      {11, 11},
+      {4,  4},
+      {5,  5},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(5 * 4, (struct Domino[]) {
+      {11, 11},
+      {4,  4},
+      {6,  6},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 4, (struct Domino[]) {
+      {11, 11},
+      {3,  3},
+      {4,  4},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 4, (struct Domino[]) {
+      {3,  3},
+      {11, 11},
+      {4,  4},
+  }, 3, __LINE__);
+
+  /**
+   * CARD [12|21]: will copy mirror the closest domino.
+   * E.g: [1|2][2|3][12|21] => [1|2][2|3][3|2]
+   */
+
+  test_best_scenario_shuffle(3 + 3 + 3 + 4 + 4 + 3, (struct Domino[]) {
+      {3,  3},
+      {12, 21},
+      {3,  4},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 4, (struct Domino[]) {
+      {6,  6},
+      {12, 21},
+      {3,  4},
+  }, 3, __LINE__);
+
+  // [12|21]
+  // [12|21][6|1] => [1|6][6|1]
+  // [1|6][6|1][1|2] (17)
+  test_best_scenario_shuffle(17, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {1,  6},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(17, (struct Domino[]) {
+      {12, 21},
+      {1,  2},
+      {1,  6},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(17, (struct Domino[]) {
+      {1,  6},
+      {1,  2},
+      {12, 21},
+  }, 3, __LINE__);
+
+  /**
+   * Combinations between specials
+   */
+  test_best_scenario_shuffle(6 * 4 + 5 + 5, (struct Domino[]) {
+      {6,  6}, // Highest to be mirror-copied
+      {12, 21}, // mirror-copy
+      {5,  5}, // another high value domino. will be added thanks to the neutral
+      {0,  0} // neutral element.
+  }, 4, __LINE__);
+
+
+  // [5|5][5|5][5|5][5|5]
+  test_best_scenario_shuffle(5 * 8, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {3,  3},
+      {11, 11},
+      {11, 11}
+  }, 5, __LINE__);
+}
+
+static void test_best_scenario(void) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {3, 4},
       {1, 3},
       {4, 5},
       {2, 2},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {4, 3},
       {3, 1},
       {4, 5},
       {2, 2},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {1, 3},
       {4, 5},
       {2, 2},
       {3, 4},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {1, 3},
       {4, 5},
       {3, 4},
       {2, 2},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {1, 3},
       {3, 4},
       {4, 5},
       {2, 2},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(20, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(20, (struct Domino[]) {
       {3, 4},
       {1, 3},
       {4, 5},
       {2, 2},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(3 + 2 + 2 + 4, (struct Domino[]) {
       {2, 1},
       {3, 2},
       {2, 4},
-  }, 3, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 3, __LINE__);
 
-  TEST_ASSERT_EQUAL(3 + 2 + 2 + 4, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(3 + 2 + 2 + 4, (struct Domino[]) {
       {3, 2},
       {2, 1},
       {2, 4},
-  }, 3, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 3, __LINE__);
 
-  TEST_ASSERT_EQUAL(1 + 3 + 3 + 3 + 6 + 3, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(1 + 3 + 3 + 3 + 6 + 3, (struct Domino[]) {
       {1, 3},
       {6, 3},
       {3, 3},
-  }, 3, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 3, __LINE__);
 
-  TEST_ASSERT_EQUAL(1 + 3 + 3 + 3 + 6 + 3, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(1 + 3 + 3 + 3 + 6 + 3, (struct Domino[]) {
       {1, 3},
       {3, 3},
       {6, 3},
-  }, 3, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 3, __LINE__);
 
-  TEST_ASSERT_EQUAL(28, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(28, (struct Domino[]) {
       {1, 6},
       {3, 6},
       {1, 4},
       {3, 4},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(28, best_scenario((struct Domino[]) {
+  test_best_scenario_shuffle(28, (struct Domino[]) {
       {3, 6},
       {1, 6},
       {1, 4},
       {3, 4},
-  }, 4, &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
+  }, 4, __LINE__);
 
-  TEST_ASSERT_EQUAL(1 + 3 + 3 + 4 + 4 + 5, best_scenario((struct Domino[]) {{1, 3},
-                                                                            {3, 4},
-                                                                            {4, 5},
-                                                                            {2, 2}}, 4,
-                                                         &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
-
-  TEST_ASSERT_EQUAL(6 + 6, best_scenario((struct Domino[4]) {{6, 6},
-                                                             {1, 1},
-                                                             {2, 2},
-                                                             {3, 3}}, 4,
-                                         &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
-
-  TEST_ASSERT_EQUAL(6 + 6 + 6 + 1, best_scenario((struct Domino[4]) {{6, 6},
-                                                                     {6, 1},
-                                                                     {2, 2},
-                                                                     {3, 3}}, 4,
-                                                 &best_table, &best_table_size));
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
-
-  TEST_ASSERT_EQUAL(57, best_scenario((struct Domino[]) {
-      {6, 6},
-      {6, 6},
-      {6, 6},
-      {3, 6},
-      {1, 6},
-      {2, 6},
-      {1, 4},
-  }, 7, &best_table, &best_table_size));
-
-  int result = best_scenario((struct Domino[]) {
-      {6, 6},
-      {6, 6},
-      {6, 6},
-      {3, 6},
-      {1, 6},
-      {2, 6},
+  test_best_scenario_shuffle(1 + 3 + 3 + 4 + 4 + 5, (struct Domino[]) {
+      {1, 3},
       {3, 4},
-  }, 7, &best_table, &best_table_size);
-  best_table = calloc(1, sizeof(struct Domino));
-  best_table_size = 1;
-  TEST_ASSERT_EQUAL(60, result);
+      {4, 5},
+      {2, 2}
+  }, 4, __LINE__);
+
+  test_best_scenario_shuffle(6 + 6, (struct Domino[]) {
+      {6, 6},
+      {1, 1},
+      {2, 2},
+      {3, 3}
+  }, 4, __LINE__);
+
+  test_best_scenario_shuffle(6 + 6 + 6 + 1, (struct Domino[]) {
+      {6, 6},
+      {6, 1},
+      {2, 2},
+      {3, 3}
+  }, 4, __LINE__);
+
+  test_best_scenario_shuffle(12, (struct Domino[]) {
+      {6,  6},
+      {11, 11},
+      {11, 11}
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 * 2 * 4, (struct Domino[]) {
+      {3,  3},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+  }, 5, __LINE__);
+
+  test_best_scenario_case(6 * 2 * 2, (struct Domino[]) {
+      {5,  5},
+      {11, 11},
+      {11, 11},
+  }, 3, __LINE__);
+
+  test_best_scenario_case(6 * 2 * 2, (struct Domino[]) {
+      {5,  5},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+  }, 4, __LINE__);
+
+  test_best_scenario_shuffle(6 * 2, (struct Domino[]) {
+      {6,  6},
+      {11, 11},
+  }, 2, __LINE__);
+
+  test_best_scenario_shuffle(6 * 2 * 2, (struct Domino[]) {
+      {5,  5},
+      {11, 11},
+      {11, 11},
+  }, 3, __LINE__);
+
+  test_best_scenario_case(1 + 2 + 2 + 1, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+  }, 2, __LINE__);
+
+  test_best_scenario_case(2 + 3 + 3 + 3, (struct Domino[]) {
+      {1,  2},
+      {11, 11},
+  }, 2, __LINE__);
+
+  test_best_scenario_case(17, (struct Domino[]) {
+      {1,  2},
+      {12, 21},
+      {11, 11},
+  }, 3, __LINE__);
+}
+
+static void test_best_scenario_with_specials_2(void) {
+  test_best_scenario_shuffle(1 + 6 + 6 + 6 + 6 + 6, (struct Domino[]) {
+      {5,  6},
+      {12, 21},
+      {11, 11},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(6 + 6 + 6 + 6, (struct Domino[]) {
+      {6,  6},
+      {12, 21},
+      {11, 11},
+  }, 3, __LINE__);
+
+  test_best_scenario_shuffle(3 * 2 * 5, (struct Domino[]) {
+      {6,  6},
+      {12, 21},
+      {11, 11},
+      {11, 11},
+      {11, 11},
+  }, 5, __LINE__);
+
+  test_best_scenario_shuffle(2 + 2 + 1 + 1 + 6 + 6 + 6 + 6, (struct Domino[]) {
+      {5,  5},
+      {0,  0},
+      {1,  1},
+      {11, 11},
+  }, 4, __LINE__);
+
+  test_best_scenario_shuffle(6 + 6 + 1 + 1 + 6 + 6 + 6 + 6, (struct Domino[]) {
+      {5,  5},
+      {0,  0},
+      {5,  5},
+      {11, 11},
+  }, 4, __LINE__);
 }
 
 static void test_format_dominoes_as_commands(void) {
 
-  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {{1, 3},
-                                                                          {3, 5},
-                                                                          {5, 7},
-                                                                          {7, 9}}, 4), "S 1 3 R 3 5 R 5 7 R 7 9");
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1, 3},
+      {3, 5},
+      {5, 7},
+      {7, 9}
+  }, 4), "S 1 3 R 3 5 R 5 7 R 7 9");
 
-  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {{1, 3},
-                                                                          {3, 4},
-                                                                          {4, 5},}, 3), "S 1 3 R 3 4 R 4 5");
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1, 3},
+      {3, 4},
+      {4, 5}
+  }, 3), "S 1 3 R 3 4 R 4 5");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1, 3},
+      {0, 0},
+      {4, 5}
+  }, 3), "S 1 3 R 0 0 R 4 5");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1,  3},
+      {11, 11},
+      {4,  5}
+  }, 3), "S 1 3 R 11 11 R 4 5");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1,  3},
+      {11, 11},
+      {4,  5}
+  }, 3), "S 1 3 R 11 11 R 4 5");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_as_commands((struct Domino[]) {
+      {1,  3},
+      {3,  5},
+      {11, 11}
+  }, 3), "S 1 3 R 3 5 R 11 11");
 }
 
 static void test_format_domino(void) {
@@ -580,6 +995,30 @@ static void test_format_domino(void) {
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {10, 20}), "[10|20]");
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {15, 200}), "[15|200]");
   TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {4, 1}), "[4|1]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {11, 11}), "[11|11]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {0, 0}), "[0|0]");
+  TEST_ASSERT_EQUAL_STRING(format_domino((struct Domino) {12, 21}), "[12|21]");
+}
+
+static void test_format_dominoes_for_table(void) {
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_for_table((struct Domino[]) {
+      {1, 3},
+      {3, 5},
+      {5, 7},
+      {7, 9}
+  }, 4), "[1|3] [3|5] [5|7] [7|9]");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_for_table((struct Domino[]) {
+      {1, 3},
+      {0, 0},
+      {5, 7},
+      {7, 9}
+  }, 4), "[1|3] [0|0] [5|7] [7|9]");
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_for_table((struct Domino[]) {
+      {1, 3},
+      {3, 5},
+  }, 2), "[1|3] [3|5]");
 }
 
 static void test_process_challenge_1(void) {
@@ -646,10 +1085,14 @@ int main(void) {
   UnityBegin("test_domino.c");
 
   RUN_TEST(test_process_challenge_1);
+  RUN_TEST(test_interactive_1);
+  RUN_TEST(test_interactive_2);
+  RUN_TEST(test_interactive_3);
+  RUN_TEST(test_interactive_4);
+  RUN_TEST(test_interactive_5);
   RUN_TEST(test_scenario_with);
   RUN_TEST(test_format_domino);
   RUN_TEST(test_format_dominoes_as_commands);
-  RUN_TEST(test_interactive_0);
   RUN_TEST(test_table_dominoes_push);
   RUN_TEST(test_first_number_from_string);
   RUN_TEST(test_is_string_in_string);
@@ -659,7 +1102,11 @@ int main(void) {
   RUN_TEST(test_rotate_domino);
   RUN_TEST(test_get_and_set_user_dominoes);
   RUN_TEST(test_needs_to_be_rotated_before_putting_on_table);
+  RUN_TEST(test_format_dominoes_for_table);
   RUN_TEST(test_best_scenario);
+  RUN_TEST(test_best_scenario_with_specials);
+  RUN_TEST(test_best_scenario_with_specials_2);
+  RUN_TEST(test_best_scenario_long);
 
   return UnityEnd();
 }

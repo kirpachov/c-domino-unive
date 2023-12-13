@@ -35,6 +35,7 @@ void empty_table_dominoes(void);
 void set_user_dominoes(const struct Domino* arr, const int arr_size);
 struct Domino* get_user_dominoes(void);
 int get_user_dominoes_size(void);
+void set_table_dominoes_original(const struct Domino *arr, const int arr_size);
 void set_table_dominoes(const struct Domino* arr, const int arr_size);
 struct Domino* get_table_dominoes(void);
 int get_table_dominoes_size(void);
@@ -42,16 +43,21 @@ void set_last_command(char* new_last_command);
 char* get_last_command(void);
 /* ********************* TEST UTILS ********************* */
 
+bool can_place_on_left_rotated(const struct Domino d);
+bool can_place_on_left_unrotated(const struct Domino d);
 bool can_place_on_left(const struct Domino d);
+bool is_domino_special(const struct Domino d);
+bool can_place_on_right_unrotated(const struct Domino d);
+bool can_place_on_right_rotated(const struct Domino d);
 bool can_place_on_right(const struct Domino d);
 bool can_place_on_table(const struct Domino d);
 //char* where_can_place(const struct Domino d);
 struct Domino *allocate_memory_for_dominoes(struct Domino **arr, int size);
 void resize_dominoes_array(struct Domino **arr, const int new_size);
-void push(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
-void unshift(struct Domino domino, struct Domino* domino_arr, int* domino_arr_size);
+void push(struct Domino domino, struct Domino* domino_arr, const int domino_arr_size);
+void unshift(struct Domino domino, struct Domino* domino_arr, const int domino_arr_size);
+void pop(const int index, struct Domino* domino_arr, const int domino_arr_size);
 struct Domino *add_domino_on_start(struct Domino domino, const struct Domino *domino_arr, int *domino_arr_size);
-void pop(const int index, struct Domino* domino_arr, int* domino_arr_size);
 int total_user_dominoes_valid(void);
 void user_dominoes_push(struct Domino);
 void user_dominoes_pop(const int);
@@ -98,14 +104,18 @@ struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left
 int put_on_table(const int index, const bool left_side);
 void process_last_command(void);
 void acquire_command(void);
+void apply_special_sumall(const int sumall_index);
+void apply_special_mirror(const int mirror_index);
+void apply_special_dominoes_effect(void);
 int scenario_with(const struct Domino *user_arr, const int user_arr_size, const struct Domino *table_arr,
-                  const int table_arr_size, struct Domino** best_table_possible, int *best_table_possible_size);
+                  const int table_arr_size, const struct Domino *table_arr_original, struct Domino** best_table_possible, int *best_table_possible_size,
+                      struct Domino** best_table_possible_original);
 struct Domino *dominoes_without_element(
     const struct Domino *dominoes,
     const int size,
     const int index_of_element_to_remove);
 bool dominoes_equal(const struct Domino,const struct Domino);
-int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino ** best_table_possible, int* best_table_possible_size);
+int best_scenario(const struct Domino *dominoes, const int dominoes_size, struct Domino ** best_table_possible, int* best_table_possible_size, struct Domino ** best_table_possible_original);
 char* format_dominoes_as_commands(const struct Domino* dominoes, const int dominoes_size);
 char *process_challenge_1(const struct Domino *dominoes, const int dominoes_size);
 void run_terminal(void);

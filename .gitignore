@@ -3,4 +3,5 @@ cmake-build-debug
 ./iap
 *.out
 .idea
+.idea/*
 submit

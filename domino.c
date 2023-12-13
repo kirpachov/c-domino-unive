@@ -10,6 +10,19 @@ const unsigned LEFT_IDENTIFIERS_COUNT = 2;
 const char *RIGHT_IDENTIFIERS[] = {" RIGHT ", " R "};
 const unsigned RIGHT_IDENTIFIERS_COUNT = 2;
 
+/**
+ * Are special dominoes allowed?
+ * [0|0] can be placed everywhere.
+ * E.g: [1|2][0|0][5|6]
+ *
+ * [11|11]: will add 1 to the closest domino. If it's 6, will become 1.
+ * E.g:  [1|6][6|3][11|11] => [2|1][1|4][4|4]
+ *
+ * [12|21] will copy mirror the closest domino.
+ * E.g: [1|2][2|3][12|21] => [1|2][2|3][3|2]
+ */
+bool specials = true;
+
 void resize_dominoes_array(struct Domino **arr, const int new_size) {
   if (new_size <= 0) {
 //    log_error("error! Tried to allocate memory with size %d. Function resize_dominoes_array(arr: %p, new_size: %d)",
@@ -20,21 +33,19 @@ void resize_dominoes_array(struct Domino **arr, const int new_size) {
   *arr = realloc(*arr, sizeof(struct Domino) * new_size);
 }
 
-void push(const struct Domino domino, struct Domino *domino_arr, int *domino_arr_size) {
-  domino_arr[*domino_arr_size] = domino;
-  (*domino_arr_size)++;
+void push(const struct Domino domino, struct Domino *domino_arr, const int domino_arr_size) {
+  domino_arr[domino_arr_size] = domino;
 }
 
-void unshift(struct Domino domino, struct Domino *domino_arr, int *domino_arr_size) {
-  for (int i = *domino_arr_size; i > 0; i--) domino_arr[i] = domino_arr[i - 1];
+
+void unshift(struct Domino domino, struct Domino *domino_arr, const int before_size) {
+  for (int i = before_size; i > 0; i--) domino_arr[i] = domino_arr[i - 1];
 
   domino_arr[0] = domino;
-  (*domino_arr_size)++;
 }
 
-void pop(const int index, struct Domino *domino_arr, int *domino_arr_size) {
-  for (int i = index; i < *domino_arr_size - 1; i++) domino_arr[i] = domino_arr[i + 1];
-  (*domino_arr_size)--;
+void pop(const int index, struct Domino *domino_arr, const int domino_arr_size) {
+  for (int i = index; i < domino_arr_size - 1; i++) domino_arr[i] = domino_arr[i + 1];
 }
 
 /**
@@ -61,30 +72,48 @@ int user_dominoes_size = 0;
 void user_dominoes_push(const struct Domino d) {
   resize_dominoes_array(&user_dominoes, user_dominoes_size + 1);
 
-  push(d, user_dominoes, &user_dominoes_size);
+  push(d, user_dominoes, user_dominoes_size++);
 }
 
 void user_dominoes_pop(const int index) {
-  pop(index, user_dominoes, &user_dominoes_size);
+  pop(index, user_dominoes, user_dominoes_size--);
   resize_dominoes_array(&user_dominoes, user_dominoes_size);
 }
 
 /**
- * Dominoes currently on table
+ * Dominoes currently on table.
+ * Variable 'table_dominoes' will contain the actual dominoes after special dominoes effect has been effected.
+ * Variable 'table_dominoes_original' will contain the original dominoes, without any special dominoes effect.
  */
 struct Domino *table_dominoes;
+struct Domino *table_dominoes_original;
 int table_dominoes_size = 0;
 
 void table_dominoes_push(const struct Domino d, const bool left_side) {
   resize_dominoes_array(&table_dominoes, table_dominoes_size + 1);
+  resize_dominoes_array(&table_dominoes_original, table_dominoes_size + 1);
 
-  if (left_side) unshift(d, table_dominoes, &table_dominoes_size);
-  else push(d, table_dominoes, &table_dominoes_size);
+  if (left_side) {
+    unshift(d, table_dominoes, table_dominoes_size);
+    unshift(d, table_dominoes_original, table_dominoes_size);
+  } else {
+    push(d, table_dominoes, table_dominoes_size);
+    push(d, table_dominoes_original, table_dominoes_size);
+  }
+
+  table_dominoes_size++;
 }
 
 void table_dominoes_pop(const int index) {
-  pop(index, table_dominoes, &table_dominoes_size);
-  resize_dominoes_array(&table_dominoes, table_dominoes_size - 1);
+  pop(index, table_dominoes, table_dominoes_size);
+  pop(index, table_dominoes_original, table_dominoes_size);
+  table_dominoes_size--;
+
+  //  resize_dominoes_array(&table_dominoes, table_dominoes_size - 1);
+  // TODO is -1 necessary since it's already decremented?
+
+  resize_dominoes_array(&table_dominoes, table_dominoes_size);
+  resize_dominoes_array(&table_dominoes_original, table_dominoes_size);
 }
 
 /**
@@ -94,7 +123,7 @@ struct Domino *universe_dominoes;
 int universe_dominoes_size = 0;
 
 void universe_dominoes_push(const struct Domino d) {
-  push(d, universe_dominoes, &universe_dominoes_size);
+  push(d, universe_dominoes, universe_dominoes_size++);
 }
 
 char *last_command;
@@ -157,28 +186,66 @@ int first_number_from_string(const char *str) {
   return result;
 }
 
-/**
- * Can domino be placed on left side on the table?
- * @param d Domino
- * @return bool
- */
-bool can_place_on_left(const struct Domino d) {
-  if (table_dominoes_size <= 0) return true;
 
-  return table_dominoes[0].left == d.left || table_dominoes[0].left == d.right;
+bool is_domino_special(const struct Domino domino) {
+  if (!(specials)) return false;
+
+  if (domino.left == 0 && domino.right == 0) return true;
+  if (domino.left == 11 && domino.right == 11) return true;
+  if (domino.left == 12 && domino.right == 21) return true;
+  if (domino.left == 21 && domino.right == 12) return true;
+
+  return false;
 }
 
 /**
- * Can domino be placed on right side of the table?
- * @param d Domino
- * @return bool
+ * CAN PLACE ON LEFT?
+ * @return true if domino can be placed on right side of the table.
  */
-bool can_place_on_right(const struct Domino d) {
+
+bool can_place_on_left_unrotated(const struct Domino d) {
   if (table_dominoes_size <= 0) return true;
+  if (is_domino_special(d)) return true;
+  if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
 
-  const struct Domino table = table_dominoes[table_dominoes_size - 1];
+  return table_dominoes[table_dominoes_size - 1].left == d.right;
+}
 
-  return table.right == d.left || table.right == d.right;
+bool can_place_on_left_rotated(const struct Domino d) {
+  if (table_dominoes_size <= 0) return true;
+  if (is_domino_special(d)) return true;
+  if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
+
+  return table_dominoes[table_dominoes_size - 1].left == d.left;
+}
+
+bool can_place_on_left(const struct Domino d) {
+  return can_place_on_left_unrotated(d) || can_place_on_left_rotated(d);
+}
+
+/**
+ * CAN PLACE ON RIGHT?
+ * @return true if domino can be placed on right side of the table.
+ */
+
+bool can_place_on_right_unrotated(const struct Domino d) {
+  if (table_dominoes_size <= 0) return true;
+  if (is_domino_special(d)) return true;
+  if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;
+
+  return table_dominoes[table_dominoes_size - 1].right == d.left;
+}
+
+bool can_place_on_right_rotated(const struct Domino d) {
+  if (table_dominoes_size <= 0) return true;
+  if (is_domino_special(d)) return true;
+  if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;
+
+  return table_dominoes[table_dominoes_size - 1].right == d.right;
+}
+
+bool can_place_on_right(const struct Domino d) {
+  return can_place_on_right_unrotated(d) || can_place_on_right_rotated(d);
 }
 
 /**
@@ -313,6 +380,8 @@ void populate_universe_dominoes(void) {
     for (int j = i; j <= LARGEST_DOMINO_VALUE; j++)
       final_size++;
 
+  if (specials) final_size += 3; // [0|0], [11|11], [12|21]
+
   universe_dominoes = malloc(sizeof(struct Domino) * final_size);
 
   universe_dominoes_size = 0;
@@ -327,10 +396,17 @@ void populate_universe_dominoes(void) {
     }
   }
 
+  if (specials) {
+    universe_dominoes_push((struct Domino) {0, 0});
+    universe_dominoes_push((struct Domino) {11, 11});
+    universe_dominoes_push((struct Domino) {12, 21});
+  }
+
   log_debug("universe_dominoes_size is %d", universe_dominoes_size);
 }
 
 char *format_dominoes_for_table(const struct Domino *dominoes, const int size) {
+  // TODO calc max size instead of using 100
   char *result = calloc(100, sizeof(char));
 
   for (int i = 0; i < size; i++) {
@@ -422,7 +498,20 @@ bool is_help_command(const char *command) {
   return false;
 }
 
+/**
+ * Will calc points from an array of dominoes.
+ * Note:
+ * - if the array is empty, will return 0.
+ * - if the only card in the array is special, will return 0. This is because special cards should be used only with other cards.
+ *
+ * @param arr pointer to array of dominoes
+ * @param arr_size quantity of dominoes in the array
+ * @return integer with the sum of all points.
+ */
 int calc_points_from(const struct Domino *arr, const int arr_size) {
+  if (arr_size <= 0) return 0;
+  if (arr_size == 1 && is_domino_special(arr[0])) return 0;
+
   int acc = 0;
   for (int i = 0; i < arr_size; i++) acc += arr[i].left + arr[i].right;
 
@@ -565,6 +654,7 @@ int put_on_table(const int user_dominoes_index, const bool left_side) {
   const struct Domino selected = user_dominoes[user_dominoes_index];
   const char *side_str = left_side ? "left" : "right";
   char *selected_str = format_domino(selected);
+  // TODO calc size instead of 100
   last_command_feedback = calloc(100, sizeof(char));
 
 //  log_debug("put_on_table | user_dominoes_index: %d | side: %s | domino: %s", user_dominoes_index, side_str, selected_str);
@@ -579,6 +669,8 @@ int put_on_table(const int user_dominoes_index, const bool left_side) {
   user_dominoes_pop(user_dominoes_index);
 
   sprintf(last_command_feedback, "Domino %s has been put on %s side", selected_str, side_str);
+
+  apply_special_dominoes_effect();
 
   free(selected_str);
 
@@ -610,7 +702,7 @@ void process_last_command(void) {
 
   /**
    * TODO:
-   * - if user has invalid position or index, popoulate "last_command_feedback" with the error messages.
+   * - if user has invalid position or index, populate "last_command_feedback" with the error messages.
    * otherwise, select domino and try to put it on the table.
    * if it's a valid move, populate last_command_feedback with something like "Domino [x|y] has been put on <left/right> side"
    * otherwise, if it's not a valid move, let user know that it's not a valid move.
@@ -641,6 +733,81 @@ void acquire_command(void) {
   for (int i = 0; i < N; i++) last_command[i] = tmp_command[i];
 }
 
+/**
+ * Apply effect of [11|11].
+ * Add 1 to all the values of all dominoes on the table. If 6 + 1, set 1.
+ */
+void apply_special_sumall(const int sumall_index) {
+  for (int j = 0; j < table_dominoes_size; j++) {
+    if (j == sumall_index) continue;
+
+    table_dominoes[j].left++;
+    table_dominoes[j].right++;
+
+    if (table_dominoes[j].left > 6) table_dominoes[j].left = 1;
+    if (table_dominoes[j].right > 6) table_dominoes[j].right = 1;
+  }
+
+  if (sumall_index == 0) {
+    table_dominoes[sumall_index].left = table_dominoes[1].left;
+    table_dominoes[sumall_index].right = table_dominoes[1].left;
+    return;
+  }
+
+  if (sumall_index == table_dominoes_size - 1) {
+    table_dominoes[sumall_index].left = table_dominoes[table_dominoes_size - 2].right;
+    table_dominoes[sumall_index].right = table_dominoes[table_dominoes_size - 2].right;
+    return;
+  }
+
+  printf("invalid sumall_index %d at row %d\n", sumall_index, __LINE__);
+  log_error("apply_special_sumall: sumall_index is %d, but it should be 0 or %d", sumall_index,
+            table_dominoes_size - 1);
+  exit(EXIT_FAILURE);
+}
+
+void apply_special_mirror(const int mirror_index) {
+  if (mirror_index == 0) {
+    table_dominoes[mirror_index].right = table_dominoes[1].left;
+    table_dominoes[mirror_index].left = table_dominoes[1].right;
+    return;
+  }
+
+  if (mirror_index == table_dominoes_size - 1) {
+    const struct Domino last = table_dominoes[table_dominoes_size - 2];
+    table_dominoes[mirror_index].right = last.left;
+    table_dominoes[mirror_index].left = last.right;
+    return;
+  }
+
+  log_error("apply_special_mirror: mirror_index is %d, but it should be 0 or %d", mirror_index,
+            table_dominoes_size - 1);
+  exit(EXIT_FAILURE);
+}
+
+void apply_special_dominoes_effect(void) {
+  if (!specials) return;
+  if (table_dominoes_size <= 1) return;
+
+  for (int i = 0; i < table_dominoes_size; i++) {
+    const struct Domino domino = table_dominoes[i];
+    if (!is_domino_special(domino)) continue;
+    if (domino.left == 0 && domino.right == 0) continue;
+
+    if (domino.left == 11 && domino.right == 11) {
+      apply_special_sumall(i);
+      continue;
+    }
+
+    if ((domino.left == 12 && domino.right == 21) || (domino.right == 12 && domino.left == 21)) {
+      apply_special_mirror(i);
+      continue;
+    }
+
+    // Should never see this message
+    printf("TODO manage special domino of type %s\n", format_domino(domino));
+  }
+}
 
 struct Domino *dominoes_without_element(
     const struct Domino *dominoes,
@@ -653,7 +820,7 @@ struct Domino *dominoes_without_element(
     dominoes_without_domino[j] = dominoes[j];
   }
 
-  pop(index_of_element_to_remove, dominoes_without_domino, &dominoes_without_domino_size);
+  pop(index_of_element_to_remove, dominoes_without_domino, dominoes_without_domino_size--);
   return dominoes_without_domino;
 }
 
@@ -674,9 +841,10 @@ bool dominoes_equal(const struct Domino a, const struct Domino b) {
  * @param user_arr_size how many dominoes has the user currently.
  * @param table_arr the dominoes that are already on the table.
  * @param table_arr_size how many dominoes are already on the table
+ * @param table_arr_original actual dominoes, without any special domino effect.
  * @param best_table_possible where the best solution will be stored.
  * @param best_table_possible_size size of the best solution array.
- * @return
+ * @return best points you can make from that combination.
  */
 int scenario_with(
     const struct Domino *user_arr,
@@ -685,34 +853,43 @@ int scenario_with(
     const struct Domino *table_arr,
     const int table_arr_size,
 
+    const struct Domino *table_arr_original,
+
     struct Domino **best_table_possible,
-    int *best_table_possible_size
+    int *best_table_possible_size,
+    struct Domino **best_table_possible_original
 ) {
   set_table_dominoes(table_arr, table_arr_size);
-  set_user_dominoes(user_arr, user_arr_size);
-  struct Domino *valid_moves = calloc(user_dominoes_size, sizeof(struct Domino));
-  int valid_moves_count = valid_moves_count_side(false, valid_moves);
+  set_table_dominoes_original(table_arr_original, table_arr_size);
 
+  set_user_dominoes(user_arr, user_arr_size);
+
+  /* DEBUG */
+//  struct Domino *valid_moves = calloc(user_dominoes_size, sizeof(struct Domino));
+//  int valid_moves_count = valid_moves_count_side(false, valid_moves);
 //  log_debug("SCENARIO_WITH | user_dominoes: %s | table_dominoes: %s | valid_moves: %s",
 //            format_dominoes_for_table(user_dominoes, user_dominoes_size),
 //            format_dominoes_for_table(table_dominoes, table_dominoes_size),
 //            format_dominoes_for_table(valid_moves, valid_moves_count)
 //  );
+  /* /DEBUG */
 
-  if (valid_moves_count == 0) {
-    log_debug("No more valid moves. | points: %d | Table: %s ", calc_user_points(),
-              format_dominoes_for_table(table_dominoes, table_dominoes_size)
-    );
+  if (calc_points_from(*best_table_possible, *best_table_possible_size) < calc_user_points()) {
+    *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
+    *best_table_possible_original = malloc(sizeof(struct Domino) * table_arr_size);
+    *best_table_possible_size = table_arr_size;
 
-    if (calc_points_from(*best_table_possible, *best_table_possible_size) < calc_user_points()) {
-      *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
-      *best_table_possible_size = table_arr_size;
-
-      memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
-    }
-
-    return calc_user_points();
+    memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
+    memcpy(*best_table_possible_original, table_arr_original, sizeof(struct Domino) * table_arr_size);
   }
+
+//  if (valid_moves_count == 0) {
+//    log_debug("No more valid moves. | points: %d | Table: %s ", calc_user_points(),
+//              format_dominoes_for_table(table_dominoes, table_dominoes_size)
+//    );
+//
+//    return calc_user_points();
+//  }
 
   int best_until_now = calc_user_points();
 
@@ -720,13 +897,17 @@ int scenario_with(
     const struct Domino domino = user_arr[i];
 
     if (!(can_place_on_right(domino))) {
-      log_debug("Cannot place on right %s", format_domino(domino));
+      /* DEBUG */
+//      log_debug("Cannot place on right %s", format_domino(domino));
+      /* /DEBUG */
       continue;
     }
 
+    /* DEBUG */
 //    log_debug("for has now domino = %s | Table is %s | user has %s", format_domino(domino),
 //              format_dominoes_for_table(table_dominoes, table_dominoes_size),
 //              format_dominoes_for_table(user_dominoes, user_dominoes_size));
+    /* /DEBUG */
 
     int first_valid_move_index_in_user_arr = -1;
     for (int j = 0; j < user_dominoes_size; j++) {
@@ -744,89 +925,105 @@ int scenario_with(
     }
 
     bool was_put_unrotated = false;
+    struct Domino *table_dominoes_before_special_effects;
 
-    if (table_dominoes_size == 0 || table_dominoes[table_dominoes_size - 1].right == domino.left) {
+    if (can_place_on_right_unrotated(domino)) {
+      /* DEBUG */
 //      log_debug("Putting domino %s NOT rotated on table %s",
 //                format_domino(domino),
 //                format_dominoes_for_table(table_dominoes, table_dominoes_size)
 //      );
+      /* /DEBUG */
+
 
       was_put_unrotated = true;
       table_dominoes_push(domino, false);
       user_dominoes_pop(first_valid_move_index_in_user_arr);
+      table_dominoes_before_special_effects = calloc(table_dominoes_size, sizeof(struct Domino));
+      memcpy(table_dominoes_before_special_effects, table_dominoes, sizeof(struct Domino) * table_dominoes_size);
+      apply_special_dominoes_effect();
 
-      int current = scenario_with(
+      const int current = scenario_with(
           user_dominoes,
           user_dominoes_size,
           table_dominoes,
           table_dominoes_size,
+          table_dominoes_original,
           best_table_possible,
-          best_table_possible_size
+          best_table_possible_size,
+          best_table_possible_original
       );
 
       if (best_until_now < current) {
         best_until_now = current;
       }
 
+      set_table_dominoes(table_dominoes_before_special_effects, table_dominoes_size);
+//      free(table_dominoes_before_special_effects);
       table_dominoes_pop(table_dominoes_size - 1);
     }
 
-    if (table_dominoes_size == 0 || table_dominoes[table_dominoes_size - 1].right == domino.right) {
+    if (domino.left != domino.right && can_place_on_right_rotated(domino)) {
+      /* DEBUG */
 //      log_debug("Putting domino %s rotated on table %s",
 //                format_domino(rotate_domino(domino)),
 //                format_dominoes_for_table(table_dominoes, table_dominoes_size)
 //      );
+      /* /DEBUG */
 
       table_dominoes_push(rotate_domino(domino), false);
-      if (!was_put_unrotated) user_dominoes_pop(first_valid_move_index_in_user_arr);
+      if (!was_put_unrotated) { user_dominoes_pop(first_valid_move_index_in_user_arr); }
+      table_dominoes_before_special_effects = calloc(table_dominoes_size, sizeof(struct Domino));
+      memcpy(table_dominoes_before_special_effects, table_dominoes, sizeof(struct Domino) * table_dominoes_size);
+      apply_special_dominoes_effect();
 
-      int current = scenario_with(
+      const int current = scenario_with(
           user_dominoes,
           user_dominoes_size,
           table_dominoes,
           table_dominoes_size,
+          table_dominoes_original,
           best_table_possible,
-          best_table_possible_size
+          best_table_possible_size,
+          best_table_possible_original
       );
 
       if (best_until_now < current) {
         best_until_now = current;
       }
+
+      set_table_dominoes(table_dominoes_before_special_effects, table_dominoes_size);
     }
 
-
     set_table_dominoes(table_arr, table_arr_size);
+    set_table_dominoes_original(table_arr_original, table_arr_size);
     set_user_dominoes(user_arr, user_arr_size);
+    /* DEBUG */
 //    log_debug("Ending block where domino was %s | Table domino is %s | User domino is %s",
 //              format_domino(domino), format_dominoes_for_table(table_dominoes, table_dominoes_size),
 //              format_dominoes_for_table(user_dominoes, user_dominoes_size));
+    /* /DEBUG */
   }
-
 
   return best_until_now;
 }
 
-/**
- * Function best_scenario is used to find which are the best moves to do to get the maximum possible points.
- * @param dominoes universe of dominoes
- * @param dominoes_size size of the universe of dominoes
- * @param best_table_possible memory where to store the best combination possible, as array of Dominoes. Already ordered.
- * @param best_table_possible_size size of the array with the best combination possible.
- * @return max points you can get with that dominoes.
- */
 int best_scenario(
     const struct Domino *dominoes,
     const int dominoes_size,
     struct Domino **best_table_possible,
-    int *best_table_possible_size
+    int *best_table_possible_size,
+    struct Domino **best_table_possible_original
 ) {
   return scenario_with(
       dominoes,
       dominoes_size,
       (struct Domino[]) {{0, 0}},
       0,
+      (struct Domino[]) {{0, 0}},
       best_table_possible,
-      best_table_possible_size
+      best_table_possible_size,
+      best_table_possible_original
   );
 }
 
@@ -861,14 +1058,16 @@ char *format_dominoes_as_commands(const struct Domino *dominoes, const int domin
  * @return formatted string with the commands to execute to get the maximum amount of points with the given dominoes.
  */
 char *process_challenge_1(const struct Domino *dominoes, const int dominoes_size) {
+  // TODO calc instead of static 100
   struct Domino *best_table = calloc(100, sizeof(struct Domino));
+  struct Domino *best_table_original = calloc(100, sizeof(struct Domino));
   if (best_table == NULL) {
     log_error("Failed to allocate memory for best_table at line %d", __LINE__);
     exit(EXIT_FAILURE);
   }
 
   int best_table_size = 1;
-  int best_points = best_scenario(dominoes, dominoes_size, &best_table, &best_table_size);
+  int best_points = best_scenario(dominoes, dominoes_size, &best_table, &best_table_size, &best_table_original);
 
   char *commands = format_dominoes_as_commands(best_table, best_table_size);
 //  best_table = realloc(best_table, sizeof(struct Domino) * best_table_size);
@@ -980,9 +1179,16 @@ int get_user_dominoes_size(void) {
   return user_dominoes_size;
 }
 
+void set_table_dominoes_original(const struct Domino *arr, const int arr_size) {
+  table_dominoes_original = malloc(sizeof(struct Domino) * arr_size);
+  table_dominoes_size = arr_size; // TODO is this an issue?
+
+  table_dominoes_original = memcpy(table_dominoes_original, arr, sizeof(struct Domino) * arr_size);
+}
+
 void set_table_dominoes(const struct Domino *arr, const int arr_size) {
   table_dominoes = malloc(sizeof(struct Domino) * arr_size);
-  table_dominoes_size = arr_size;
+  table_dominoes_size = arr_size; // TODO is this an issue?
 
   table_dominoes = memcpy(table_dominoes, arr, sizeof(struct Domino) * arr_size);
 }

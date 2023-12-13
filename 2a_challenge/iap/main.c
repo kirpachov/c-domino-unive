@@ -2,7 +2,7 @@
 // Source is available at
 // https://github.com/kirpachov/c-domino-unive
 
-#include "domino.h"
+#include "main.h"
 
 const char *LEFT_IDENTIFIERS[] = {" LEFT ", " L "};
 const unsigned LEFT_IDENTIFIERS_COUNT = 2;
@@ -1225,3 +1225,13 @@ void complete(void) {
  * Run this file with
  * $ make run
 */
+
+
+int main(const int argc, const char **argv) {
+  initialize();
+  parse_params(argc, argv);
+
+  if (is_challenge) return run_challenge();
+
+  return run_interactive();
+}

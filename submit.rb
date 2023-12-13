@@ -17,10 +17,10 @@ File.open("submit/domino.c", "a") do |f|
 end
 
 system("cd submit && gcc -O2 -std=c99 --pedantic *.c -o iap")
-puts "Running iap --challenge with params: 4 3 4 1 3 4 5  2 2"
+# puts "Running iap --challenge with params: 4 3 4 1 3 4 5  2 2"
 
-puts "Output:"
-a = system(%(cd submit && echo "4 3 4 1 3 4 5 2 2" | ./iap --challenge))
+# puts "Output:"
+# a = system(%(cd submit && echo "4 3 4 1 3 4 5 2 2" | ./iap --challenge))
 
 # system("rm -rf submit/iap")
 

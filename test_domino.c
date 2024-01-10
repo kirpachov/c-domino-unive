@@ -515,6 +515,13 @@ test_best_scenario_shuffle(const int expected_best_points, const struct Domino *
 }
 
 static void test_best_scenario_long(void) {
+    test_best_scenario_case(43, (struct Domino[]) {
+      {5,  5},
+      {5, 6},
+      {12, 21},
+      {12, 21},
+  }, 4, __LINE__);
+
     test_best_scenario_case(96, (struct Domino[]) {
       {1,  1},
       {11, 11},

@@ -186,16 +186,35 @@ int first_number_from_string(const char *str) {
   return result;
 }
 
+/**
+ * is [12|21] domino?
+ * @param domino struct Domino
+ * @return true if provided domino is a [12|21] (or rotated [21|12])
+ */
+bool is_mirror_domino(const struct Domino domino) {
+  return specials && ((domino.left == 12 && domino.right == 21) || (domino.left == 21 && domino.right == 12));
+}
+
+/**
+ * Is [11|11] domino?
+ * @param domino struct Domino
+ * @return true if it's a [11|11] domino and specials are enabled
+ */
+bool is_addone_domino(const struct Domino domino) {
+  return specials && domino.left == 11 && domino.right == 11;
+}
+
+/**
+ * Is [0|0] domino?
+ * @param domino struct Domino
+ * @return true if it's a [0|0] domino.
+ */
+bool is_glue_domino(const struct Domino domino) {
+  return specials && domino.left == 0 && domino.right == 0;
+}
 
 bool is_domino_special(const struct Domino domino) {
-  if (!(specials)) return false;
-
-  if (domino.left == 0 && domino.right == 0) return true;
-  if (domino.left == 11 && domino.right == 11) return true;
-  if (domino.left == 12 && domino.right == 21) return true;
-  if (domino.left == 21 && domino.right == 12) return true;
-
-  return false;
+  return is_glue_domino(domino) || is_addone_domino(domino) || is_mirror_domino(domino);
 }
 
 /**
@@ -204,6 +223,7 @@ bool is_domino_special(const struct Domino domino) {
  */
 
 bool can_place_on_left_unrotated(const struct Domino d) {
+  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
   if (table_dominoes_size <= 0) return true;
   if (is_domino_special(d)) return true;
   if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
@@ -212,6 +232,7 @@ bool can_place_on_left_unrotated(const struct Domino d) {
 }
 
 bool can_place_on_left_rotated(const struct Domino d) {
+  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
   if (table_dominoes_size <= 0) return true;
   if (is_domino_special(d)) return true;
   if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
@@ -229,6 +250,7 @@ bool can_place_on_left(const struct Domino d) {
  */
 
 bool can_place_on_right_unrotated(const struct Domino d) {
+  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
   if (table_dominoes_size <= 0) return true;
   if (is_domino_special(d)) return true;
   if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;
@@ -237,6 +259,7 @@ bool can_place_on_right_unrotated(const struct Domino d) {
 }
 
 bool can_place_on_right_rotated(const struct Domino d) {
+  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
   if (table_dominoes_size <= 0) return true;
   if (is_domino_special(d)) return true;
   if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;

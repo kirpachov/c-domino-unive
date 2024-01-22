@@ -1,0 +1,24 @@
+,group_name,error
+0,zuc-domino,"Solution not valid for input2.txt; provided solution: S 5 5 R 5 5 R 5 5 R 5 6 R 5 5 R 5 6; Move number 5 not valid (R, 5, 6).No more tiles available for (5, 6)."
+1,zuc-domino,"Solution not valid for input4.txt; provided solution: S 3 3 R 3 3 R 0 0 R 4 4 R 4 4 R 4 5 R 5 5 R 5 6; Move number 5 not valid (R, 4, 5).No more tiles available for (4, 5)."
+2,wish_us_luck,"Solution not valid for input3.txt; provided solution: S 1 2 R 2 2 R 5 6 R 5 6; Tile mismatch at move number 2. Should be 2, found 5"
+3,wish_us_luck,"Solution not valid for input4.txt; provided solution: S 1 2 R 2 2 R 6 5 L 0 0 L 11 11; Tile mismatch at move number 2. Should be 2, found 6"
+4,902902,"Impossible to get the output string for input0.txt: malloc(): corrupted top size
+Aborted
+"
+5,902902,Solution not valid for input2.txt; provided solution: S ; ; R ; ;; invalid literal for int() with base 10: ';'
+6,902902,Solution not valid for input3.txt; provided solution: S < E R E <; invalid literal for int() with base 10: '<'
+7,902902,Solution not valid for input4.txt; provided solution: S < E; invalid literal for int() with base 10: '<'
+8,Edoardo-Caccaro,"Solution not valid for input4.txt; provided solution: S 3 2 L 3 3 R 12 21 R 1 1 R 4 4 R 4 5 R 11 11; Move number 0 not valid (S, 3, 2).No more tiles available for (2, 3)."
+9,I_Gormiti,main.c not found
+10,gg,"Solution not valid for input0.txt; provided solution: S 1 1 R 1 2 R 1 3 R 1 4 R 1 5 R 1 6; Tile mismatch at move number 2. Should be 2, found 1"
+11,challenge2,"Impossible to get the output string for input0.txt: OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"
+12,challenge2,"Impossible to get the output string for input1.txt: OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"
+13,challenge2,"Impossible to get the output string for input2.txt: OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"
+14,challenge2,"Impossible to get the output string for input3.txt: OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"
+15,challenge2,"Impossible to get the output string for input4.txt: OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"

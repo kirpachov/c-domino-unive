@@ -1,0 +1,18 @@
+,group_name,warning_message
+0,bip-bop,"menu.c: In function 'soloGame':
+menu.c:54:21: error: storage size of 'ts' isn't known
+   54 |     struct timespec ts;
+      |                     ^~
+menu.c:55:21: error: storage size of 'tf' isn't known
+   55 |     struct timespec tf;
+      |                     ^~
+menu.c:56:5: warning: implicit declaration of function 'timespec_get' [-Wimplicit-function-declaration]
+   56 |     timespec_get(&ts, TIME_UTC);
+      |     ^~~~~~~~~~~~
+menu.c:56:23: error: 'TIME_UTC' undeclared (first use in this function)
+   56 |     timespec_get(&ts, TIME_UTC);
+      |                       ^~~~~~~~
+menu.c:56:23: note: each undeclared identifier is reported only once for each function it appears in
+"
+1,challenge2,"OCI runtime exec failed: exec failed: unable to start container process: chdir to cwd (""/home/dummyuser/tmp/.ccls-cache/@home@runner@C/main.c\\n./tmp/.ccls-cache/@home@runner@challenge2/main.c\\n./tmp"") set in config.json failed: no such file or directory: unknown
+"

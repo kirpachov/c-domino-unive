@@ -37,7 +37,6 @@ void push(const struct Domino domino, struct Domino *domino_arr, const int domin
   domino_arr[domino_arr_size] = domino;
 }
 
-
 void unshift(struct Domino domino, struct Domino *domino_arr, const int before_size) {
   for (int i = before_size; i > 0; i--) domino_arr[i] = domino_arr[i - 1];
 
@@ -143,6 +142,10 @@ bool is_challenge = false;
  */
 int char_to_int(const char ch) {
   return (int) ch - 48;
+}
+
+char int_to_char(const int i) {
+  return (char) (i + 48);
 }
 
 bool is_char_a_number(const char ch) {

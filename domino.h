@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "log.h"
+#include "log.c"
 
 #define SMALLES_DOMINO_VALUE 1
 #define LARGEST_DOMINO_VALUE 6
@@ -25,9 +26,6 @@ struct Domino {
   int left: 24;
   int right: 24;
 };
-
-
-//bool have_anything_in_common(const struct Domino, const struct Domino);
 
 /* ********************* TEST UTILS ********************* */
 void empty_user_dominoes(void);

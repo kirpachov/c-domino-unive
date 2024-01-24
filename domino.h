@@ -69,10 +69,15 @@ void add_empty_columns_after(char **, const int, const int, const int);
 char *format_matrix(char **matrix, const int width, const int height);
 void print_matrix(char **, const int, const int);
 int remove_unused_rows(char **matrix, const int width, const int height);
+void add_node_to_written(unsigned long int **written, const int written_length, const unsigned long int node_id);
 void write_nodes(
     char **, struct Node *,
     const int, const int,
-    int *, int *, const bool);
+    int *, int *);
+void write_nodes_rec(
+    char **, struct Node *,
+    const int, const int,
+    int *, int *, unsigned long int **, int, const bool);
 char** init_matrix(const int width, const int height);
 char** init_matrix_with(const int width, const int height, const char ch);
 struct Node *get_most_left_node(struct Node *);

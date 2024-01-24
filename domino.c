@@ -1393,6 +1393,43 @@ int remove_unused_rows(char **matrix, const int width, const int height) {
   return since_row;
 }
 
+void write_nodes(
+    char **matrix,
+    struct Node *node,
+    const int x,
+    const int y,
+    int *matrix_width,
+    int *matrix_height
+) {
+  unsigned long int *nodes_already_written = calloc(1, sizeof(int *));
+  int nodes_already_written_length = 0;
+  write_nodes_rec(matrix, node, x, y, matrix_width, matrix_height, &nodes_already_written, nodes_already_written_length,
+                  false);
+  free(nodes_already_written);
+}
+
+void add_node_to_written(unsigned long int **written, const int written_length, const unsigned long int node_id) {
+  *written = realloc(*written, sizeof(unsigned long int) * (written_length + 1));
+  (*written)[written_length] = node_id;
+}
+
+bool is_long_into_arr(const unsigned long int needle, const unsigned long int *haystack,
+                      const unsigned long int haystack_length) {
+//  printf("looking for %lu in ", needle);
+//
+//  for (int i = 0; i < haystack_length; i++) {
+//    printf("%lu ", haystack[i]);
+//  }
+//
+//  printf("\n");
+
+  for (int i = 0; i < haystack_length; i++) {
+    if (haystack[i] == needle) return true;
+  }
+
+  return false;
+}
+
 /**
  *
  * @param matrix
@@ -1404,7 +1441,7 @@ int remove_unused_rows(char **matrix, const int width, const int height) {
  * @param rtl boolean value. When true, we're going from right to left (<==).
  * Otherwise, we're going from left to rigt (==>)
  */
-void write_nodes(
+void write_nodes_rec(
     char **matrix,
     struct Node *node,
     const int x,
@@ -1412,9 +1449,14 @@ void write_nodes(
     int *matrix_width,
     int *matrix_height,
 
+    // Ids of nodes already written. Avoid infinite loops.
+    unsigned long int **nodes_already_written,
+    int written_length,
+
     const bool rtl
 ) {
-  printf("write_nodes | node#id: %ld (%d x %d) | x: %d, y: %d | rtl: %d | domino: [%d|%d]\n", node->id, *matrix_width,
+  printf("write_nodes_rec | node#id: %ld (%d x %d) | x: %d, y: %d | rtl: %d | domino: [%d|%d]\n", node->id,
+         *matrix_width,
          *matrix_height, x, y, rtl,
          node->domino->left,
          node->domino->right);
@@ -1427,6 +1469,11 @@ void write_nodes(
   if (y < 0) {
     printf("ERROR: y < 0");
     exit(EXIT_FAILURE);
+  }
+
+  if (is_long_into_arr(node->id, *nodes_already_written, written_length)) {
+    printf("Node %ld already written. Skipping.\n", node->id);
+    return;
   }
 
   const int current_node_width = node->is_vert ? 3 : 5;
@@ -1446,6 +1493,8 @@ void write_nodes(
   }
 
   write_node(node, matrix, x, y, rtl);
+  add_node_to_written(nodes_already_written, written_length, node->id);
+  written_length++;
 
   if (node->bottom_right && (node->is_vert || !rtl)) {
     const int width_needed = node->bottom_right->is_vert ? 3 : 5;
@@ -1456,8 +1505,8 @@ void write_nodes(
     }
 
     // We're going right ==>
-    write_nodes(matrix, node->bottom_right, x + (node->is_vert ? 3 : 5), y + (node->is_vert ? 1 : 0), matrix_width,
-                matrix_height, false);
+    write_nodes_rec(matrix, node->bottom_right, x + (node->is_vert ? 3 : 5), y + (node->is_vert ? 1 : 0), matrix_width,
+                    matrix_height, nodes_already_written, written_length, false);
   }
 
   if (node->top_left && rtl) {
@@ -1469,8 +1518,8 @@ void write_nodes(
     }
 
     // Going left <==
-    write_nodes(matrix, node->top_left, x - width_needed < 0 ? 0 : x - width_needed, y, matrix_width, matrix_height,
-                true);
+    write_nodes_rec(matrix, node->top_left, x - width_needed < 0 ? 0 : x - width_needed, y, matrix_width, matrix_height,
+                    nodes_already_written, written_length, true);
   }
 
   if (!node->is_vert) return;
@@ -1487,8 +1536,8 @@ void write_nodes(
     }
 
     // We're going left <==
-    write_nodes(matrix, node->bottom_left, x - width_needed < 0 ? 0 : x - width_needed, y + 1, matrix_width,
-                matrix_height, true);
+    write_nodes_rec(matrix, node->bottom_left, x - width_needed < 0 ? 0 : x - width_needed, y + 1, matrix_width,
+                    matrix_height, nodes_already_written, written_length, true);
   }
 
   // top-right positions are for vertical nodes only.
@@ -1503,8 +1552,8 @@ void write_nodes(
     }
 
     // We're going right ==>
-    write_nodes(matrix, node->top_right, x + current_node_width, y, matrix_width,
-                matrix_height, false);
+    write_nodes_rec(matrix, node->top_right, x + current_node_width, y, matrix_width,
+                    matrix_height, nodes_already_written, written_length, false);
   }
 }
 

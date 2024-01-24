@@ -1111,7 +1111,7 @@ static void assert_node_print_format(struct Node *node, char *expected_str) {
 
   char **matrix = init_matrix(width, height);
 
-  write_nodes(matrix, get_most_left_node(node), 0, 0, &width, &height, false);
+  write_nodes(matrix, get_most_left_node(node), 0, 0, &width, &height);
 
   char *actual_str = format_matrix(matrix, width, height);
 
@@ -1258,6 +1258,19 @@ static void test_write_nodes_7(void) {
                            "        :5]\n");
 }
 
+static void test_write_nodes_8(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node34 = create_node(create_domino(3, 4), true);
+  link_nodes(node, node34, BOTTOM_RIGHT);
+  link_nodes(node34, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
+
+  assert_node_print_format(node,
+              "[1:      \n"
+                           ":2][3:   \n"
+                           "   :4][4:\n"
+                           "      :5]\n");
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
 
@@ -1268,7 +1281,8 @@ int main(void) {
 //  RUN_TEST(test_write_nodes_4);
 //  RUN_TEST(test_write_nodes_5);
 //  RUN_TEST(test_write_nodes_6);
-  RUN_TEST(test_write_nodes_7);
+//  RUN_TEST(test_write_nodes_7);
+  RUN_TEST(test_write_nodes_8);
 
 //  RUN_TEST(test_process_challenge_1);
 //  RUN_TEST(test_interactive_1);

@@ -10,7 +10,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "log.h"
-#include "log.c"
 
 #define SMALLES_DOMINO_VALUE 1
 #define LARGEST_DOMINO_VALUE 6
@@ -27,6 +26,25 @@ struct Domino {
   int right: 24;
 };
 
+
+struct Node {
+  struct Domino* domino;
+
+  bool is_vert; // true if vertical, false if horizontal
+
+  unsigned long int id; // Incremental id
+
+  struct Node* top_left;
+  struct Node* top_right;
+  struct Node* bottom_left;
+  struct Node* bottom_right;
+};
+
+#define TOP_LEFT 1
+#define TOP_RIGHT 2
+#define BOTTOM_LEFT 3
+#define BOTTOM_RIGHT 4
+
 /* ********************* TEST UTILS ********************* */
 void empty_user_dominoes(void);
 void empty_table_dominoes(void);
@@ -41,6 +59,24 @@ void set_last_command(char* new_last_command);
 char* get_last_command(void);
 /* ********************* TEST UTILS ********************* */
 
+void free_matrix(char **matrix, const int height);
+struct Node *create_node(struct Domino *, bool is_vert);
+struct Domino *create_domino(const int, const int);
+void link_nodes(struct Node *parent, struct Node *child, int side);
+void write_node(const struct Node *, char **, const int, const int, const bool);
+void add_empty_columns_before(char **, const int, const int, const int);
+void add_empty_columns_after(char **, const int, const int, const int);
+char *format_matrix(char **matrix, const int width, const int height);
+void print_matrix(char **, const int, const int);
+int remove_unused_rows(char **matrix, const int width, const int height);
+void write_nodes(
+    char **, struct Node *,
+    const int, const int,
+    int *, int *, const bool);
+char** init_matrix(const int width, const int height);
+char** init_matrix_with(const int width, const int height, const char ch);
+struct Node *get_most_left_node(struct Node *);
+struct Node *get_most_right_node(struct Node *);
 bool can_place_on_left_rotated(const struct Domino d);
 bool can_place_on_left_unrotated(const struct Domino d);
 bool can_place_on_left(const struct Domino d);

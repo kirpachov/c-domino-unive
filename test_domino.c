@@ -1,5 +1,10 @@
-#include "domino.h"
+//#include <stdlib.h>
+//#include "domino.c"
+//#include "domino.h"
+//#include "nodes.c"
+//#include "nodes.h"
 #include "test-framework/unity.h"
+#include "domino.h"
 
 void setUp(void) {
 //  initialize();
@@ -1101,8 +1106,169 @@ void tearDown(void) {
 //  free(challenge);
 //}
 
+static void assert_node_print_format(struct Node *node, char *expected_str) {
+  int width = 1, height = 1;
+
+  char **matrix = init_matrix(width, height);
+
+  write_nodes(matrix, get_most_left_node(node), 0, 0, &width, &height, false);
+
+  char *actual_str = format_matrix(matrix, width, height);
+
+  TEST_ASSERT_EQUAL_STRING(expected_str, actual_str);
+
+  free(actual_str);
+  free_matrix(matrix, height);
+}
+
+static void test_write_nodes_0(void) {
+//  struct Node *first = create_node(create_domino(1, 2), false);
+//
+//  int width = 1, height = 1;
+//
+//  char **matrix = malloc(sizeof(char *) * height);
+//  for (int i = 0; i < height; i++) {
+//    matrix[i] = calloc(width, sizeof(char));
+//    for (int j = 0; j < width; j++) {
+//      matrix[i][j] = ' ';
+//    }
+//  }
+//
+//  write_nodes(matrix, get_most_left_node(first), 0, 0, &width, &height, false);
+//
+//  print_matrix(matrix, width, height);
+  struct Node *first = create_node(create_domino(1, 2), false);
+  struct Node *second = create_node(create_domino(2, 3), true);
+  link_nodes(first, second, BOTTOM_RIGHT);
+  struct Node *third = create_node(create_domino(3, 4), false);
+  link_nodes(second, third, BOTTOM_RIGHT);
+  struct Node *fourth = create_node(create_domino(4, 5), true);
+  link_nodes(third, fourth, BOTTOM_RIGHT);
+  struct Node *fifth = create_node(create_domino(6, 5), false);
+  link_nodes(fourth, fifth, BOTTOM_LEFT);
+  struct Node *sixth = create_node(create_domino(6, 6), false);
+  link_nodes(fifth, sixth, TOP_LEFT);
+  struct Node *seventh = create_node(create_domino(1, 6), false);
+  link_nodes(sixth, seventh, TOP_LEFT);
+  struct Node *eighth = create_node(create_domino(1, 1), true);
+  link_nodes(seventh, eighth, TOP_LEFT);
+  struct Node *ninth = create_node(create_domino(2, 1), false);
+  link_nodes(eighth, ninth, TOP_LEFT);
+  struct Node *tenth = create_node(create_domino(2, 2), true);
+  link_nodes(ninth, tenth, TOP_LEFT);
+
+  assert_node_print_format(first, "             [1|2][2:        \n"
+                                  "                  :3][3|4][4:\n"
+                                  ":2][2|1]:1][1|6][6|6][6|5]:5]\n"
+                                  "[2:     [1:                  \n");
+}
+
+static void test_write_nodes_1(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node2 = create_node(create_domino(2, 3), true);
+  link_nodes(node, node2, BOTTOM_RIGHT);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node2, node3, BOTTOM_LEFT);
+
+  assert_node_print_format(node, "[1:   \n"
+                                 ":2][2:\n"
+                                 ":3]:3]\n"
+                                 "[4:   \n");
+}
+
+static void test_write_nodes_2(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node2 = create_node(create_domino(2, 3), true);
+  link_nodes(node, node2, BOTTOM_RIGHT);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node2, node3, BOTTOM_LEFT);
+  struct Node *node4 = create_node(create_domino(4, 5), true);
+  link_nodes(node3, node4, BOTTOM_LEFT);
+
+  assert_node_print_format(node, "   [1:   \n"
+                                 "   :2][2:\n"
+                                 "   :3]:3]\n"
+                                 ":4][4:   \n"
+                                 "[5:      \n");
+}
+
+static void test_write_nodes_3(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node2 = create_node(create_domino(2, 3), true);
+  link_nodes(node, node2, BOTTOM_RIGHT);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node2, node3, BOTTOM_LEFT);
+  struct Node *node4 = create_node(create_domino(4, 5), true);
+  link_nodes(node3, node4, BOTTOM_LEFT);
+
+  assert_node_print_format(node, "   [1:   \n"
+                                 "   :2][2:\n"
+                                 "   :3]:3]\n"
+                                 ":4][4:   \n"
+                                 "[5:      \n");
+}
+
+static void test_write_nodes_4(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node2 = create_node(create_domino(2, 3), true);
+  link_nodes(node, node2, BOTTOM_RIGHT);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node2, node3, BOTTOM_LEFT);
+  struct Node *node5 = create_node(create_domino(4, 6), true);
+  link_nodes(node3, node5, BOTTOM_RIGHT);
+
+  assert_node_print_format(node, "[1:   \n"
+                                 ":2][2:\n"
+                                 ":3]:3]\n"
+                                 "[4:[4:\n"
+                                 "   :6]\n");
+}
+
+static void test_write_nodes_5(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node, node3, BOTTOM_RIGHT);
+  link_nodes(node3, create_node(create_domino(4, 5), false), BOTTOM_LEFT);
+
+  assert_node_print_format(node,
+                           "[1|2][3:\n"
+                           "[4|5]:4]\n");
+}
+
+static void test_write_nodes_6(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node, node3, BOTTOM_RIGHT);
+  link_nodes(node3, create_node(create_domino(4, 5), false), BOTTOM_RIGHT);
+
+  assert_node_print_format(node,
+                           "[1|2][3:     \n"
+                           "     :4][4|5]\n");
+}
+
+static void test_write_nodes_7(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  struct Node *node3 = create_node(create_domino(3, 4), true);
+  link_nodes(node, node3, BOTTOM_RIGHT);
+  link_nodes(node3, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
+
+  assert_node_print_format(node,
+                           "[1|2][3:   \n"
+                           "     :4][4:\n"
+                           "        :5]\n");
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
+
+//  RUN_TEST(test_write_nodes_0);
+//  RUN_TEST(test_write_nodes_1);
+//  RUN_TEST(test_write_nodes_2);
+//  RUN_TEST(test_write_nodes_3);
+//  RUN_TEST(test_write_nodes_4);
+//  RUN_TEST(test_write_nodes_5);
+//  RUN_TEST(test_write_nodes_6);
+  RUN_TEST(test_write_nodes_7);
 
 //  RUN_TEST(test_process_challenge_1);
 //  RUN_TEST(test_interactive_1);

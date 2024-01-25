@@ -70,58 +70,109 @@ In breve, il flow del gioco è il seguente:\n\
 Il punteggio viene calcolato come la somma dei numeri dei domino che sono sul tavolo.\n\
 Per iniziare a giocare, premi qualsiasi tasto e poi invio.\n"
 
-void add_moves_to_tree(struct Node *root, struct Domino d);
-void print_tree(struct Node *root);
-void tree_to_array(struct Node* root_node, struct Node ***result, int *result_size);
 bool is_exit_command(char *command);
-void free_matrix(char **matrix, const int height);
-struct Node *create_node(struct Domino *, bool is_vert);
-struct Domino *create_domino(const int, const int);
-void link_nodes(struct Node *parent, struct Node *child, int side);
-void write_node(const struct Node *, char **, const int, const int, const bool);
-void add_empty_columns_before(char **, const int, const int, const int);
-void add_empty_columns_after(char **, const int, const int, const int);
-char *matrix_to_str(char **matrix, const int width, const int height);
-void print_matrix(char **, const int, const int);
-void add_node_to_written(unsigned long int **written, const int written_length, const unsigned long int node_id);
-void write_nodes(
-    char **, struct Node *,
-    const int, const int,
-    int *, int *);
-void write_nodes_rec(
-    char **, struct Node *,
-    const int, const int,
-    int *, int *, unsigned long int **, int, const bool);
-char** init_matrix(const int width, const int height);
-char** init_matrix_with(const int width, const int height, const char ch);
-struct Node *get_most_left_node(struct Node *);
-struct Node *get_most_right_node(struct Node *);
+int points_from_tree(struct Node *root);
+void print_points(struct Node *root);
+void resize_dominoes_array(struct Domino **arr, const int new_size);
+void push(const struct Domino domino, struct Domino *domino_arr, const int domino_arr_size);
+void unshift(struct Domino domino, struct Domino *domino_arr, const int before_size);
+void pop(const int index, struct Domino *domino_arr, const int domino_arr_size);
+int char_to_int(const char ch);
+char int_to_char(const int i);
 bool is_mirror_domino(const struct Domino domino);
 bool is_addone_domino(const struct Domino domino);
 bool is_glue_domino(const struct Domino domino);
-bool is_domino_special(const struct Domino d);
-bool can_place_on_table(const struct Domino d);
-struct Domino *allocate_memory_for_dominoes(struct Domino **arr, int size);
-void resize_dominoes_array(struct Domino **arr, const int new_size);
-void pop(const int index, struct Domino* domino_arr, const int domino_arr_size);
-struct Domino *add_domino_on_start(struct Domino domino, const struct Domino *domino_arr, int *domino_arr_size);
-int char_to_int(const char);
-bool is_char_a_number(const char);
-char* upcase_str(const char *original);
-bool is_string_in_string(const char*, const char*);
-int first_number_from_string(const char*);
-char* str_add_padding(const char* original);
-int random_between(const int, const int);
-struct Domino random_domino_from_universe(void);
-int run_challenge_1(void);
-int run_challenge(void);
-char *format_dominoes_inline(const struct Domino *, const int);
-char* format_user_points_str(void);
+bool is_domino_special(const struct Domino domino);
+char *format_domino(const struct Domino d);
+int random_between(const int lower, const int upper);
+char *format_dominoes_inline(const struct Domino *dominoes, const int size);
+void print_table(struct Node *root_node);
 void clean_screen(void);
-char* format_domino(const struct Domino);
+bool node_in_array(struct Node **arr, const int size, struct Node *node);
+void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size);
+void tree_to_array(struct Node *root_node, struct Node ***result, int *result_size);
+bool can_place_domino_on_node(const struct Domino domino, const struct Node *node);
+bool can_place_domino_in_tree(const struct Domino domino, struct Node *root_node);
+int valid_moves_count(struct Node *root_node, const struct Domino *dominoes, const int dominoes_size);
+void print_dominoes_with_valid_moves(
+    struct Node *root_node,
+    const struct Domino *dominoes,
+    const int dominoes_size
+);
+void add_moves_to_tree(struct Node *root, struct Domino d);
+void remove_moves_from_tree(struct Node *root);
+int str_to_i(const char *str);
+int select_position(
+    struct Node *root_node,
+    struct Domino domino,
+    struct Node **to_attach_node
+);
+int select_domino(
+    struct Node *root_node,
+    struct Domino *user_dominoes,
+    const int user_dominoes_size
+);
 struct Domino rotate_domino(const struct Domino d);
-void acquire_command(char** last_command);
+void acquire_command(char **last_command);
+struct Domino *random_special_domino(void);
+struct Domino *random_domino(bool specials);
+struct Domino *init_random_dominoes_arr(int size, bool specials);
+bool select_orientation(struct Node *root_node, struct Domino selected_domino);
+void display_welcome_message(void);
 int run_interactive(void);
 void initialize(void);
+struct Node *create_node(struct Domino *domino, bool is_vert);
+struct Domino *create_domino(const int left, const int right);
+void rotate_if_necessary(struct Node *parent, struct Node *child, int side);
+void link_nodes(struct Node *parent, struct Node *child, int side);
+void write_node(
+    const struct Node *node,
+    char **matrix,
+    const int x,
+    const int y,
+    const bool rtl
+);
+void add_empty_columns_before(char **matrix, const int quantity, const int matrix_width,
+                              const int matrix_height);
+void add_empty_columns_after(char **matrix, const int quantity, const int matrix_width,
+                             const int matrix_height);
+void add_empty_rows_after(char ***matrix, const int quantity, const int matrix_width, const int matrix_height);
+char *matrix_to_str(char **matrix, const int width, const int height);
+void print_matrix(char **matrix, const int width, const int height);
+void print_tree(struct Node *root);
+void write_nodes(
+    char **matrix,
+    struct Node *node,
+    const int x,
+    const int y,
+    int *matrix_width,
+    int *matrix_height
+);
+void add_node_to_written(unsigned long int **written, const int written_length, const unsigned long int node_id);
+bool is_long_into_arr(const unsigned long int needle, const unsigned long int *haystack,
+                      const unsigned long int haystack_length);
+int max2(const int first, const int second);
+int max4(const int first, const int second, const int third, const int fourth);
+int count_digits(int number);
+int add_moves_informations(char **matrix, struct Node *node, int x, const int y, int *matrix_width,
+                           int *matrix_height);
+void write_nodes_rec(
+    char **matrix,
+    struct Node *node,
+    int x,
+    const int y,
+    int *matrix_width,
+    int *matrix_height,
+
+    // Ids of nodes already written. Avoid infinite loops.
+    unsigned long int **nodes_already_written,
+    int written_length,
+
+    const bool rtl
+);
+struct Node *get_most_left_node(struct Node *node);
+struct Node *get_most_right_node(struct Node *node);
+char **init_matrix(const int width, const int height);
+void free_matrix(char **matrix, const int height);
 
 #endif //C_DOMINO_UNIVE_DOMINO_H

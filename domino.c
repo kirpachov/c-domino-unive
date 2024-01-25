@@ -4,30 +4,11 @@
 
 #include "domino.h"
 
-const char *LEFT_IDENTIFIERS[] = {" LEFT ", " L "};
-const unsigned LEFT_IDENTIFIERS_COUNT = 2;
-
-const char *RIGHT_IDENTIFIERS[] = {" RIGHT ", " R "};
-const unsigned RIGHT_IDENTIFIERS_COUNT = 2;
-
 const char *EXIT_COMMANDS[] = {"exit", "stop", "esci"};
 const unsigned EXIT_COMMANDS_COUNT = 3;
 
-/**
- * Are special dominoes allowed?
- * [0|0] can be placed everywhere.
- * E.g: [1|2][0|0][5|6]
- *
- * [11|11]: will add 1 to the closest domino. If it's 6, will become 1.
- * E.g:  [1|6][6|3][11|11] => [2|1][1|4][4|4]
- *
- * [12|21] will copy mirror the closest domino.
- * E.g: [1|2][2|3][12|21] => [1|2][2|3][3|2]
- */
-//bool specials = true;
-
 bool is_exit_command(char *command) {
-  for (int i = 0; i < EXIT_COMMANDS_COUNT; i++)
+  for (unsigned int i = 0; i < EXIT_COMMANDS_COUNT; i++)
     if (strcmp(command, EXIT_COMMANDS[i]) == 0) return true;
 
   return false;
@@ -142,10 +123,6 @@ int random_between(const int lower, const int upper) {
   return (rand() % (upper - lower + 1)) + lower;
 }
 
-struct Domino random_domino_from(struct Domino *arr, const int size) {
-  return arr[random_between(0, size - 1)];
-}
-
 char *format_dominoes_inline(const struct Domino *dominoes, const int size) {
   // TODO calc max size instead of using 100
   const int a = (size + 1) * strlen(" [x|y] ");
@@ -194,11 +171,7 @@ bool node_in_array(struct Node **arr, const int size, struct Node *node) {
   return false;
 }
 
-//void realloc_array_one_node(struct Node **arr, const int size) {
-//  *arr = realloc(*arr, sizeof(struct Node) * (size <= 0 ? 1 : size));
-//}
-
-static void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size) {
+void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size) {
   if (node_in_array(*result, *result_size, node)) {
 //    log_debug("tree_to_array_rec #%lul already in array", node->id);
     return;
@@ -939,7 +912,7 @@ void add_node_to_written(unsigned long int **written, const int written_length, 
 
 bool is_long_into_arr(const unsigned long int needle, const unsigned long int *haystack,
                       const unsigned long int haystack_length) {
-  for (int i = 0; i < haystack_length; i++) {
+  for (unsigned long int i = 0; i < haystack_length; i++) {
     if (haystack[i] == needle) return true;
   }
 

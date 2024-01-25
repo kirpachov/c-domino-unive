@@ -5,12 +5,12 @@
 CFLAGS  = -std=c99
 CFLAGS += -g
 # 02 is optimization: https://gcc.gnu.org/onlinedocs/gcc-3.1.1/gcc/Optimize-Options.html#Optimize%20Options
-#CFLAGS += -O2
-#CFLAGS += -Wall
-#CFLAGS += -Wextra
-#CFLAGS += -pedantic
-#CFLAGS += -Werror
-#CFLAGS += -Wmissing-declarations
+CFLAGS += -O2
+CFLAGS += -Wall
+CFLAGS += -Wextra
+CFLAGS += -pedantic
+CFLAGS += -Werror
+CFLAGS += -Wmissing-declarations
 CFLAGS += -DUNITY_SUPPORT_64 -DUNITY_OUTPUT_COLOR
 
 ASANFLAGS  = -fsanitize=address

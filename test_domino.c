@@ -1277,7 +1277,7 @@ static void test_write_nodes_9(void) {
   link_nodes(node, node34, BOTTOM_RIGHT);
   link_nodes(node34, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
 
-  struct Domino selected_domino = (struct Domino){1, 5};
+  struct Domino selected_domino = (struct Domino) {1, 5};
 
   assert_node_print_format(node,
                            "<1>[1:         \n"
@@ -1322,8 +1322,104 @@ static void test_tree_to_array1(void) {
   tree_to_array(root, &arr, &size);
 }
 
+static void test_table_moves_display_case(struct Node *node, struct Domino *d, const char *expect) {
+  add_moves_to_tree(node, *d);
+  int width = 1, height = 1;
+  char **matrix = init_matrix(width, height);
+  write_nodes(
+      matrix,
+      node,
+      0, 0,
+      &width,
+      &height);
+
+//  printf("%s\n", matrix_to_str(matrix, width, height));
+
+  TEST_ASSERT_EQUAL_STRING(expect, matrix_to_str(matrix, width, height));
+}
+
+static void test_table_moves_display0(void) {
+  struct Node *node = create_node(create_domino(3, 4), false);
+  struct Domino selected_domino = (struct Domino) {3, 4};
+  test_table_moves_display_case(node, &selected_domino, "<1>[3|4]<2>\n");
+}
+
+static void test_table_moves_display1(void) {
+  struct Node *node = create_node(create_domino(3, 4), false);
+  struct Domino selected_domino = (struct Domino) {1, 4};
+  test_table_moves_display_case(node, &selected_domino, "[3|4]<1>\n");
+}
+
+static void test_table_moves_display2(void) {
+  struct Node *node = create_node(create_domino(8, 8), false);
+  struct Domino selected_domino = (struct Domino) {1, 4};
+  test_table_moves_display_case(node, &selected_domino, "[8|8]\n");
+}
+
+static void test_table_moves_display3(void) {
+  struct Node *node = create_node(create_domino(8, 8), false);
+  struct Domino selected_domino = (struct Domino) {1, 8};
+  test_table_moves_display_case(node, &selected_domino, "<1>[8|8]<2>\n");
+}
+
+static void test_table_moves_display4(void) {
+  struct Node *node = create_node(create_domino(4, 4), false);
+  struct Domino selected_domino = (struct Domino) {4, 4};
+  test_table_moves_display_case(node, &selected_domino, "<1>[4|4]<2>\n");
+}
+
+static void test_table_moves_display5(void) {
+  struct Node *node = create_node(create_domino(4, 4), true);
+  struct Domino selected_domino = (struct Domino) {4, 4};
+  test_table_moves_display_case(node, &selected_domino, "<1>[4:<2>\n<4>:4]<3>\n");
+}
+
+static void test_table_moves_display6(void) {
+  struct Node *node = create_node(create_domino(4, 1), true);
+  struct Domino selected_domino = (struct Domino) {4, 4};
+  test_table_moves_display_case(node, &selected_domino, "<1>[4:<2>\n   :1]   \n");
+}
+
+static void test_table_moves_display7(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  link_nodes(node, create_node(create_domino(2, 3), true), BOTTOM_RIGHT);
+
+  struct Domino selected_domino = (struct Domino) {4, 4};
+  test_table_moves_display_case(node, &selected_domino, "[1|2][2:\n     :3]\n");
+}
+
+static void test_table_moves_display8(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  link_nodes(node, create_node(create_domino(2, 3), true), BOTTOM_RIGHT);
+
+  struct Domino selected_domino = (struct Domino) {3, 4};
+  test_table_moves_display_case(node, &selected_domino, "[1|2][2:   \n  <2>:3]<1>\n");
+}
+
+static void test_table_moves_display9(void) {
+  struct Node *node = create_node(create_domino(1, 2), false);
+  struct Node *node1 = create_node(create_domino(2, 3), true);
+  link_nodes(node, node1, BOTTOM_RIGHT);
+  struct Node *node2 = create_node(create_domino(3, 4), false);
+  link_nodes(node1, node2, BOTTOM_RIGHT);
+
+  struct Domino selected_domino = (struct Domino) {3, 4};
+  test_table_moves_display_case(node, &selected_domino, "[1|2][2:        \n  <1>:3][3|4]<2>\n");
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
+
+  RUN_TEST(test_table_moves_display0);
+  RUN_TEST(test_table_moves_display1);
+  RUN_TEST(test_table_moves_display2);
+  RUN_TEST(test_table_moves_display3);
+  RUN_TEST(test_table_moves_display4);
+  RUN_TEST(test_table_moves_display5);
+  RUN_TEST(test_table_moves_display6);
+  RUN_TEST(test_table_moves_display7);
+  RUN_TEST(test_table_moves_display8);
+  RUN_TEST(test_table_moves_display9);
 
 //  RUN_TEST(test_tree_to_array0);
 //  RUN_TEST(test_tree_to_array1);
@@ -1337,7 +1433,7 @@ int main(void) {
 //  RUN_TEST(test_write_nodes_6);
 //  RUN_TEST(test_write_nodes_7);
 //  RUN_TEST(test_write_nodes_8);
-  RUN_TEST(test_write_nodes_9);
+//  RUN_TEST(test_write_nodes_9);
 
 
 //  RUN_TEST(test_process_challenge_1);

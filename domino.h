@@ -95,6 +95,7 @@ Per iniziare a giocare, premi qualsiasi tasto e poi invio.\n"
 //char* get_last_command(void);
 /* ********************* TEST UTILS ********************* */
 
+void add_moves_to_tree(struct Node *root, struct Domino d);
 void print_tree(struct Node *root);
 void tree_to_array(struct Node* root_node, struct Node ***result, int *result_size);
 bool is_exit_command(char *command);

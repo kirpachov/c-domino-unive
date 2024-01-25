@@ -1817,6 +1817,80 @@ int count_digits(int number) {
   return count;
 }
 
+int add_moves_informations(char **matrix, struct Node *node, int x, const int y, int *matrix_width,
+                           int *matrix_height) {
+
+  int x_offset = 0;
+
+  const int node_width = node->is_vert ? 3 : 5;
+
+  const int top_left_move_width = node->top_left_move ? count_digits(node->top_left_move) + 2 : 0;
+  const int bottom_left_move_width = node->bottom_left_move ? count_digits(node->bottom_left_move) + 2 : 0;
+  const int left_move_width = max2(top_left_move_width, bottom_left_move_width);
+
+  const int top_right_move_width = node->top_right_move ? count_digits(node->top_right_move) + 2 : 0;
+  const int bottom_right_move_width = node->bottom_right_move ? count_digits(node->bottom_right_move) + 2 : 0;
+  const int right_move_width = max2(top_right_move_width, bottom_right_move_width);
+
+  log_debug("add_moves_informations x: %d, y: %d | %s", x, y, format_domino(*(node->domino)));
+
+  if (left_move_width > x) {
+    // Need more space on the left.
+    const int adding = left_move_width - x;
+    log_debug("Not enough space on left. Adding %d.", adding);
+    add_empty_columns_before(matrix, adding, *matrix_width, *matrix_height);
+    *matrix_width = (*matrix_width) + adding;
+    x_offset = x_offset + adding;
+    x += adding;
+  }
+
+  if (x + node_width + right_move_width > *matrix_width) {
+    const int adding = (x + node_width + right_move_width) - *matrix_width;
+    add_empty_columns_after(matrix, adding, *matrix_width, *matrix_height);
+    *matrix_width = (*matrix_width) + adding;
+    log_debug("No enough space on right. Adding %d", adding);
+  }
+
+  /**
+   * TOP-LEFT
+   */
+  if (node->top_left_move && top_left_move_width) {
+    matrix[y][x - 3] = '<';
+    matrix[y][x - 2] = int_to_char(node->top_left_move);
+    matrix[y][x - 1] = '>';
+  }
+
+  /**
+   * BOTTOM-RIGHT
+   */
+  if (node->bottom_right_move && bottom_right_move_width) {
+    const int y_offset = node->is_vert ? 1 : 0;
+    matrix[y + y_offset][x + node_width] = '<';
+    matrix[y + y_offset][x + node_width + 1] = int_to_char(node->bottom_right_move);
+    matrix[y + y_offset][x + node_width + 2] = '>';
+  }
+
+  /**
+   * TOP-RIGHT
+   */
+  if (node->top_right_move && top_right_move_width && node->is_vert) {
+    matrix[y][x + node_width] = '<';
+    matrix[y][x + node_width + 1] = int_to_char(node->top_right_move);
+    matrix[y][x + node_width + 2] = '>';
+  }
+
+  /**
+   * BOTTOM-LEFT
+   */
+  if (node->bottom_left_move && bottom_left_move_width && node->is_vert) {
+    matrix[y + 1][x - 3] = '<';
+    matrix[y + 1][x - 2] = int_to_char(node->bottom_left_move);
+    matrix[y + 1][x - 1] = '>';
+  }
+
+  return x_offset;
+}
+
 /**
  *
  * @param matrix
@@ -1831,7 +1905,7 @@ int count_digits(int number) {
 void write_nodes_rec(
     char **matrix,
     struct Node *node,
-    const int x,
+    int x,
     const int y,
     int *matrix_width,
     int *matrix_height,
@@ -1843,20 +1917,12 @@ void write_nodes_rec(
     const bool rtl
 ) {
 
-  const int left_move_width = node->top_left_move || (node->is_vert && node->top_right_move) ?
-                              count_digits(max2(node->top_left_move, node->bottom_left_move)) + 2 : 0;
-
-  const int right_move_width = node->bottom_right_move > 0 || (node->is_vert && node->top_right_move) ?
-                               count_digits(max2(node->bottom_right_move, node->top_right_move)) + 2 : 0;
-
-  log_debug("write_nodes_rec | node#id: %ld (%d x %d) | x: %d, y: %d | rtl: %d | domino: [%d|%d] | left_move_width: %d, right_move_width: %d", node->id,
-         *matrix_width,
-         *matrix_height, x, y, rtl,
-         node->domino->left,
-         node->domino->right,
-         left_move_width,
-         right_move_width
-         );
+  log_debug("write_nodes_rec | node#id: %ld (%d x %d) | x: %d, y: %d | rtl: %d | domino: [%d|%d]", node->id,
+            *matrix_width,
+            *matrix_height, x, y, rtl,
+            node->domino->left,
+            node->domino->right
+  );
 
   if (x < 0) {
     printf("ERROR: x < 0");
@@ -1887,9 +1953,9 @@ void write_nodes_rec(
     *matrix_height = *matrix_height + missing_height;
   }
 
+  x += add_moves_informations(matrix, node, x, y, matrix_width, matrix_height);
   write_node(node, matrix, x, y, rtl);
-  add_node_to_written(nodes_already_written, written_length, node->id);
-  written_length++;
+  add_node_to_written(nodes_already_written, written_length++, node->id);
 
   if (node->bottom_right && (node->is_vert || !rtl)) {
     const int width_needed = node->bottom_right->is_vert ? 3 : 5;

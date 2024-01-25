@@ -667,6 +667,8 @@ bool can_place_domino_in_tree(const struct Domino domino, struct Node *root_node
   }
 
   struct Node **arr = calloc(1, sizeof(struct Node *));
+  // TODO free arr
+
   int size = 0;
   tree_to_array(root_node, &arr, &size);
 
@@ -750,14 +752,20 @@ void print_everything(
     struct Domino *user_dominoes,
     const int user_dominoes_size,
     int status,
-    struct Domino *selected_domino
+    char *feedback,
+    struct Domino *selected_domino,
+    struct Node *selected_node
 ) {
   clean_screen();
   if (status == STATUS_SELECT_DOMINO) {
+    remove_moves_from_tree(root_node);
+
     print_table(root_node);
     printf("Tessere disponibili:\n");
     print_dominoes_with_valid_moves(root_node, user_dominoes, user_dominoes_size);
+    printf("\n");
     printf("?> Seleziona il domino da posizionare utilizzando l'indice indicato sulla sinistra.\n");
+    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
     printf("\n");
     return;
   }
@@ -771,7 +779,27 @@ void print_everything(
     add_moves_to_tree(root_node, *selected_domino);
     print_table(root_node);
     printf("?> Seleziona la posizione in cui mettere il domino indicando l'<indice>.\n");
-    printf("?> Tessera selezionata: %s\n", format_domino(*selected_domino));
+    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
+//    printf("?> Tessera selezionata: %s\n", format_domino(*selected_domino));
+    printf("\n");
+    return;
+  }
+
+  if (status == STATUS_SELECT_ORIENTATION) {
+    if (selected_domino == NULL) {
+      printf("ERROR: selected_domino is null at line %d", __LINE__);
+      exit(EXIT_FAILURE);
+    }
+
+    if (selected_node == NULL) {
+      printf("ERROR: selected_node is null at line %d", __LINE__);
+      exit(EXIT_FAILURE);
+    }
+
+    add_moves_to_tree(root_node, *selected_domino);
+    print_table(root_node);
+    printf("?> Seleziona l'orientamento del domino Orizzontale => (1/horizontal), Verticale => (2/vertical).\n");
+    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
     printf("\n");
     return;
   }
@@ -800,39 +828,39 @@ void print_everything(
  * is 1 if left;
  * is 2 if right.
  */
-void guess_selection(const char *command, int *result_index, int *position) {
-  *result_index = first_number_from_string(command);
-
-  if (*result_index < 0 || *result_index > (int) strlen(command) * 10) *result_index = 0;
-
-  const char *formatted_command = str_add_padding(upcase_str(command));
-
-  if (strlen(command) == 2 && is_string_in_string(formatted_command, "L")) {
-    *position = LEFT_SIDE;
-    return;
-  }
-
-  if (strlen(command) == 2 && is_string_in_string(formatted_command, "R")) {
-    *position = RIGHT_SIDE;
-    return;
-  }
-
-  *position = 0;
-
-  for (unsigned i = 0; i < LEFT_IDENTIFIERS_COUNT; i++) {
-    if (is_string_in_string(formatted_command, LEFT_IDENTIFIERS[i])) {
-      *position = LEFT_SIDE;
-      return;
-    }
-  }
-
-  for (unsigned i = 0; i < RIGHT_IDENTIFIERS_COUNT; i++) {
-    if (is_string_in_string(formatted_command, RIGHT_IDENTIFIERS[i])) {
-      *position = RIGHT_SIDE;
-      return;
-    }
-  }
-}
+//void guess_selection(const char *command, int *result_index, int *position) {
+//  *result_index = first_number_from_string(command);
+//
+//  if (*result_index < 0 || *result_index > (int) strlen(command) * 10) *result_index = 0;
+//
+//  const char *formatted_command = str_add_padding(upcase_str(command));
+//
+//  if (strlen(command) == 2 && is_string_in_string(formatted_command, "L")) {
+//    *position = LEFT_SIDE;
+//    return;
+//  }
+//
+//  if (strlen(command) == 2 && is_string_in_string(formatted_command, "R")) {
+//    *position = RIGHT_SIDE;
+//    return;
+//  }
+//
+//  *position = 0;
+//
+//  for (unsigned i = 0; i < LEFT_IDENTIFIERS_COUNT; i++) {
+//    if (is_string_in_string(formatted_command, LEFT_IDENTIFIERS[i])) {
+//      *position = LEFT_SIDE;
+//      return;
+//    }
+//  }
+//
+//  for (unsigned i = 0; i < RIGHT_IDENTIFIERS_COUNT; i++) {
+//    if (is_string_in_string(formatted_command, RIGHT_IDENTIFIERS[i])) {
+//      *position = RIGHT_SIDE;
+//      return;
+//    }
+//  }
+//}
 
 //bool can_be_put_on_table(const struct Domino domino, const bool left_side) {
 //  return left_side ? can_place_on_left(domino) : can_place_on_right(domino);
@@ -1362,6 +1390,75 @@ selected_domino_from_command(const char *command, struct Domino *dominoes, const
 //
 //};
 
+int command_select_orientation(
+    const char *command,
+    struct Node *root,
+    char **feedback,
+    bool *is_horizontal
+) {
+  if (strcmp(command, "H") == 0 || strcmp(command, "h") == 0 || strcmp(command, "1") == 0 ||
+      strcmp(command, "HORIZONTAL") == 0 || strcmp(command, "horizontal") == 0) {
+    *is_horizontal = true;
+    return STATUS_VALID_MOVE;
+  }
+
+  if (strcmp(command, "V") == 0 || strcmp(command, "v") == 0 || strcmp(command, "2") == 0 ||
+      strcmp(command, "VERTICAL") == 0 || strcmp(command, "vertical") == 0) {
+    *is_horizontal = false;
+    return STATUS_VALID_MOVE;
+  }
+
+  return STATUS_SELECT_ORIENTATION;
+}
+
+int process_command_select_move(
+    const char *command,
+    struct Node *root,
+    char **feedback,
+    struct Node **selected_node,
+    int *selected_move
+) {
+  *selected_move = atoi(command);
+  struct Node **arr = calloc(1, sizeof(struct Node *));
+  // TODO free arr
+
+  int size = 0;
+  tree_to_array(root, &arr, &size);
+
+  for (int i = 0; i < size; i++) {
+    if (arr[i]->top_left_move == *selected_move) {
+      *selected_node = arr[i];
+      break;
+    }
+
+    if (arr[i]->top_right_move == *selected_move) {
+      *selected_node = arr[i];
+      break;
+    }
+
+    if (arr[i]->bottom_left_move == *selected_move) {
+      *selected_node = arr[i];
+      break;
+    }
+
+    if (arr[i]->bottom_right_move == *selected_move) {
+      *selected_node = arr[i];
+      break;
+    }
+  }
+
+  if (selected_node == NULL) {
+    log_debug("process_command_select_move | selected_node is NULL");
+    *feedback = "Nessuna posizione con quell'indice. Indica solo il numero compreso tra i segni minore e maggiore \"<xxx>\"";
+    return STATUS_SELECT_POSITION;
+  }
+
+//  for(int i = 0; i < size; i++) free(arr[i]);
+//  free(arr);
+
+  return STATUS_SELECT_ORIENTATION;
+}
+
 int command_select_domino(
     const char *command,
     struct Node *root,
@@ -1371,6 +1468,8 @@ int command_select_domino(
     struct Domino **selected_domino
 ) {
   struct Domino *domino = selected_domino_from_command(command, users, users_size);
+  // TODO free this dominos
+
   if (domino == NULL) {
     log_debug("command_select_domino | domino is NULL");
     *feedback = "Nessun domino con quell'indice.";
@@ -1384,32 +1483,50 @@ int command_select_domino(
   }
 
   log_debug("command_select_domino | domino %s selected", format_domino(*domino));
-  sprintf(*feedback, "Selected domino %s", format_domino(*domino));
+  sprintf(*feedback, "Domino selezionato: %s", format_domino(*domino));
 
   *selected_domino = domino;
 
   return STATUS_SELECT_POSITION;
 }
 
-//void process_command(
-//    const char *command,
-//    struct Node *root,
-//    struct Domino *users,
-//    const int users_size,
-//    int *status,
-//    char **feedback
-//) {
-//  log_debug("process_command | command: %s | status: %s | users: %s", command, status_str(*status),
-//            format_dominoes_inline(users, users_size));
-//
-//  if (*status == STATUS_SELECT_DOMINO) {
-//    *status = command_select_domino(command, root, users, users_size, feedback);
-//    return;
-//  }
-//
-//  printf("process_command has INVALID STATUS %d\n", *status);
-//  exit(EXIT_FAILURE);
-//}
+int apply_move(
+    struct Node *node,
+    int selected_move,
+    struct Domino *selected_domino,
+    bool is_vert,
+    char **feedback
+    ) {
+  if (selected_domino == NULL) {
+    printf("selected_domino is NULL at line %d\n", __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
+  struct Node *new_node = create_node(selected_domino, !is_vert);
+
+  if (node->top_left_move == selected_move) {
+    link_nodes(new_node, node, TOP_LEFT);
+    return STATUS_SELECT_DOMINO;
+  }
+
+  if (node->top_right_move == selected_move) {
+    link_nodes(new_node, node, TOP_RIGHT);
+    return STATUS_SELECT_DOMINO;
+  }
+
+  if (node->bottom_left_move == selected_move) {
+    link_nodes(new_node, node, BOTTOM_LEFT);
+    return STATUS_SELECT_DOMINO;
+  }
+
+  if (node->bottom_right_move == selected_move) {
+    link_nodes(new_node, node, BOTTOM_RIGHT);
+    return STATUS_SELECT_DOMINO;
+  }
+
+  *feedback = "Something went wrong. A invalid move perhaps?";
+  return STATUS_SELECT_ORIENTATION;
+}
 
 // \sas
 int run_interactive(void) {
@@ -1423,8 +1540,6 @@ int run_interactive(void) {
 
   struct Node *root = NULL;
 
-  root = create_node(create_domino(1, 2), false);
-
 //  INTRO
 //  printf("%s\n", WELCOME_MESSAGE);
 //  acquire_command(&command);
@@ -1436,12 +1551,44 @@ int run_interactive(void) {
 
   char *feedback = calloc(100, sizeof(char));
   struct Domino *selected_domino = NULL;
+  struct Node *selected_node = NULL;
+  int selected_move = 0;
+  bool is_horizontal = true;
 
   while (valid_moves_count() > 0 && !is_exit_command(command)) {
-    print_everything(root, users, users_size, status, selected_domino);
+    print_everything(root, users, users_size, status, feedback, selected_domino, selected_node);
+    feedback = calloc(100, sizeof(char));
+
     acquire_command(&command);
     if (status == STATUS_SELECT_DOMINO) {
       status = command_select_domino(command, root, users, users_size, &feedback, &selected_domino);
+
+      if (root == NULL && status == STATUS_SELECT_POSITION && selected_domino) {
+        root = create_node(selected_domino, false);
+        status = STATUS_SELECT_DOMINO;
+      }
+
+      continue;
+    }
+
+    if (status == STATUS_SELECT_POSITION) {
+      status = process_command_select_move(command, root, &feedback, &selected_node, &selected_move);
+      continue;
+    }
+
+    if (status == STATUS_SELECT_ORIENTATION) {
+      status = command_select_orientation(command, root, &feedback, &is_horizontal);
+
+      if (status == STATUS_VALID_MOVE) {
+        status = apply_move(selected_node, selected_move, selected_domino, is_horizontal, &feedback);
+
+        if (status == STATUS_SELECT_DOMINO){
+          selected_domino = NULL;
+          selected_node = NULL;
+          selected_move = 0;
+        }
+      }
+
       continue;
     }
 
@@ -1831,7 +1978,7 @@ int add_moves_informations(char **matrix, struct Node *node, int x, const int y,
 
   log_debug("add_moves_informations x: %d, y: %d | %s", x, y, format_domino(*(node->domino)));
 
-  if (node->domino->left == 3 && node->domino->right == 1){
+  if (node->domino->left == 3 && node->domino->right == 1) {
     log_debug("SIUUUUUUUUUUUUUUUU");
   }
 

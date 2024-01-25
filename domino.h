@@ -61,7 +61,7 @@ struct Node {
 #define STATUS_SELECT_DOMINO 0
 #define STATUS_SELECT_POSITION 1
 #define STATUS_SELECT_ORIENTATION 2
-//#define STATUS_ERROR 9
+#define STATUS_VALID_MOVE 3
 
 // Status of the current game.
 //#define STATUS_END 0

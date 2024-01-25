@@ -605,9 +605,9 @@ void clean_screen(void) {
 #endif
 }
 
-bool node_in_array(struct Node *arr, const int size, struct Node *node) {
+bool node_in_array(struct Node **arr, const int size, struct Node *node) {
   for (int i = 0; i < size; i++) {
-    if (arr[i].id == node->id) return true;
+    if (arr[i]->id == node->id) return true;
   }
 
   return false;
@@ -618,16 +618,14 @@ void realloc_array_one_node(struct Node **arr, const int size) {
 }
 
 static void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size) {
-  if (node_in_array(**result, *result_size, node)) {
+  if (node_in_array(*result, *result_size, node)) {
     log_debug("tree_to_array_rec #%lul already in array", node->id);
     return;
   }
 
   log_debug("tree_to_array_rec #%lu | %s | result_size: %d", node->id, format_domino(*(node->domino)), *result_size);
 
-//  if (*result_size > 1000){
-//    printf("Something went wrong, looks like");
-//  }
+  if (*result_size > 30) exit(1);
 
   *result = realloc(*result, sizeof(struct Node) * (*result_size + 1));
   (*result)[(*result_size)] = node;
@@ -639,8 +637,7 @@ static void tree_to_array_rec(struct Node *node, struct Node ***result, int *res
 
   if (node->top_right) tree_to_array_rec(node->top_right, result, result_size);
 
-  // TODO this should not be needed, but who knows ?
-//  if (node->top_left) tree_to_array_rec(node->top_left, result, result_size);
+  if (node->top_left) tree_to_array_rec(node->top_left, result, result_size);
 }
 
 void tree_to_array(struct Node *root_node, struct Node ***result, int *result_size) {
@@ -1833,6 +1830,10 @@ int add_moves_informations(char **matrix, struct Node *node, int x, const int y,
   const int right_move_width = max2(top_right_move_width, bottom_right_move_width);
 
   log_debug("add_moves_informations x: %d, y: %d | %s", x, y, format_domino(*(node->domino)));
+
+  if (node->domino->left == 3 && node->domino->right == 1){
+    log_debug("SIUUUUUUUUUUUUUUUU");
+  }
 
   if (left_move_width > x) {
     // Need more space on the left.

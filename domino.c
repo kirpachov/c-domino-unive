@@ -33,6 +33,29 @@ bool is_exit_command(char *command) {
   return false;
 }
 
+int points_from_tree(struct Node *root) {
+  if (root == NULL) return 0;
+
+  int result = 0;
+  struct Node **arr = calloc(1, sizeof(struct Node *));
+  int size = 0;
+  tree_to_array(root, &arr, &size);
+
+  for (int i = 0; i < size; i++) {
+    result += arr[i]->domino->left;
+    result += arr[i]->domino->right;
+  }
+
+  return result;
+}
+
+void print_points(struct Node *root) {
+  const int points = points_from_tree(root);
+  if (points <= 0) return;
+
+  printf("Hai totalizzato %d punti\n", points);
+}
+
 void resize_dominoes_array(struct Domino **arr, const int new_size) {
   if (new_size <= 0) {
 //    log_error("error! Tried to allocate memory with size %d. Function resize_dominoes_array(arr: %p, new_size: %d)",
@@ -151,51 +174,6 @@ void print_table(struct Node *root_node) {
   printf("\n\n");
 }
 
-/**
- * Will calc points from an array of dominoes.
- * Note:
- * - if the array is empty, will return 0.
- * - if the only card in the array is special, will return 0. This is because special cards should be used only with other cards.
- *
- * @param arr pointer to array of dominoes
- * @param arr_size quantity of dominoes in the array
- * @return integer with the sum of all points.
- */
-int calc_points_from(const struct Domino *arr, const int arr_size) {
-  if (arr_size <= 0) return 0;
-  if (arr_size == 1 && is_domino_special(arr[0])) return 0;
-
-  int acc = 0;
-  for (int i = 0; i < arr_size; i++) acc += arr[i].left + arr[i].right;
-
-  return acc;
-}
-
-//int calc_user_points(void) {
-//  return calc_points_from(table_dominoes, table_dominoes_size);
-//}
-
-char *format_user_points_str(void) {
-  char *result = calloc(strlen("Your points: 999999"), sizeof(char));
-  sprintf(result, "Your points: %d", 123);
-  return result;
-}
-
-void print_user_points(void) {
-  printf("%s\n", format_user_points_str());
-}
-
-void print_last_command_feedback(void) {
-//  if (strlen(last_command) == 0 || is_help_command(last_command)) {
-//    printf("Welcome!\n"
-//           "Select the domino to place by specifying the domino's index and the side (Right/Left) where to place it.\n"
-//           "Example: \"1L\" will place the first domino on the table, to the left of the other dominos\n");
-//    return;
-//  }
-//
-//  printf("%s\n", last_command_feedback);
-}
-
 void clean_screen(void) {
   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 #ifdef _WIN64
@@ -222,11 +200,11 @@ bool node_in_array(struct Node **arr, const int size, struct Node *node) {
 
 static void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size) {
   if (node_in_array(*result, *result_size, node)) {
-    log_debug("tree_to_array_rec #%lul already in array", node->id);
+//    log_debug("tree_to_array_rec #%lul already in array", node->id);
     return;
   }
 
-  log_debug("tree_to_array_rec #%lu | %s | result_size: %d", node->id, format_domino(*(node->domino)), *result_size);
+//  log_debug("tree_to_array_rec #%lu | %s | result_size: %d", node->id, format_domino(*(node->domino)), *result_size);
 
   if (*result_size > 30) exit(1);
 
@@ -368,6 +346,18 @@ void remove_moves_from_tree(struct Node *root) {
   // TODO free arr
 }
 
+int str_to_i(const char *str) {
+  char *str_end;
+  const long result = strtol(str, &str_end, 10);
+
+  if (*str_end != '\0' && *str_end != '\n') {
+    log_debug("Error while converting string into integer. String was \"%s\".\n", str);
+    return -1;
+  }
+
+  return (int) result;
+}
+
 int select_position(
     struct Node *root_node,
     struct Domino domino,
@@ -387,11 +377,12 @@ int select_position(
     add_moves_to_tree(root_node, domino);
     print_table(root_node);
     printf("\n");
+    print_points(root_node);
     printf("?> Hai selezionato la tessera %s\n", format_domino(domino));
     printf("?> Seleziona la posizione in cui mettere il domino indicando l'<indice>.\n");
     if (command_feedback) printf("?> %s\n", command_feedback);
     acquire_command(&command);
-    const int position = atoi(command);
+    const int position = str_to_i(command);
     for (int i = 0; i < size; i++) {
       struct Node *node = arr[i];
       if (!(node->top_left_move == position || node->top_right_move == position || node->bottom_left_move == position ||
@@ -411,7 +402,7 @@ int select_position(
   }
 
   free(command);
-  free(command_feedback);
+//  free(command_feedback);
 //  remove_moves_from_tree(root_node);
   log_debug("exiting select_position");
   return valid_position;
@@ -426,29 +417,38 @@ int select_domino(
   char *command = calloc(100, sizeof(char));
   char *command_feedback = NULL;
   while (valid_index == -1) {
+    log_debug("init while");
     clean_screen();
     print_table(root_node);
     printf("Tessere disponibili:\n");
     print_dominoes_with_valid_moves(root_node, user_dominoes, user_dominoes_size);
     printf("\n");
+    print_points(root_node);
     printf("?> Seleziona il domino da posizionare utilizzando l'indice indicato sulla sinistra.\n");
     if (command_feedback) printf("?> %s\n", command_feedback);
     acquire_command(&command);
-    const int index = atoi(command);
+    const int index = str_to_i(command);
     if (index <= 0 || index > user_dominoes_size) {
       command_feedback = "Indice non valido.";
       continue;
     }
 
+    log_debug("before[]");
     const struct Domino d = user_dominoes[index - 1];
+    log_debug("after[]");
     if (can_place_domino_in_tree(d, root_node)) {
       valid_index = index - 1;
     }
+    log_debug("after can_place_domino_in_tree");
   }
 
   free(command);
 
-  if (command_feedback) free(command_feedback);
+  log_debug("after free command. %s", command_feedback);
+
+//  if (command_feedback) free(command_feedback);
+
+  log_debug("after free command_feedback");
 
   return valid_index;
 }
@@ -524,7 +524,7 @@ bool select_orientation(struct Node *root_node, struct Domino selected_domino) {
     if (command_feedback) printf("?> %s\n", command_feedback);
     acquire_command(&command);
     if (strcmp(command, "1") == 0 || strcmp(command, "vert") == 0 || strcmp(command, "VERT") == 0 ||
-        strcmp(command, "v") == 0 || strcmp(command, "vertical") == 0 || strcmp(command, "verticale")) {
+        strcmp(command, "v") == 0 || strcmp(command, "vertical") == 0 || strcmp(command, "verticale") == 0) {
       valid_command = true;
       is_vert = true;
     } else if (strcmp(command, "2") == 0 || strcmp(command, "ori") == 0 || strcmp(command, "ORIZZONTALE") == 0 ||
@@ -539,32 +539,9 @@ bool select_orientation(struct Node *root_node, struct Domino selected_domino) {
 
   free(command);
 
-  if (command_feedback) free(command_feedback);
+//  if (command_feedback) free(command_feedback);
 
   return is_vert;
-}
-
-int points_from_tree(struct Node *root) {
-  if (root == NULL) return 0;
-
-  int result = 0;
-  struct Node **arr = calloc(1, sizeof(struct Node *));
-  int size = 0;
-  tree_to_array(root, &arr, &size);
-
-  for (int i = 0; i < size; i++) {
-    result += arr[i]->domino->left;
-    result += arr[i]->domino->right;
-  }
-
-  return result;
-}
-
-void print_points(struct Node *root) {
-  const int points = points_from_tree(root);
-  if (points <= 0) return;
-
-  printf("Hai totalizzato %d punti", points);
 }
 
 void display_welcome_message(void) {
@@ -594,7 +571,8 @@ int run_interactive(void) {
 
     log_debug("Selected %s domino", format_domino(selected_domino));
     if (root == NULL) {
-      root = create_node(create_domino(selected_domino.left, selected_domino.right), false);
+      const bool is_vert = select_orientation(root, selected_domino);
+      root = create_node(create_domino(selected_domino.left, selected_domino.right), is_vert);
       pop(selected_domino_index, users, users_size--);
       resize_dominoes_array(&users, users_size);
       continue;
@@ -626,14 +604,21 @@ int run_interactive(void) {
 
     const bool is_vert = select_orientation(root, selected_domino);
 
+    log_debug("is_vert %d", is_vert);
+
     link_nodes(selected_node, create_node(
         create_domino(selected_domino.left, selected_domino.right), is_vert), pos);
+
+    root = get_most_left_node(root);
 
     pop(selected_domino_index, users, users_size--);
     resize_dominoes_array(&users, users_size);
     log_debug("\n\n");
   }
 
+  clean_screen();
+  print_table(root);
+  print_dominoes_with_valid_moves(root, users, users_size);
   print_points(root);
   printf("Ciao ciao!\n");
 
@@ -648,14 +633,7 @@ void initialize(void) {
   log_add_fp(fopen("game.log", "a"), LOG_DEBUG);
   log_info("\n\n\nInitialized.");
   srand(time(0));
-//  last_command = calloc(MAX_COMMAND_SIZE, sizeof(char));
-
-//  table_dominoes = calloc(1, sizeof(struct Domino));
-//  user_dominoes = calloc(1, sizeof(struct Domino));
-//  last_command_feedback = calloc(100, sizeof(char));
-//  universe_dominoes = calloc(1, sizeof(struct Domino));
 }
-
 
 static unsigned long int node_last_id = 0;
 
@@ -684,12 +662,78 @@ struct Domino *create_domino(const int left, const int right) {
   return domino;
 }
 
+void rotate_if_necessary(struct Node *parent, struct Node *child, int side) {
+  switch (side) {
+    case TOP_LEFT:
+      // left side of child | right side of parent
+      log_debug("rotate_if_necessary TOP_LEFT, child: %s, parent: %s", format_domino(*(child->domino)),
+                format_domino(*(parent->domino)));
+      // right side of child | left side of parent
+      if (parent->domino->left != child->domino->right && parent->domino->left == child->domino->left) {
+        struct Domino *tmp = child->domino;
+        log_debug("rotated");
+        child->domino = create_domino(child->domino->right, child->domino->left);
+        free(tmp);
+      }
+
+      parent->top_left = child;
+      child->bottom_right = parent;
+      break;
+    case TOP_RIGHT:
+      // left side parent | left side child
+      if (!parent->is_vert) {
+        printf("Tried to link top right node to a horizontal node\n");
+        exit(EXIT_FAILURE);
+      }
+
+      if (parent->domino->left != child->domino->left && parent->domino->left == child->domino->right) {
+        struct Domino *tmp = child->domino;
+        child->domino = create_domino(child->domino->right, child->domino->left);
+        free(tmp);
+      }
+
+      parent->top_right = child;
+      child->top_left = parent;
+      break;
+    case BOTTOM_LEFT:
+      // right side parent | right side child
+      if (!parent->is_vert) {
+        printf("Tried to link bottom left node to a horizontal node\n");
+        exit(EXIT_FAILURE);
+      }
+
+      if (parent->domino->right != child->domino->right && parent->domino->right == child->domino->left) {
+        struct Domino *tmp = child->domino;
+        child->domino = create_domino(child->domino->right, child->domino->left);
+        free(tmp);
+      }
+
+      parent->bottom_left = child;
+      child->bottom_right = parent;
+
+      break;
+    case BOTTOM_RIGHT:
+      // right side parent | left side child
+      if (parent->domino->right != child->domino->left && parent->domino->right == child->domino->right) {
+        struct Domino *tmp = child->domino;
+        child->domino = create_domino(child->domino->right, child->domino->left);
+        free(tmp);
+      }
+
+      parent->bottom_right = child;
+      child->top_left = parent;
+      break;
+  }
+}
+
 /**
  * @param parent is the node that is already part of the tree.
  * @param child node to add.
  * @param side where to add the child node.
  */
 void link_nodes(struct Node *parent, struct Node *child, int side) {
+  rotate_if_necessary(parent, child, side);
+
   switch (side) {
     case TOP_LEFT:
       parent->top_left = child;

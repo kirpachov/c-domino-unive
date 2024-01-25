@@ -1498,6 +1498,14 @@ static void test_table_moves_display16(void) {}
 
 static void test_table_moves_display17(void) {}
 
+/**
+ * TODO's
+[3|3][2:[2:[2:
+     :6]:6]:1]
+     [4:
+
+     è stato possibile inserire il [6|4] a fianco del [2|6] sovrascrivendo un'altra tessera, quella attaccata direttamente al [3|3]
+ */
 int main(void) {
   UnityBegin("test_domino.c");
 

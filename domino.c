@@ -57,146 +57,12 @@ void pop(const int index, struct Domino *domino_arr, const int domino_arr_size) 
   for (int i = index; i < domino_arr_size - 1; i++) domino_arr[i] = domino_arr[i + 1];
 }
 
-/**
- * Smallest and biggest value domino cards can contain.
- * These values are used to populate the universe of dominoes.
- * [ 1 | 6 ]
- */
-
-
-//int total_user_dominoes = 0;  // TODO --hand=X | -c=X (??)
-
-//int total_user_dominoes_valid(void) {
-//  if (total_user_dominoes > 0) return total_user_dominoes;
-//
-//  return TOTAL_USER_DOMINOES;
-//}
-
-/**
- * Dominoes owned by user
- */
-//struct Domino *user_dominoes;
-//int user_dominoes_size = 0;
-
-//void user_dominoes_push(const struct Domino d) {
-//  resize_dominoes_array(&user_dominoes, user_dominoes_size + 1);
-//
-//  push(d, user_dominoes, user_dominoes_size++);
-//}
-//
-//void user_dominoes_pop(const int index) {
-//  pop(index, user_dominoes, user_dominoes_size--);
-//  resize_dominoes_array(&user_dominoes, user_dominoes_size);
-//}
-
-/**
- * Dominoes currently on table.
- * Variable 'table_dominoes' will contain the actual dominoes after special dominoes effect has been effected.
- * Variable 'table_dominoes_original' will contain the original dominoes, without any special dominoes effect.
- */
-//struct Domino *table_dominoes;
-//struct Domino *table_dominoes_original;
-//int table_dominoes_size = 0;
-
-//void table_dominoes_push(const struct Domino d, const bool left_side) {
-//  resize_dominoes_array(&table_dominoes, table_dominoes_size + 1);
-//  resize_dominoes_array(&table_dominoes_original, table_dominoes_size + 1);
-//
-//  if (left_side) {
-//    unshift(d, table_dominoes, table_dominoes_size);
-//    unshift(d, table_dominoes_original, table_dominoes_size);
-//  } else {
-//    push(d, table_dominoes, table_dominoes_size);
-//    push(d, table_dominoes_original, table_dominoes_size);
-//  }
-//
-//  table_dominoes_size++;
-//}
-
-//void table_dominoes_pop(const int index) {
-//  pop(index, table_dominoes, table_dominoes_size);
-//  pop(index, table_dominoes_original, table_dominoes_size);
-//  table_dominoes_size--;
-//
-//  //  resize_dominoes_array(&table_dominoes, table_dominoes_size - 1);
-//  // TODO is -1 necessary since it's already decremented?
-//
-//  resize_dominoes_array(&table_dominoes, table_dominoes_size);
-//  resize_dominoes_array(&table_dominoes_original, table_dominoes_size);
-//}
-
-/**
- * All available dominoes
- */
-//struct Domino *universe_dominoes;
-//int universe_dominoes_size = 0;
-
-//void universe_dominoes_push(const struct Domino d) {
-//  push(d, universe_dominoes, universe_dominoes_size++);
-//}
-
-//char *last_command;
-//char *last_command_feedback;
-
-/**
- * Params
- */
-// --challenge
-bool is_challenge = false;
-
-/**
- * Using ascii table, we can convert a char to a int by:
- * 1. Casting the char into an int => now we have the ascii index of the char
- * 2. Subtracting the index of the char '0'.
- * param is marked as 'const' because it's a good practice to mark as readonly anything you don't need to update.
- */
 int char_to_int(const char ch) {
   return (int) ch - 48;
 }
 
 char int_to_char(const int i) {
   return (char) (i + 48);
-}
-
-bool is_char_a_number(const char ch) {
-  return ((int) ch >= 48) && ((int) ch <= 57);
-}
-
-char *upcase_str(const char *original) {
-  char *result = calloc(strlen(original), sizeof(char));
-  for (unsigned i = 0; i < strlen(original); i++)
-    result[i] = (char) toupper((int) original[i]);
-
-  return result;
-}
-
-bool is_string_in_string(const char *str, const char *to_find) {
-  return strstr(str, to_find) != NULL;
-}
-
-int first_number_from_string(const char *str) {
-  const int str_length = (int) strlen(str);
-  int last_was_integer = false;
-  int result = 0;
-
-  for (int i = 0; i < str_length + 1; i++) {
-    const bool is_last_run = i == str_length;
-    const char ch = is_last_run ? ' ' : str[i];
-    const bool is_number = is_char_a_number(ch);
-
-    if (is_number) {
-      int integer = char_to_int(ch);
-      if (last_was_integer) result = result * 10 + integer;
-      else result = integer;
-
-      last_was_integer = true;
-    } else {
-      if (result > 0) return result;
-      last_was_integer = false;
-    }
-  }
-
-  return result;
 }
 
 /**
@@ -230,120 +96,6 @@ bool is_domino_special(const struct Domino domino) {
   return is_glue_domino(domino) || is_addone_domino(domino) || is_mirror_domino(domino);
 }
 
-/**
- * CAN PLACE ON LEFT?
- * @return true if domino can be placed on right side of the table.
- */
-
-//bool can_place_on_left_unrotated(const struct Domino d) {
-//  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
-//  if (table_dominoes_size <= 0) return true;
-//  if (is_domino_special(d)) return true;
-//  if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
-//
-//  return table_dominoes[table_dominoes_size - 1].left == d.right;
-//}
-
-//bool can_place_on_left_rotated(const struct Domino d) {
-//  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
-//  if (table_dominoes_size <= 0) return true;
-//  if (is_domino_special(d)) return true;
-//  if (specials && table_dominoes[table_dominoes_size - 1].left == 0) return true;
-//
-//  return table_dominoes[table_dominoes_size - 1].left == d.left;
-//}
-
-//bool can_place_on_left(const struct Domino d) {
-//  return can_place_on_left_unrotated(d) || can_place_on_left_rotated(d);
-//}
-
-/**
- * CAN PLACE ON RIGHT?
- * @return true if domino can be placed on right side of the table.
- */
-
-//bool can_place_on_right_unrotated(const struct Domino d) {
-//  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
-//  if (table_dominoes_size <= 0) return true;
-//  if (is_domino_special(d)) return true;
-//  if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;
-//
-//  return table_dominoes[table_dominoes_size - 1].right == d.left;
-//}
-//
-//bool can_place_on_right_rotated(const struct Domino d) {
-//  if (table_dominoes_size == 0 && is_mirror_domino(d)) return false;
-//  if (table_dominoes_size <= 0) return true;
-//  if (is_domino_special(d)) return true;
-//  if (specials && table_dominoes[table_dominoes_size - 1].right == 0) return true;
-//
-//  return table_dominoes[table_dominoes_size - 1].right == d.right;
-//}
-
-//bool can_place_on_right(const struct Domino d) {
-//  return can_place_on_right_unrotated(d) || can_place_on_right_rotated(d);
-//}
-
-bool can_place_on_table(const struct Domino d) {
-  log_warn("TODO can_place_on_table");
-  return true;
-//  return can_place_on_left(d) || can_place_on_right(d);
-}
-
-//struct Domino *valid_moves(void) {
-//  struct Domino *result = malloc(sizeof(struct Domino) * valid_moves_count());
-//  int result_index = 0;
-//
-//  for (int i = 0; i < user_dominoes_size; i++) {
-//    if (can_place_on_table(user_dominoes[i])) {
-//      result[result_index] = user_dominoes[i];
-//      result_index++;
-//    }
-//  }
-//
-//  return result;
-//}
-
-int valid_moves_count(void) {
-  log_debug("TODO valid_moves_count");
-  return 9;
-//  if (user_dominoes_size <= 0) return 0;
-//
-//  int count = 0;
-//  for (int i = 0; i < user_dominoes_size; i++) {
-//    if (can_place_on_table(user_dominoes[i])) count++;
-//  }
-//
-//  return count;
-}
-
-//int valid_moves_count_side(const bool left_side, struct Domino *valid_moves) {
-//  int count = 0;
-//
-//  for (int i = 0; i < user_dominoes_size; i++) {
-//    const struct Domino domino = user_dominoes[i];
-//    if ((left_side && !can_place_on_left(domino)) || (!left_side && !can_place_on_right(domino)))
-//      continue;
-//
-//    valid_moves[count] = domino;
-//    count++;
-//  }
-//
-////  valid_moves = realloc(valid_moves, sizeof(struct Domino) * count);
-//
-//  return count;
-//}
-
-char *str_add_padding(const char *original) {
-  char *result = calloc(strlen(original) + 2, sizeof(char));
-  result[0] = ' ';
-  result[strlen(original) + 1] = ' ';
-
-  for (unsigned i = 0; i < strlen(original); i++) result[i + 1] = original[i];
-
-  return result;
-}
-
 char *format_domino(const struct Domino d) {
   char *str = calloc(100, sizeof(char));
   if (str == NULL) {
@@ -363,10 +115,6 @@ char *format_domino(const struct Domino d) {
   return str;
 }
 
-char *side_str(const bool is_left_side) {
-  return is_left_side ? "left" : "right";
-}
-
 int random_between(const int lower, const int upper) {
   return (rand() % (upper - lower + 1)) + lower;
 }
@@ -374,80 +122,6 @@ int random_between(const int lower, const int upper) {
 struct Domino random_domino_from(struct Domino *arr, const int size) {
   return arr[random_between(0, size - 1)];
 }
-
-int run_challenge_1(void) {
-  log_debug("***** RUNNING CHALLENGE 1 *****");
-  int dominoes_size;
-  log_debug("scanf returned %d", scanf("%d", &dominoes_size));
-  log_debug("We'll have %d dominoes.", dominoes_size);
-  struct Domino *dominoes = calloc(dominoes_size, sizeof(struct Domino));
-  for (int i = 0; i < dominoes_size; i++) {
-    int left;
-    int right;
-
-    log_debug("scanf returned %d", scanf("%d", &left));
-    log_debug("scanf returned %d", scanf("%d", &right));
-
-    const struct Domino domino = (struct Domino) {left, right};
-    char *formatted_domino = format_domino(domino);
-    log_debug("Adding %s to list of dominoes", formatted_domino);
-    free(formatted_domino);
-
-    dominoes[i] = domino;
-  }
-
-  log_debug("Completed the acquisition of the dominoes. Got: %s", format_dominoes_inline(dominoes, dominoes_size));
-
-//  printf("%s\n", process_challenge_1(dominoes, dominoes_size));
-
-  return 0;
-}
-
-int run_challenge(void) {
-  log_info("Running in challenge mode.");
-
-  return run_challenge_1();
-}
-
-//void populate_universe_dominoes(struct Domino **universe, int *universe_size) {
-//  log_debug("populate_universe_dominoes universe: %p, size: %d", universe, *universe_size);
-//
-//  *universe_size = 0;
-//
-//// TODO calc this value without any for loop.
-//  for (int i = SMALLES_DOMINO_VALUE; i <= LARGEST_DOMINO_VALUE; i++)
-//    for (int j = i; j <= LARGEST_DOMINO_VALUE; j++)
-//      (*universe_size)++;
-//
-//  if (specials) (*universe_size) += 3; // [0|0], [11|11], [12|21]
-//
-//  resize_dominoes_array(universe, *universe_size);
-//
-//  for (int i = SMALLES_DOMINO_VALUE; i <= LARGEST_DOMINO_VALUE; i++) {
-//    for (int j = i; j <= LARGEST_DOMINO_VALUE; j++) {
-//      const struct Domino d = {i, j};
-////      char *formatted_domino = format_domino(d);
-////      log_debug("Adding %s to universe.", formatted_domino);
-////      free(formatted_domino);
-//
-//      push(d, *universe, *universe_size);
-//    }
-//  }
-//
-//  if (specials) {
-//    push((struct Domino) {0, 0}, *universe, *universe_size);
-//    push((struct Domino) {11, 11}, *universe, *universe_size);
-//    push((struct Domino) {12, 21}, *universe, *universe_size);
-////    (*universe_size) = (*universe_size) + 3;
-//  }
-//
-//  log_debug("Universe:");
-//  for(int i = 0; i < *universe_size; i++){
-//    log_debug("%s", format_domino((*universe)[i]));
-//  }
-//
-//  log_debug("universe_dominoes_size is %d", *universe_size);
-//}
 
 char *format_dominoes_inline(const struct Domino *dominoes, const int size) {
   // TODO calc max size instead of using 100
@@ -457,13 +131,10 @@ char *format_dominoes_inline(const struct Domino *dominoes, const int size) {
   for (int i = 0; i < size; i++) {
     char *formatted = format_domino(dominoes[i]);
     strcat(result, formatted);
-//    printf("domino %s\n", formatted);
     free(formatted);
 
     if (i < size - 1) strcat(result, " ");
   }
-
-//  printf("format_dominoes_inline: %s\n", result);
 
   return result;
 }
@@ -478,74 +149,6 @@ void print_table(struct Node *root_node) {
   print_tree(root_node);
 
   printf("\n\n");
-}
-
-/**
- * This function will generate a multi-line string with all the dominoes you pass it,
- * and will add information about how to select that domino.
- * In particular, will add the index if it can be selected,
- * and "R" or "L" to index the side where you can place it.
- * @param dominoes
- * @param arr_size
- * @return
- */
-char *format_dominoes_with_valid_moves(const struct Domino *dominoes, const int arr_size) {
-  const int max_row_size = 20;
-  char *result = calloc(max_row_size * arr_size, sizeof(char));
-  char *accumulator = calloc(max_row_size, sizeof(char));
-
-  for (int i = 0; i < arr_size; i++) {
-    const struct Domino d = dominoes[i];
-
-    log_warn("TODO can place anywhere domino? %d", __LINE__);
-//    const bool left = can_place_on_left(d);
-//    const bool right = can_place_on_right(d);
-    const bool can_place = true;
-    char *formatted_domino = format_domino(d);
-    strcat(result, formatted_domino);
-    free(formatted_domino);
-
-    if (can_place) {
-      sprintf(accumulator, "%d", i + 1);
-      strcat(result, accumulator);
-    }
-
-//    if (can_place) {
-//      strcat(result, "  ");
-//
-//      if (left) {
-//        sprintf(accumulator, "(%dL)", i + 1);
-//        strcat(result, accumulator);
-//      }
-//      if (left && right) {
-//        strcat(result, "  /  ");
-//      }
-//      if (right) {
-//        sprintf(accumulator, "(%dR)", i + 1);
-//        strcat(result, accumulator);
-//      }
-//    }
-
-    strcat(result, "\n");
-  }
-
-  return result;
-}
-
-//char *format_user_dominoes() {
-//  return format_dominoes_with_valid_moves(user_dominoes, user_dominoes_size);
-//}
-
-//void print_user_dominoes(void) {
-//  printf("Your dominoes:\n");
-//  printf("%s", format_user_dominoes());
-//}
-
-bool is_help_command(const char *command) {
-  if (strcmp(command, "help") == 0) return true;
-  if (strcmp(command, "?") == 0) return true;
-
-  return false;
 }
 
 /**
@@ -613,9 +216,9 @@ bool node_in_array(struct Node **arr, const int size, struct Node *node) {
   return false;
 }
 
-void realloc_array_one_node(struct Node **arr, const int size) {
-  *arr = realloc(*arr, sizeof(struct Node) * (size <= 0 ? 1 : size));
-}
+//void realloc_array_one_node(struct Node **arr, const int size) {
+//  *arr = realloc(*arr, sizeof(struct Node) * (size <= 0 ? 1 : size));
+//}
 
 static void tree_to_array_rec(struct Node *node, struct Node ***result, int *result_size) {
   if (node_in_array(*result, *result_size, node)) {
@@ -645,6 +248,14 @@ void tree_to_array(struct Node *root_node, struct Node ***result, int *result_si
 
   tree_to_array_rec(root_node, result, result_size);
 }
+
+//bool is_valid_domino_for_move(struct Node *root_node, const struct Domino domino, const int move){
+//  struct Node **arr = calloc(1, sizeof(struct Node *));
+//  // TODO free arr
+//
+//  int size = 0;
+//  tree_to_array(root_node, &arr, &size);
+//}
 
 //void free_nodes(struct Node *root_node, struct Node *result, const int result_size) {
 //
@@ -677,6 +288,16 @@ bool can_place_domino_in_tree(const struct Domino domino, struct Node *root_node
   }
 
   return false;
+}
+
+int valid_moves_count(struct Node *root_node, const struct Domino *dominoes, const int dominoes_size) {
+  int count = 0;
+  for (int i = 0; i < dominoes_size; i++) {
+    const struct Domino d = dominoes[i];
+    if (can_place_domino_in_tree(d, root_node)) count++;
+  }
+
+  return count;
 }
 
 void print_dominoes_with_valid_moves(
@@ -747,208 +368,93 @@ void remove_moves_from_tree(struct Node *root) {
   // TODO free arr
 }
 
-void print_everything(
+int select_position(
+    struct Node *root_node,
+    struct Domino domino,
+    struct Node **to_attach_node
+) {
+  log_debug("select_position #%ul %s | domino: %s", root_node->id, format_domino(*(root_node->domino)),
+            format_domino(domino));
+
+  int valid_position = -1;
+  char *command = calloc(100, sizeof(char));
+  char *command_feedback = NULL;
+  struct Node **arr = calloc(1, sizeof(struct Node *)); // TODO free arr
+  int size = 0;
+  tree_to_array(root_node, &arr, &size);
+  while (valid_position == -1) {
+    clean_screen();
+    add_moves_to_tree(root_node, domino);
+    print_table(root_node);
+    printf("\n");
+    printf("?> Hai selezionato la tessera %s\n", format_domino(domino));
+    printf("?> Seleziona la posizione in cui mettere il domino indicando l'<indice>.\n");
+    if (command_feedback) printf("?> %s\n", command_feedback);
+    acquire_command(&command);
+    const int position = atoi(command);
+    for (int i = 0; i < size; i++) {
+      struct Node *node = arr[i];
+      if (!(node->top_left_move == position || node->top_right_move == position || node->bottom_left_move == position ||
+            node->bottom_right_move == position))
+        continue;
+
+      valid_position = position;
+      *to_attach_node = node;
+      log_debug(
+          "Found node #%lu | %s | top_left_move: %d, top_right_move: %d, bottom_left_move: %d, bottom_right_move: %d",
+          node->id, format_domino(*(node->domino)),
+          node->top_left_move, node->top_right_move, node->bottom_left_move, node->bottom_right_move);
+      break;
+    }
+
+    if (valid_position == -1) command_feedback = "Posizione non valida.";
+  }
+
+  free(command);
+  free(command_feedback);
+//  remove_moves_from_tree(root_node);
+  log_debug("exiting select_position");
+  return valid_position;
+}
+
+int select_domino(
     struct Node *root_node,
     struct Domino *user_dominoes,
-    const int user_dominoes_size,
-    int status,
-    char *feedback,
-    struct Domino *selected_domino,
-    struct Node *selected_node
+    const int user_dominoes_size
 ) {
-  clean_screen();
-  if (status == STATUS_SELECT_DOMINO) {
-    remove_moves_from_tree(root_node);
-
+  int valid_index = -1;
+  char *command = calloc(100, sizeof(char));
+  char *command_feedback = NULL;
+  while (valid_index == -1) {
+    clean_screen();
     print_table(root_node);
     printf("Tessere disponibili:\n");
     print_dominoes_with_valid_moves(root_node, user_dominoes, user_dominoes_size);
     printf("\n");
     printf("?> Seleziona il domino da posizionare utilizzando l'indice indicato sulla sinistra.\n");
-    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
-    printf("\n");
-    return;
-  }
-
-  if (status == STATUS_SELECT_POSITION) {
-    if (selected_domino == NULL) {
-      printf("ERROR: selected_domino is null at line %d", __LINE__);
-      exit(EXIT_FAILURE);
+    if (command_feedback) printf("?> %s\n", command_feedback);
+    acquire_command(&command);
+    const int index = atoi(command);
+    if (index <= 0 || index > user_dominoes_size) {
+      command_feedback = "Indice non valido.";
+      continue;
     }
 
-    add_moves_to_tree(root_node, *selected_domino);
-    print_table(root_node);
-    printf("?> Seleziona la posizione in cui mettere il domino indicando l'<indice>.\n");
-    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
-//    printf("?> Tessera selezionata: %s\n", format_domino(*selected_domino));
-    printf("\n");
-    return;
+    const struct Domino d = user_dominoes[index - 1];
+    if (can_place_domino_in_tree(d, root_node)) {
+      valid_index = index - 1;
+    }
   }
 
-  if (status == STATUS_SELECT_ORIENTATION) {
-    if (selected_domino == NULL) {
-      printf("ERROR: selected_domino is null at line %d", __LINE__);
-      exit(EXIT_FAILURE);
-    }
+  free(command);
 
-    if (selected_node == NULL) {
-      printf("ERROR: selected_node is null at line %d", __LINE__);
-      exit(EXIT_FAILURE);
-    }
+  if (command_feedback) free(command_feedback);
 
-    add_moves_to_tree(root_node, *selected_domino);
-    print_table(root_node);
-    printf("?> Seleziona l'orientamento del domino Orizzontale => (1/horizontal), Verticale => (2/vertical).\n");
-    if (feedback && strlen(feedback)) printf("?> %s\n", feedback);
-    printf("\n");
-    return;
-  }
-
-  printf("INVALID STATUS %d AT LINE %d\n", status, __LINE__);
-  exit(EXIT_FAILURE);
+  return valid_index;
 }
-
-//void assign_user_random_dominoes(void) {
-//  while (user_dominoes_size < total_user_dominoes_valid()) {
-//    const struct Domino d = random_domino_from_universe();
-//    char *formatted_domino = format_domino(d);
-//    log_debug("Adding %s to user's hand", formatted_domino);
-//    free(formatted_domino);
-//    user_dominoes_push(d);
-//  }
-//}
-
-/**
- * This function will try to decode user's will.
- * What card is user trying to select? (if any)
- * @param command: string to evaluate.
- * @param result_index: index of the chosen domino. 0 is returned if nothing is found.
- * @param position
- * is 0 if not found;
- * is 1 if left;
- * is 2 if right.
- */
-//void guess_selection(const char *command, int *result_index, int *position) {
-//  *result_index = first_number_from_string(command);
-//
-//  if (*result_index < 0 || *result_index > (int) strlen(command) * 10) *result_index = 0;
-//
-//  const char *formatted_command = str_add_padding(upcase_str(command));
-//
-//  if (strlen(command) == 2 && is_string_in_string(formatted_command, "L")) {
-//    *position = LEFT_SIDE;
-//    return;
-//  }
-//
-//  if (strlen(command) == 2 && is_string_in_string(formatted_command, "R")) {
-//    *position = RIGHT_SIDE;
-//    return;
-//  }
-//
-//  *position = 0;
-//
-//  for (unsigned i = 0; i < LEFT_IDENTIFIERS_COUNT; i++) {
-//    if (is_string_in_string(formatted_command, LEFT_IDENTIFIERS[i])) {
-//      *position = LEFT_SIDE;
-//      return;
-//    }
-//  }
-//
-//  for (unsigned i = 0; i < RIGHT_IDENTIFIERS_COUNT; i++) {
-//    if (is_string_in_string(formatted_command, RIGHT_IDENTIFIERS[i])) {
-//      *position = RIGHT_SIDE;
-//      return;
-//    }
-//  }
-//}
-
-//bool can_be_put_on_table(const struct Domino domino, const bool left_side) {
-//  return left_side ? can_place_on_left(domino) : can_place_on_right(domino);
-//}
-
-//bool needs_to_be_rotated_before_putting_on_table(const struct Domino selected_domino, const bool is_left_side) {
-//  if (table_dominoes_size <= 0) return false;
-//
-//  const struct Domino table_domino = is_left_side ? table_dominoes[0] : table_dominoes[table_dominoes_size - 1];
-//
-//  if (is_left_side) return table_domino.left != selected_domino.right;
-//
-//  return table_domino.right != selected_domino.left;
-//}
 
 struct Domino rotate_domino(const struct Domino d) {
   return (struct Domino) {d.right, d.left};
-}
-
-//struct Domino rotate_if_necessary(const struct Domino domino, const bool is_left_side) {
-//  return needs_to_be_rotated_before_putting_on_table(domino, is_left_side) ? rotate_domino(domino) : domino;
-//}
-
-/**
- * @param index starting from 0
- * @param left_side boolean value
- * @return 0 if want to interrupt `last_command` processing.
- */
-int put_on_table(const int user_dominoes_index, const bool left_side) {
-//  const struct Domino selected = user_dominoes[user_dominoes_index];
-//  const char *side_str = left_side ? "left" : "right";
-//  char *selected_str = format_domino(selected);
-//  // TODO calc size instead of 100
-//  last_command_feedback = calloc(100, sizeof(char));
-//
-////  log_debug("put_on_table | user_dominoes_index: %d | side: %s | domino: %s", user_dominoes_index, side_str, selected_str);
-//
-//  if (!(can_be_put_on_table(selected, left_side))) {
-//    sprintf(last_command_feedback, "Domino %s cannot be put on %s side", selected_str, side_str);
-//    return 0;
-//  }
-//
-//  table_dominoes_push(rotate_if_necessary(selected, left_side), left_side);
-//
-//  user_dominoes_pop(user_dominoes_index);
-//
-//  sprintf(last_command_feedback, "Domino %s has been put on %s side", selected_str, side_str);
-//
-//  apply_special_dominoes_effect();
-//
-//  free(selected_str);
-//
-//  return 0;
-}
-
-void process_last_command(void) {
-//  log_debug("processing command \"%s\"", last_command);
-//  if (is_help_command(last_command)) return;
-//
-//  int selected_domino_index = 0; // 0 is invalid as index
-//  int selected_domino_side = 0; // 0 is invalid as position
-//  guess_selection(last_command, &selected_domino_index, &selected_domino_side);
-//
-//  log_debug("guess_selection returned | index %d | selected_domino_side %d", selected_domino_index,
-//            selected_domino_side);
-//
-//  if (selected_domino_index == 0 || selected_domino_side == 0 || (selected_domino_index - 1) > user_dominoes_size) {
-//    log_info("user selected invalid index (%d) or position (%d) (command is: \"%s\")", selected_domino_index,
-//             selected_domino_side, last_command);
-//
-//    last_command_feedback = "Invalid command.";
-//    return;
-//  }
-//
-//  selected_domino_index--;
-//
-//  if (put_on_table(selected_domino_index, selected_domino_side == LEFT_SIDE) == 0) return;
-//
-//  /**
-//   * TODO:
-//   * - if user has invalid position or index, populate "last_command_feedback" with the error messages.
-//   * otherwise, select domino and try to put it on the table.
-//   * if it's a valid move, populate last_command_feedback with something like "Domino [x|y] has been put on <left/right> side"
-//   * otherwise, if it's not a valid move, let user know that it's not a valid move.
-//   *
-//   */
-//
-//  last_command_feedback = "Invalid command.";
 }
 
 void acquire_command(char **last_command) {
@@ -970,370 +476,8 @@ void acquire_command(char **last_command) {
   if (*last_command == NULL) exit(EXIT_FAILURE);
 
   for (int i = 0; i < N; i++) (*last_command)[i] = tmp_command[i];
-}
 
-/**
- * Apply effect of [11|11].
- * Add 1 to all the values of all dominoes on the table. If 6 + 1, set 1.
- */
-//void apply_special_sumall(const int sumall_index) {
-//  for (int j = 0; j < table_dominoes_size; j++) {
-//    if (j == sumall_index) continue;
-//
-//    table_dominoes[j].left++;
-//    table_dominoes[j].right++;
-//
-//    if (table_dominoes[j].left > 6) table_dominoes[j].left = 1;
-//    if (table_dominoes[j].right > 6) table_dominoes[j].right = 1;
-//  }
-//
-//  if (sumall_index == 0) {
-//    table_dominoes[sumall_index].left = table_dominoes[1].left;
-//    table_dominoes[sumall_index].right = table_dominoes[1].left;
-//    return;
-//  }
-//
-//  if (sumall_index == table_dominoes_size - 1) {
-//    table_dominoes[sumall_index].left = table_dominoes[table_dominoes_size - 2].right;
-//    table_dominoes[sumall_index].right = table_dominoes[table_dominoes_size - 2].right;
-//    return;
-//  }
-//
-//  printf("invalid sumall_index %d at row %d\n", sumall_index, __LINE__);
-//  log_error("apply_special_sumall: sumall_index is %d, but it should be 0 or %d", sumall_index,
-//            table_dominoes_size - 1);
-//  exit(EXIT_FAILURE);
-//}
-
-//void apply_special_mirror(const int mirror_index) {
-//  if (mirror_index == 0) {
-//    table_dominoes[mirror_index].right = table_dominoes[1].left;
-//    table_dominoes[mirror_index].left = table_dominoes[1].right;
-//    return;
-//  }
-//
-//  if (mirror_index == table_dominoes_size - 1) {
-//    const struct Domino last = table_dominoes[table_dominoes_size - 2];
-//    table_dominoes[mirror_index].right = last.left;
-//    table_dominoes[mirror_index].left = last.right;
-//    return;
-//  }
-//
-//  log_error("apply_special_mirror: mirror_index is %d, but it should be 0 or %d", mirror_index,
-//            table_dominoes_size - 1);
-//  exit(EXIT_FAILURE);
-//}
-
-//void apply_special_dominoes_effect(void) {
-//  if (!specials) return;
-//  if (table_dominoes_size <= 1) return;
-//
-//  for (int i = 0; i < table_dominoes_size; i++) {
-//    const struct Domino domino = table_dominoes[i];
-//    if (!is_domino_special(domino)) continue;
-//    if (domino.left == 0 && domino.right == 0) continue;
-//
-//    if (domino.left == 11 && domino.right == 11) {
-//      apply_special_sumall(i);
-//      continue;
-//    }
-//
-//    if ((domino.left == 12 && domino.right == 21) || (domino.right == 12 && domino.left == 21)) {
-//      apply_special_mirror(i);
-//      continue;
-//    }
-//
-//    // Should never see this message
-//    printf("TODO manage special domino of type %s\n", format_domino(domino));
-//  }
-//}
-
-struct Domino *dominoes_without_element(
-    const struct Domino *dominoes,
-    const int size,
-    const int index_of_element_to_remove) {
-
-  struct Domino *dominoes_without_domino = calloc(size, sizeof(struct Domino));
-  int dominoes_without_domino_size = size;
-  for (int j = 0; j < size; j++) {
-    dominoes_without_domino[j] = dominoes[j];
-  }
-
-  pop(index_of_element_to_remove, dominoes_without_domino, dominoes_without_domino_size--);
-  return dominoes_without_domino;
-}
-
-bool dominoes_equal(const struct Domino a, const struct Domino b) {
-  return (a.left == b.left && a.right == b.right) || (a.right == b.left && a.left == b.right);
-}
-
-/**
- * Function scenario_with will return the max points you can make from a given point.
- * You'll pass the actual situation to this function, such as:
- * - Dominoes user has
- * - Dominoes that are on the table
- * - ...
- * And you'll get:
- * - Best points you can make from that combination
- * - Array of dominoes showing you how to place the dominoes user has to make the maximum amount of points.
- * @param user_arr the dominoes user has currently.
- * @param user_arr_size how many dominoes has the user currently.
- * @param table_arr the dominoes that are already on the table.
- * @param table_arr_size how many dominoes are already on the table
- * @param table_arr_original actual dominoes, without any special domino effect.
- * @param best_table_possible where the best solution will be stored.
- * @param best_table_possible_size size of the best solution array.
- * @return best points you can make from that combination.
- */
-//int scenario_with(
-//    const struct Domino *user_arr,
-//    const int user_arr_size,
-//
-//    const struct Domino *table_arr,
-//    const int table_arr_size,
-//
-//    const struct Domino *table_arr_original,
-//
-//    struct Domino **best_table_possible,
-//    int *best_table_possible_size,
-//    struct Domino **best_table_possible_original
-//) {
-//  set_table_dominoes(table_arr, table_arr_size);
-//  set_table_dominoes_original(table_arr_original, table_arr_size);
-//
-//  set_user_dominoes(user_arr, user_arr_size);
-//
-//  /* DEBUG */
-////  struct Domino *valid_moves = calloc(user_dominoes_size, sizeof(struct Domino));
-////  int valid_moves_count = valid_moves_count_side(false, valid_moves);
-////  log_debug("SCENARIO_WITH | user_dominoes: %s | table_dominoes: %s | valid_moves: %s",
-////            format_dominoes_for_table(user_dominoes, user_dominoes_size),
-////            format_dominoes_for_table(table_dominoes, table_dominoes_size),
-////            format_dominoes_for_table(valid_moves, valid_moves_count)
-////  );
-//  /* /DEBUG */
-//
-//  if (calc_points_from(*best_table_possible, *best_table_possible_size) < calc_user_points()) {
-//    *best_table_possible = malloc(sizeof(struct Domino) * table_arr_size);
-//    *best_table_possible_original = malloc(sizeof(struct Domino) * table_arr_size);
-//    *best_table_possible_size = table_arr_size;
-//
-//    memcpy(*best_table_possible, table_arr, sizeof(struct Domino) * table_arr_size);
-//    memcpy(*best_table_possible_original, table_arr_original, sizeof(struct Domino) * table_arr_size);
-//  }
-//
-////  if (valid_moves_count == 0) {
-////    log_debug("No more valid moves. | points: %d | Table: %s ", calc_user_points(),
-////              format_dominoes_for_table(table_dominoes, table_dominoes_size)
-////    );
-////
-////    return calc_user_points();
-////  }
-//
-//  int best_until_now = calc_user_points();
-//
-//  for (int i = 0; i < user_arr_size; i++) {
-//    const struct Domino domino = user_arr[i];
-//
-//    if (!(can_place_on_right(domino))) {
-//      /* DEBUG */
-////      log_debug("Cannot place on right %s", format_domino(domino));
-//      /* /DEBUG */
-//      continue;
-//    }
-//
-//    /* DEBUG */
-////    log_debug("for has now domino = %s | Table is %s | user has %s", format_domino(domino),
-////              format_dominoes_for_table(table_dominoes, table_dominoes_size),
-////              format_dominoes_for_table(user_dominoes, user_dominoes_size));
-//    /* /DEBUG */
-//
-//    int first_valid_move_index_in_user_arr = -1;
-//    for (int j = 0; j < user_dominoes_size; j++) {
-//      if (!dominoes_equal(user_dominoes[j], domino)) continue;
-//
-//      first_valid_move_index_in_user_arr = j;
-//      break;
-//    }
-//
-//    if (first_valid_move_index_in_user_arr == -1) {
-//      log_error("I was unable to find domino %s in user dominoes (%s)", format_domino(domino),
-//                format_dominoes_for_table(user_dominoes, user_dominoes_size));
-//
-//      exit(EXIT_FAILURE);
-//    }
-//
-//    bool was_put_unrotated = false;
-//    struct Domino *table_dominoes_before_special_effects;
-//
-//    if (can_place_on_right_unrotated(domino)) {
-//      /* DEBUG */
-////      log_debug("Putting domino %s NOT rotated on table %s",
-////                format_domino(domino),
-////                format_dominoes_for_table(table_dominoes, table_dominoes_size)
-////      );
-//      /* /DEBUG */
-//
-//
-//      was_put_unrotated = true;
-//      table_dominoes_push(domino, false);
-//      user_dominoes_pop(first_valid_move_index_in_user_arr);
-//      table_dominoes_before_special_effects = calloc(table_dominoes_size, sizeof(struct Domino));
-//      memcpy(table_dominoes_before_special_effects, table_dominoes, sizeof(struct Domino) * table_dominoes_size);
-//      apply_special_dominoes_effect();
-//
-//      const int current = scenario_with(
-//          user_dominoes,
-//          user_dominoes_size,
-//          table_dominoes,
-//          table_dominoes_size,
-//          table_dominoes_original,
-//          best_table_possible,
-//          best_table_possible_size,
-//          best_table_possible_original
-//      );
-//
-//      if (best_until_now < current) {
-//        best_until_now = current;
-//      }
-//
-//      set_table_dominoes(table_dominoes_before_special_effects, table_dominoes_size);
-////      free(table_dominoes_before_special_effects);
-//      table_dominoes_pop(table_dominoes_size - 1);
-//    }
-//
-//    if (domino.left != domino.right && can_place_on_right_rotated(domino)) {
-//      /* DEBUG */
-////      log_debug("Putting domino %s rotated on table %s",
-////                format_domino(rotate_domino(domino)),
-////                format_dominoes_for_table(table_dominoes, table_dominoes_size)
-////      );
-//      /* /DEBUG */
-//
-//      table_dominoes_push(rotate_domino(domino), false);
-//      if (!was_put_unrotated) { user_dominoes_pop(first_valid_move_index_in_user_arr); }
-//      table_dominoes_before_special_effects = calloc(table_dominoes_size, sizeof(struct Domino));
-//      memcpy(table_dominoes_before_special_effects, table_dominoes, sizeof(struct Domino) * table_dominoes_size);
-//      apply_special_dominoes_effect();
-//
-//      const int current = scenario_with(
-//          user_dominoes,
-//          user_dominoes_size,
-//          table_dominoes,
-//          table_dominoes_size,
-//          table_dominoes_original,
-//          best_table_possible,
-//          best_table_possible_size,
-//          best_table_possible_original
-//      );
-//
-//      if (best_until_now < current) {
-//        best_until_now = current;
-//      }
-//
-//      set_table_dominoes(table_dominoes_before_special_effects, table_dominoes_size);
-//    }
-//
-//    set_table_dominoes(table_arr, table_arr_size);
-//    set_table_dominoes_original(table_arr_original, table_arr_size);
-//    set_user_dominoes(user_arr, user_arr_size);
-//    /* DEBUG */
-////    log_debug("Ending block where domino was %s | Table domino is %s | User domino is %s",
-////              format_domino(domino), format_dominoes_for_table(table_dominoes, table_dominoes_size),
-////              format_dominoes_for_table(user_dominoes, user_dominoes_size));
-//    /* /DEBUG */
-//  }
-//
-//  return best_until_now;
-//}
-
-//int best_scenario(
-//    const struct Domino *dominoes,
-//    const int dominoes_size,
-//    struct Domino **best_table_possible,
-//    int *best_table_possible_size,
-//    struct Domino **best_table_possible_original
-//) {
-//  return scenario_with(
-//      dominoes,
-//      dominoes_size,
-//      (struct Domino[]) {{0, 0}},
-//      0,
-//      (struct Domino[]) {{0, 0}},
-//      best_table_possible,
-//      best_table_possible_size,
-//      best_table_possible_original
-//  );
-//}
-
-/**
- * Formats domino as commands to execute.
- * Example: [2|3] [3|5] [5|1] [1|5] => "S 2 3 R 3 5 R 5 1 R 1 5"
- * @param dominoes array of dominoes to format
- * @param dominoes_size size of the array to format
- * @return char array - formatted commands
- */
-char *format_dominoes_as_commands(const struct Domino *dominoes, const int dominoes_size) {
-  char *str = calloc((strlen("S DD GG ") * dominoes_size), sizeof(char));
-
-  for (int i = 0; i < dominoes_size; i++) {
-    char *tmp = calloc(20, sizeof(char));
-    sprintf(tmp, "%c %d %d", i == 0 ? 'S' : 'R', dominoes[i].left, dominoes[i].right);
-    strcat(str, tmp);
-
-    free(tmp);
-
-    if (i + 1 < dominoes_size) strcat(str, " ");
-  }
-
-  return str;
-}
-
-/**
- * Given an array of dominoes, first challenge is about returning the commands to execute in order to have the best
- * points possible.
- * @param dominoes array of dominoes - dominoes user can play
- * @param dominoes_size length of array of dominoes
- * @return formatted string with the commands to execute to get the maximum amount of points with the given dominoes.
- */
-//char *process_challenge_1(const struct Domino *dominoes, const int dominoes_size) {
-//  // TODO calc instead of static 100
-//  struct Domino *best_table = calloc(100, sizeof(struct Domino));
-//  struct Domino *best_table_original = calloc(100, sizeof(struct Domino));
-//  if (best_table == NULL) {
-//    log_error("Failed to allocate memory for best_table at line %d", __LINE__);
-//    exit(EXIT_FAILURE);
-//  }
-//
-//  int best_table_size = 1;
-//  int best_points = best_scenario(dominoes, dominoes_size, &best_table, &best_table_size, &best_table_original);
-//
-//  char *commands = format_dominoes_as_commands(best_table_original, best_table_size);
-////  best_table = realloc(best_table, sizeof(struct Domino) * best_table_size);
-//  if (best_table == NULL) {
-//    log_error("Failed to reallocate memory for best_table at line %d", __LINE__);
-//    exit(EXIT_FAILURE);
-//  }
-//
-//  log_debug("process_challenge_1: universe: %s | best table is %s | max points: %d | commands: %s",
-//            format_dominoes_for_table(dominoes, dominoes_size),
-//            format_dominoes_for_table(best_table, best_table_size),
-//            best_points,
-//            commands
-//  );
-//
-//  return commands;
-//}
-
-void run_terminal(void) {
-//  while (user_dominoes_size > 0 && valid_moves_count() > 0) {
-////    acquire_command();
-//    process_last_command();
-////    print_everything();
-//  }
-//
-//  printf("Game over!\n");
-//  printf("You made %d points!\n", calc_user_points());
+  if (is_exit_command(*last_command)) exit(EXIT_SUCCESS);
 }
 
 struct Domino *random_special_domino(void) {
@@ -1361,278 +505,140 @@ struct Domino *init_random_dominoes_arr(int size, bool specials) {
   return arr;
 }
 
-char *status_str(const int status) {
-  switch (status) {
-    case STATUS_SELECT_DOMINO:
-      return "STATUS_SELECT_DOMINO";
-    case STATUS_SELECT_POSITION:
-      return "STATUS_SELECT_POSITION";
-    case STATUS_SELECT_ORIENTATION:
-      return "STATUS_SELECT_ORIENTATION";
-    default:
-      printf("INVALID STATUS %d at line %d\n", status, __LINE__);
-      exit(EXIT_FAILURE);
-  }
-}
-
-struct Domino *
-selected_domino_from_command(const char *command, struct Domino *dominoes, const int dominoes_size) {
-  const int index = atoi(command);
-  if (index < 1 || index > dominoes_size) return NULL;
-
-  struct Domino *domino = &(dominoes[index - 1]);
-  return domino;
-}
-
-//struct CommandFeedback {
-//  int status;
-//  char *feedback;
-//
-//};
-
-int command_select_orientation(
-    const char *command,
-    struct Node *root,
-    char **feedback,
-    bool *is_horizontal
-) {
-  if (strcmp(command, "H") == 0 || strcmp(command, "h") == 0 || strcmp(command, "1") == 0 ||
-      strcmp(command, "HORIZONTAL") == 0 || strcmp(command, "horizontal") == 0) {
-    *is_horizontal = true;
-    return STATUS_VALID_MOVE;
+/**
+ * Returns true if vertical.
+ */
+bool select_orientation(struct Node *root_node, struct Domino selected_domino) {
+  bool is_vert = false;
+  bool valid_command = false;
+  char *command = calloc(100, sizeof(char));
+  char *command_feedback = NULL;
+  while (!valid_command) {
+    clean_screen();
+    print_table(root_node);
+    printf("\n");
+    printf("?> Hai selezionato la tessera %s\n", format_domino(selected_domino));
+    printf("?> Seleziona come vuoi posizionare la tessera: in verticare oppure in orizzontale.\n");
+    printf("?> VERTICALE => vert, 1, verticale.\n");
+    printf("?> ORIZZONTALE => ori, 2, orizzontale.\n");
+    if (command_feedback) printf("?> %s\n", command_feedback);
+    acquire_command(&command);
+    if (strcmp(command, "1") == 0 || strcmp(command, "vert") == 0 || strcmp(command, "VERT") == 0 ||
+        strcmp(command, "v") == 0 || strcmp(command, "vertical") == 0 || strcmp(command, "verticale")) {
+      valid_command = true;
+      is_vert = true;
+    } else if (strcmp(command, "2") == 0 || strcmp(command, "ori") == 0 || strcmp(command, "ORIZZONTALE") == 0 ||
+               strcmp(command, "o") == 0 || strcmp(command, "orizzontale") == 0) {
+      valid_command = true;
+      is_vert = false;
+    } else {
+      command_feedback = "Comando non valido. Riprova.";
+      valid_command = false;
+    }
   }
 
-  if (strcmp(command, "V") == 0 || strcmp(command, "v") == 0 || strcmp(command, "2") == 0 ||
-      strcmp(command, "VERTICAL") == 0 || strcmp(command, "vertical") == 0) {
-    *is_horizontal = false;
-    return STATUS_VALID_MOVE;
-  }
+  free(command);
 
-  return STATUS_SELECT_ORIENTATION;
+  if (command_feedback) free(command_feedback);
+
+  return is_vert;
 }
 
-int process_command_select_move(
-    const char *command,
-    struct Node *root,
-    char **feedback,
-    struct Node **selected_node,
-    int *selected_move
-) {
-  *selected_move = atoi(command);
+int points_from_tree(struct Node *root) {
+  if (root == NULL) return 0;
+
+  int result = 0;
   struct Node **arr = calloc(1, sizeof(struct Node *));
-  // TODO free arr
-
   int size = 0;
   tree_to_array(root, &arr, &size);
 
   for (int i = 0; i < size; i++) {
-    if (arr[i]->top_left_move == *selected_move) {
-      *selected_node = arr[i];
-      break;
-    }
-
-    if (arr[i]->top_right_move == *selected_move) {
-      *selected_node = arr[i];
-      break;
-    }
-
-    if (arr[i]->bottom_left_move == *selected_move) {
-      *selected_node = arr[i];
-      break;
-    }
-
-    if (arr[i]->bottom_right_move == *selected_move) {
-      *selected_node = arr[i];
-      break;
-    }
+    result += arr[i]->domino->left;
+    result += arr[i]->domino->right;
   }
 
-  if (selected_node == NULL) {
-    log_debug("process_command_select_move | selected_node is NULL");
-    *feedback = "Nessuna posizione con quell'indice. Indica solo il numero compreso tra i segni minore e maggiore \"<xxx>\"";
-    return STATUS_SELECT_POSITION;
-  }
-
-//  for(int i = 0; i < size; i++) free(arr[i]);
-//  free(arr);
-
-  return STATUS_SELECT_ORIENTATION;
+  return result;
 }
 
-int command_select_domino(
-    const char *command,
-    struct Node *root,
-    struct Domino *users,
-    const int users_size,
-    char **feedback,
-    struct Domino **selected_domino
-) {
-  struct Domino *domino = selected_domino_from_command(command, users, users_size);
-  // TODO free this dominos
+void print_points(struct Node *root) {
+  const int points = points_from_tree(root);
+  if (points <= 0) return;
 
-  if (domino == NULL) {
-    log_debug("command_select_domino | domino is NULL");
-    *feedback = "Nessun domino con quell'indice.";
-    return STATUS_SELECT_DOMINO;
-  }
-
-  if (!can_place_domino_in_tree(*domino, root)) {
-    log_debug("command_select_domino | domino cannot be placed in tree");
-    sprintf(*feedback, "Cannot place domino %s in tree", format_domino(*domino));
-    return STATUS_SELECT_DOMINO;
-  }
-
-  log_debug("command_select_domino | domino %s selected", format_domino(*domino));
-  sprintf(*feedback, "Domino selezionato: %s", format_domino(*domino));
-
-  *selected_domino = domino;
-
-  return STATUS_SELECT_POSITION;
+  printf("Hai totalizzato %d punti", points);
 }
 
-int apply_move(
-    struct Node *node,
-    int selected_move,
-    struct Domino *selected_domino,
-    bool is_vert,
-    char **feedback
-    ) {
-  if (selected_domino == NULL) {
-    printf("selected_domino is NULL at line %d\n", __LINE__);
-    exit(EXIT_FAILURE);
-  }
-
-  struct Node *new_node = create_node(selected_domino, !is_vert);
-
-  if (node->top_left_move == selected_move) {
-    link_nodes(new_node, node, TOP_LEFT);
-    return STATUS_SELECT_DOMINO;
-  }
-
-  if (node->top_right_move == selected_move) {
-    link_nodes(new_node, node, TOP_RIGHT);
-    return STATUS_SELECT_DOMINO;
-  }
-
-  if (node->bottom_left_move == selected_move) {
-    link_nodes(new_node, node, BOTTOM_LEFT);
-    return STATUS_SELECT_DOMINO;
-  }
-
-  if (node->bottom_right_move == selected_move) {
-    link_nodes(new_node, node, BOTTOM_RIGHT);
-    return STATUS_SELECT_DOMINO;
-  }
-
-  *feedback = "Something went wrong. A invalid move perhaps?";
-  return STATUS_SELECT_ORIENTATION;
+void display_welcome_message(void) {
+  char *command = calloc(100, sizeof(char));
+  printf("%s\n", WELCOME_MESSAGE);
+  acquire_command(&command);
+  free(command);
 }
 
 // \sas
 int run_interactive(void) {
   log_info("Running in interactive mode.");
-  const bool specials_enabled = true;
-  const int users_size = 10;
+  const bool specials_enabled = false;
+  int users_size = 10;
   struct Domino *users = init_random_dominoes_arr(users_size, specials_enabled);
   log_debug("User's dominoes: %s", format_dominoes_inline(users, users_size));
 
-  char *command = calloc(1, sizeof(char));
+  clean_screen();
+  display_welcome_message();
 
   struct Node *root = NULL;
-
-//  INTRO
-//  printf("%s\n", WELCOME_MESSAGE);
-//  acquire_command(&command);
-
-//  int width = 1, height = 1;
-
-//  char **matrix = init_matrix(width, height);
-  int status = STATUS_SELECT_DOMINO;
-
-  char *feedback = calloc(100, sizeof(char));
-  struct Domino *selected_domino = NULL;
   struct Node *selected_node = NULL;
-  int selected_move = 0;
-  bool is_horizontal = true;
 
-  while (valid_moves_count() > 0 && !is_exit_command(command)) {
-    print_everything(root, users, users_size, status, feedback, selected_domino, selected_node);
-    feedback = calloc(100, sizeof(char));
+  while (valid_moves_count(root, users, users_size) > 0) {
+    const int selected_domino_index = select_domino(root, users, users_size);
+    struct Domino selected_domino = users[selected_domino_index];
 
-    acquire_command(&command);
-    if (status == STATUS_SELECT_DOMINO) {
-      status = command_select_domino(command, root, users, users_size, &feedback, &selected_domino);
-
-      if (root == NULL && status == STATUS_SELECT_POSITION && selected_domino) {
-        root = create_node(selected_domino, false);
-        status = STATUS_SELECT_DOMINO;
-      }
-
+    log_debug("Selected %s domino", format_domino(selected_domino));
+    if (root == NULL) {
+      root = create_node(create_domino(selected_domino.left, selected_domino.right), false);
+      pop(selected_domino_index, users, users_size--);
+      resize_dominoes_array(&users, users_size);
       continue;
     }
 
-    if (status == STATUS_SELECT_POSITION) {
-      status = process_command_select_move(command, root, &feedback, &selected_node, &selected_move);
-      continue;
+    const int ask_domino_position = select_position(root, selected_domino, &selected_node);
+    log_debug("ask_domino_position returned %d. Selected node is #%ul", ask_domino_position, selected_node->id);
+
+    log_debug("top_left_move: %d, top_right_move: %d, bottom_left_move: %d, bottom_right_move: %d",
+              selected_node->top_left_move, selected_node->top_right_move, selected_node->bottom_left_move,
+              selected_node->bottom_right_move);
+
+    int pos = -1;
+    if (selected_node->top_left_move == ask_domino_position) {
+      pos = TOP_LEFT;
+    } else if (selected_node->top_right_move == ask_domino_position) {
+      pos = TOP_RIGHT;
+    } else if (selected_node->bottom_left_move == ask_domino_position) {
+      pos = BOTTOM_LEFT;
+    } else if (selected_node->bottom_right_move == ask_domino_position) {
+      pos = BOTTOM_RIGHT;
+    } else {
+      printf("Something went wrong. Selected node is #%lu. Selected move is %d\n", selected_node->id,
+             ask_domino_position);
+      exit(EXIT_FAILURE);
     }
 
-    if (status == STATUS_SELECT_ORIENTATION) {
-      status = command_select_orientation(command, root, &feedback, &is_horizontal);
+    remove_moves_from_tree(root);
 
-      if (status == STATUS_VALID_MOVE) {
-        status = apply_move(selected_node, selected_move, selected_domino, is_horizontal, &feedback);
+    const bool is_vert = select_orientation(root, selected_domino);
 
-        if (status == STATUS_SELECT_DOMINO){
-          selected_domino = NULL;
-          selected_node = NULL;
-          selected_move = 0;
-        }
-      }
+    link_nodes(selected_node, create_node(
+        create_domino(selected_domino.left, selected_domino.right), is_vert), pos);
 
-      continue;
-    }
-
-    printf("INVALID STATUS AT LINE %d: %d", __LINE__, status);
-    exit(EXIT_FAILURE);
-
-//    process_command(command, root, users, users_size, &status, &feedback);
-//    process_command(command);
-//    printf("last command was '%s'\n", command);
+    pop(selected_domino_index, users, users_size--);
+    resize_dominoes_array(&users, users_size);
+    log_debug("\n\n");
   }
 
+  print_points(root);
   printf("Ciao ciao!\n");
 
   log_info("Exiting. \n\n");
   return 0;
-}
-
-/**
- * Params management:
- *
- * This function will iterate over the provided params and do something with them.
- */
-void parse_params(const int argc, const char **argv) {
-  /**
-   * TODO:
-   * split all params by '--' and allow user to pass params as:
-   * --dominoes-count 1
-   * --dominoes-count=2
-   */
-
-  /**
-   * TODO:
-   * allow user to set dominoes-count with short version of command:
-   * -c 1
-   * -c=2
-   */
-  for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "--challenge") == 0) {
-      is_challenge = true;
-      log_debug("challenge is true");
-    } else {
-      log_debug("argv[%d]: %s != \"--challenge\"", i, argv[i]);
-    }
-  }
 }
 
 /**
@@ -1867,34 +873,6 @@ void print_tree(struct Node *root) {
   free_matrix(matrix, height);
 }
 
-/**
- * First rows will always be populated.
- * Since a certain point till the end, we'll have empty rows.
- * @param matrix
- * @param width
- * @param height
- * @return new height of the matrix.
- */
-//int remove_unused_rows(char **matrix, const int width, const int height) {
-//  int since_row = -1;
-//  for (int i = 0; i < height; i++) {
-//    for (int j = 0; j < width; j++) {
-//      if (matrix[i][j] != ' ') {
-//        since_row = i + 1;
-//        break;
-//      }
-//    }
-//  }
-//
-//  if (since_row == -1) return height;
-//
-//  for (int i = since_row; i < height; i++) {
-//    free(matrix[i]);
-//  }
-//
-//  return since_row;
-//}
-
 void write_nodes(
     char **matrix,
     struct Node *node,
@@ -1917,14 +895,6 @@ void add_node_to_written(unsigned long int **written, const int written_length, 
 
 bool is_long_into_arr(const unsigned long int needle, const unsigned long int *haystack,
                       const unsigned long int haystack_length) {
-//  printf("looking for %lu in ", needle);
-//
-//  for (int i = 0; i < haystack_length; i++) {
-//    printf("%lu ", haystack[i]);
-//  }
-//
-//  printf("\n");
-
   for (int i = 0; i < haystack_length; i++) {
     if (haystack[i] == needle) return true;
   }
@@ -1977,10 +947,6 @@ int add_moves_informations(char **matrix, struct Node *node, int x, const int y,
   const int right_move_width = max2(top_right_move_width, bottom_right_move_width);
 
   log_debug("add_moves_informations x: %d, y: %d | %s", x, y, format_domino(*(node->domino)));
-
-  if (node->domino->left == 3 && node->domino->right == 1) {
-    log_debug("SIUUUUUUUUUUUUUUUU");
-  }
 
   if (left_move_width > x) {
     // Need more space on the left.
@@ -2153,8 +1119,6 @@ void write_nodes_rec(
   if (node->top_right) {
     const int width_needed = node->top_right->is_vert ? 3 : 5;
     const int toadd = (width_needed + x + current_node_width) - *matrix_width;
-    printf("topright x: %d | width_needed: %d | toadd: %d | matrix_width: %d\n", x, width_needed, toadd,
-           *matrix_width);
     if (toadd > 0) {
       add_empty_columns_after(matrix, toadd, *matrix_width, *matrix_height);
       *matrix_width = (*matrix_width) + toadd;
@@ -2193,91 +1157,12 @@ char **init_matrix(const int width, const int height) {
   return matrix;
 }
 
-char **init_matrix_with(const int width, const int height, const char ch) {
-  char **matrix = calloc(height, sizeof(char *));
-  for (int i = 0; i < height; i++) {
-    matrix[i] = calloc(width, sizeof(char));
-
-    for (int j = 0; j < width; j++) {
-      matrix[i][j] = ch;
-    }
-  }
-
-  return matrix;
-}
-
 void free_matrix(char **matrix, const int height) {
   for (int i = 0; i < height; i++) {
     free(matrix[i]);
   }
 
   free(matrix);
-}
-
-/* ********************* TEST UTILS ********************* */
-//void empty_user_dominoes() {
-//  user_dominoes = calloc(1, sizeof(struct Domino));
-//  user_dominoes_size = 0;
-//}
-//
-//void empty_table_dominoes() {
-//  table_dominoes = calloc(1, sizeof(struct Domino));
-//  table_dominoes_size = 0;
-//}
-
-//void set_user_dominoes(const struct Domino *arr, const int arr_size) {
-//  user_dominoes = malloc(sizeof(struct Domino) * arr_size);
-//  user_dominoes_size = arr_size;
-//
-//  user_dominoes = memcpy(user_dominoes, arr, sizeof(struct Domino) * arr_size);
-//}
-//
-//struct Domino *get_user_dominoes(void) {
-//  return user_dominoes;
-//}
-
-//int get_user_dominoes_size(void) {
-//  return user_dominoes_size;
-//}
-//
-//void set_table_dominoes_original(const struct Domino *arr, const int arr_size) {
-//  table_dominoes_original = malloc(sizeof(struct Domino) * arr_size);
-//  table_dominoes_size = arr_size; // TODO is this an issue?
-//
-//  table_dominoes_original = memcpy(table_dominoes_original, arr, sizeof(struct Domino) * arr_size);
-//}
-//
-//void set_table_dominoes(const struct Domino *arr, const int arr_size) {
-//  table_dominoes = malloc(sizeof(struct Domino) * arr_size);
-//  table_dominoes_size = arr_size; // TODO is this an issue?
-//
-//  table_dominoes = memcpy(table_dominoes, arr, sizeof(struct Domino) * arr_size);
-//}
-//
-//struct Domino *get_table_dominoes(void) {
-//  return table_dominoes;
-//}
-
-//int get_table_dominoes_size(void) {
-//  return table_dominoes_size;
-//}
-
-//void set_last_command(char *new_last_command) {
-//  last_command = calloc(strlen(new_last_command), sizeof(char));
-//
-//  last_command = new_last_command;
-//}
-
-//char *get_last_command(void) {
-//  return last_command;
-//}
-
-/* ********************* END TEST UTILS ********************* */
-
-void complete(void) {
-//  free(last_command);
-//  free(table_dominoes);
-//  free(user_dominoes);
 }
 
 /**

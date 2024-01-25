@@ -7,7 +7,7 @@
 #include "domino.h"
 
 void setUp(void) {
-//  initialize();
+  initialize();
 }
 
 void tearDown(void) {
@@ -1113,7 +1113,7 @@ static void assert_node_print_format(struct Node *node, char *expected_str) {
 
   write_nodes(matrix, get_most_left_node(node), 0, 0, &width, &height);
 
-  char *actual_str = format_matrix(matrix, width, height);
+  char *actual_str = matrix_to_str(matrix, width, height);
 
   TEST_ASSERT_EQUAL_STRING(expected_str, actual_str);
 
@@ -1265,14 +1265,68 @@ static void test_write_nodes_8(void) {
   link_nodes(node34, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
 
   assert_node_print_format(node,
-              "[1:      \n"
+                           "[1:      \n"
                            ":2][3:   \n"
                            "   :4][4:\n"
                            "      :5]\n");
 }
 
+static void test_write_nodes_9(void) {
+  struct Node *node = create_node(create_domino(1, 2), true);
+  struct Node *node34 = create_node(create_domino(3, 4), true);
+  link_nodes(node, node34, BOTTOM_RIGHT);
+  link_nodes(node34, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
+
+  struct Domino selected_domino = (struct Domino){1, 5};
+
+  assert_node_print_format(node,
+                           "<1>[1:         \n"
+                           "   :2][3:      \n"
+                           "      :4][4:   \n"
+                           "         :5]<2>\n");
+}
+
+static void test_tree_to_array0(void) {
+  struct Node *root = create_node(create_domino(1, 2), true);
+  link_nodes(root, create_node(create_domino(2, 3), true), BOTTOM_RIGHT);
+
+  struct Node **arr = calloc(1, sizeof(struct Node *));
+  int size = 0;
+  tree_to_array(root, &arr, &size);
+
+  struct Domino *dominoes = calloc(2, sizeof(struct Domino));
+  dominoes[0] = *arr[0]->domino;
+  dominoes[1] = *arr[1]->domino;
+
+  TEST_ASSERT_EQUAL_STRING(format_dominoes_inline((struct Domino[]) {{1, 2},
+                                                                     {2, 3}}, 2),
+                           format_dominoes_inline(dominoes, 2));
+
+  TEST_ASSERT_EQUAL_INT(2, size);
+
+  TEST_ASSERT_EQUAL_INT(1, arr[0]->domino->left);
+  TEST_ASSERT_EQUAL_INT(2, arr[0]->domino->right);
+  TEST_ASSERT_EQUAL_INT(2, arr[1]->domino->left);
+  TEST_ASSERT_EQUAL_INT(3, arr[1]->domino->right);
+}
+
+
+static void test_tree_to_array1(void) {
+  struct Node *root = create_node(create_domino(1, 2), true);
+  struct Node *node34 = create_node(create_domino(3, 4), true);
+  link_nodes(root, node34, BOTTOM_RIGHT);
+  link_nodes(node34, create_node(create_domino(4, 5), true), BOTTOM_RIGHT);
+
+  struct Node **arr = calloc(1, sizeof(struct Node *));
+  int size = 0;
+  tree_to_array(root, &arr, &size);
+}
+
 int main(void) {
   UnityBegin("test_domino.c");
+
+//  RUN_TEST(test_tree_to_array0);
+//  RUN_TEST(test_tree_to_array1);
 
 //  RUN_TEST(test_write_nodes_0);
 //  RUN_TEST(test_write_nodes_1);
@@ -1282,7 +1336,9 @@ int main(void) {
 //  RUN_TEST(test_write_nodes_5);
 //  RUN_TEST(test_write_nodes_6);
 //  RUN_TEST(test_write_nodes_7);
-  RUN_TEST(test_write_nodes_8);
+//  RUN_TEST(test_write_nodes_8);
+  RUN_TEST(test_write_nodes_9);
+
 
 //  RUN_TEST(test_process_challenge_1);
 //  RUN_TEST(test_interactive_1);

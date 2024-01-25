@@ -1,0 +1,176 @@
+\doxysection{domino.\+h}
+\hypertarget{domino_8h_source}{}\label{domino_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ sasha\ on\ 04/11/23.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#ifndef\ C\_DOMINO\_UNIVE\_DOMINO\_H}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#define\ C\_DOMINO\_UNIVE\_DOMINO\_H}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <ctype.h>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ "{}log.h"{}}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#define\ SMALLES\_DOMINO\_VALUE\ 1}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#define\ LARGEST\_DOMINO\_VALUE\ 6}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#define\ LEFT\_SIDE\ 1}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#define\ RIGHT\_SIDE\ 2}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#define\ MAX\_COMMAND\_SIZE\ 100}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#define\ TOTAL\_USER\_DOMINOES\ 11}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ \{}
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{int}\ left:\ 24;}
+\DoxyCodeLine{00027\ \ \ \textcolor{keywordtype}{int}\ right:\ 24;}
+\DoxyCodeLine{00028\ \};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}\ \{}
+\DoxyCodeLine{00032\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}*\ domino;}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{bool}\ is\_vert;\ \textcolor{comment}{//\ true\ if\ vertical,\ false\ if\ horizontal}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ id;\ \textcolor{comment}{//\ Incremental\ id}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00041\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}*\ \mbox{\hyperlink{structNode_a517ae2cce55d11833373584f9bf42812}{top\_left}};}
+\DoxyCodeLine{00042\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}*\ top\_right;}
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}*\ bottom\_left;}
+\DoxyCodeLine{00044\ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}*\ bottom\_right;}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structNode_a10eb782ce826039793ffb0c7813b24f7}{top\_left\_move}};}
+\DoxyCodeLine{00051\ \ \ \textcolor{keywordtype}{int}\ top\_right\_move;}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordtype}{int}\ bottom\_left\_move;}
+\DoxyCodeLine{00053\ \ \ \textcolor{keywordtype}{int}\ bottom\_right\_move;}
+\DoxyCodeLine{00054\ \};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#define\ TOP\_LEFT\ 1}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#define\ TOP\_RIGHT\ 2}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#define\ BOTTOM\_LEFT\ 3}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#define\ BOTTOM\_RIGHT\ 4}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ WELCOME\_MESSAGE\ \(\backslash\)}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{"{}Benvenuto\ al\ domino\ 2d\ di\ Oleksandr\ Kirpachov\ (Sasha)!\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{Per\ giocare,\ devi\ inserire\ dei\ comandi\ nel\ terminale\ e\ premere\ invio.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{I\ comandi\ disponibili\ vengono\ mostrati\ in\ ogni\ fase\ del\ gioco.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{In\ breve,\ il\ flow\ del\ gioco\ è\ il\ seguente:\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{1.\ Seleziona\ il\ domino\ da\ mettere\ sul\ tavolo\ tra\ quelli\ disponibili.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{2.\ Seleziona\ la\ posizione\ dove\ vuoi\ mettere\ il\ domino.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{3.\ Seleziona\ come\ vuoi\ mettere\ quel\ domino\ (orizzontale\ o\ verticale).\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{4.\ Se\ hai\ altre\ mosse\ disponibili,\ ripeti\ dal\ punto\ 1.\ Altrimenti\ il\ gioco\ finisce.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{Il\ punteggio\ viene\ calcolato\ come\ la\ somma\ dei\ numeri\ dei\ domino\ che\ sono\ sul\ tavolo.\(\backslash\)n\(\backslash\)}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{Per\ iniziare\ a\ giocare,\ premi\ qualsiasi\ tasto\ e\ poi\ invio.\(\backslash\)n"{}}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \textcolor{keywordtype}{bool}\ is\_exit\_command(\textcolor{keywordtype}{char}\ *command);}
+\DoxyCodeLine{00074\ \textcolor{keywordtype}{int}\ points\_from\_tree(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root);}
+\DoxyCodeLine{00075\ \textcolor{keywordtype}{void}\ print\_points(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root);}
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ resize\_dominoes\_array(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ **arr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ new\_size);}
+\DoxyCodeLine{00077\ \textcolor{keywordtype}{void}\ push(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *domino\_arr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ domino\_arr\_size);}
+\DoxyCodeLine{00078\ \textcolor{keywordtype}{void}\ unshift(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *domino\_arr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ before\_size);}
+\DoxyCodeLine{00079\ \textcolor{keywordtype}{void}\ pop(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ index,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *domino\_arr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ domino\_arr\_size);}
+\DoxyCodeLine{00080\ \textcolor{keywordtype}{int}\ char\_to\_int(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ ch);}
+\DoxyCodeLine{00081\ \textcolor{keywordtype}{char}\ int\_to\_char(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ i);}
+\DoxyCodeLine{00082\ \textcolor{keywordtype}{bool}\ is\_mirror\_domino(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino);}
+\DoxyCodeLine{00083\ \textcolor{keywordtype}{bool}\ is\_addone\_domino(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino);}
+\DoxyCodeLine{00084\ \textcolor{keywordtype}{bool}\ is\_glue\_domino(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino);}
+\DoxyCodeLine{00085\ \textcolor{keywordtype}{bool}\ is\_domino\_special(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino);}
+\DoxyCodeLine{00086\ \textcolor{keywordtype}{char}\ *format\_domino(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ d);}
+\DoxyCodeLine{00087\ \textcolor{keywordtype}{int}\ random\_between(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ lower,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ upper);}
+\DoxyCodeLine{00088\ \textcolor{keywordtype}{char}\ *format\_dominoes\_inline(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *dominoes,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ size);}
+\DoxyCodeLine{00089\ \textcolor{keywordtype}{void}\ print\_table(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node);}
+\DoxyCodeLine{00090\ \textcolor{keywordtype}{void}\ clean\_screen(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00091\ \textcolor{keywordtype}{bool}\ node\_in\_array(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ **arr,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ size,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node);}
+\DoxyCodeLine{00092\ \textcolor{keywordtype}{void}\ tree\_to\_array\_rec(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ ***result,\ \textcolor{keywordtype}{int}\ *result\_size);}
+\DoxyCodeLine{00093\ \textcolor{keywordtype}{void}\ tree\_to\_array(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ ***result,\ \textcolor{keywordtype}{int}\ *result\_size);}
+\DoxyCodeLine{00094\ \textcolor{keywordtype}{bool}\ can\_place\_domino\_on\_node(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino,\ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node);}
+\DoxyCodeLine{00095\ \textcolor{keywordtype}{bool}\ can\_place\_domino\_in\_tree(\textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node);}
+\DoxyCodeLine{00096\ \textcolor{keywordtype}{int}\ valid\_moves\_count(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,\ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *dominoes,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ dominoes\_size);}
+\DoxyCodeLine{00097\ \textcolor{keywordtype}{void}\ print\_dominoes\_with\_valid\_moves(}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *dominoes,}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ dominoes\_size}
+\DoxyCodeLine{00101\ );}
+\DoxyCodeLine{00102\ \textcolor{keywordtype}{void}\ add\_moves\_to\_tree(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ d);}
+\DoxyCodeLine{00103\ \textcolor{keywordtype}{void}\ remove\_moves\_from\_tree(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root);}
+\DoxyCodeLine{00104\ \textcolor{keywordtype}{int}\ str\_to\_i(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *str);}
+\DoxyCodeLine{00105\ \textcolor{keywordtype}{int}\ select\_position(}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ domino,}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ **to\_attach\_node}
+\DoxyCodeLine{00109\ );}
+\DoxyCodeLine{00110\ \textcolor{keywordtype}{int}\ select\_domino(}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *user\_dominoes,}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ user\_dominoes\_size}
+\DoxyCodeLine{00114\ );}
+\DoxyCodeLine{00115\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ rotate\_domino(const\ struct\ \mbox{\hyperlink{structDomino}{Domino}}\ d);}
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{void}\ acquire\_command(\textcolor{keywordtype}{char}\ **last\_command);}
+\DoxyCodeLine{00117\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ *random\_special\_domino(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00118\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ *random\_domino(\textcolor{keywordtype}{bool}\ specials);}
+\DoxyCodeLine{00119\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ *init\_random\_dominoes\_arr(\textcolor{keywordtype}{int}\ size,\ \textcolor{keywordtype}{bool}\ specials);}
+\DoxyCodeLine{00120\ \textcolor{keywordtype}{bool}\ select\_orientation(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root\_node,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ selected\_domino);}
+\DoxyCodeLine{00121\ \textcolor{keywordtype}{void}\ display\_welcome\_message(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00122\ \textcolor{keywordtype}{int}\ run\_interactive(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00123\ \textcolor{keywordtype}{void}\ initialize(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00124\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}\ *create\_node(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structDomino}{Domino}}\ *domino,\ \textcolor{keywordtype}{bool}\ is\_vert);}
+\DoxyCodeLine{00125\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structDomino}{Domino}}\ *create\_domino(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ left,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ right);}
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ rotate\_if\_necessary(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *parent,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *child,\ \textcolor{keywordtype}{int}\ side);}
+\DoxyCodeLine{00127\ \textcolor{keywordtype}{void}\ link\_nodes(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *parent,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *child,\ \textcolor{keywordtype}{int}\ side);}
+\DoxyCodeLine{00128\ \textcolor{keywordtype}{void}\ write\_node(}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node,}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{char}\ **matrix,}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ x,}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ y,}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ rtl}
+\DoxyCodeLine{00134\ );}
+\DoxyCodeLine{00135\ \textcolor{keywordtype}{void}\ add\_empty\_columns\_before(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ quantity,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_width,}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_height);}
+\DoxyCodeLine{00137\ \textcolor{keywordtype}{void}\ add\_empty\_columns\_after(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ quantity,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_width,}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_height);}
+\DoxyCodeLine{00139\ \textcolor{keywordtype}{void}\ add\_empty\_rows\_after(\textcolor{keywordtype}{char}\ ***matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ quantity,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_width,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ matrix\_height);}
+\DoxyCodeLine{00140\ \textcolor{keywordtype}{char}\ *matrix\_to\_str(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ width,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ height);}
+\DoxyCodeLine{00141\ \textcolor{keywordtype}{void}\ print\_matrix(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ width,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ height);}
+\DoxyCodeLine{00142\ \textcolor{keywordtype}{void}\ print\_tree(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *root);}
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{void}\ write\_nodes(}
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordtype}{char}\ **matrix,}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node,}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ x,}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ y,}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordtype}{int}\ *matrix\_width,}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{keywordtype}{int}\ *matrix\_height}
+\DoxyCodeLine{00150\ );}
+\DoxyCodeLine{00151\ \textcolor{keywordtype}{void}\ add\_node\_to\_written(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ **written,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ written\_length,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ node\_id);}
+\DoxyCodeLine{00152\ \textcolor{keywordtype}{bool}\ is\_long\_into\_arr(\textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ needle,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ *haystack,}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ haystack\_length);}
+\DoxyCodeLine{00154\ \textcolor{keywordtype}{int}\ max2(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ first,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ second);}
+\DoxyCodeLine{00155\ \textcolor{keywordtype}{int}\ max4(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ first,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ second,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ third,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ fourth);}
+\DoxyCodeLine{00156\ \textcolor{keywordtype}{int}\ count\_digits(\textcolor{keywordtype}{int}\ number);}
+\DoxyCodeLine{00157\ \textcolor{keywordtype}{int}\ add\_moves\_informations(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node,\ \textcolor{keywordtype}{int}\ x,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ y,\ \textcolor{keywordtype}{int}\ *matrix\_width,}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *matrix\_height);}
+\DoxyCodeLine{00159\ \textcolor{keywordtype}{void}\ write\_nodes\_rec(}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keywordtype}{char}\ **matrix,}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node,}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordtype}{int}\ x,}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ y,}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keywordtype}{int}\ *matrix\_width,}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{keywordtype}{int}\ *matrix\_height,}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{comment}{//\ Ids\ of\ nodes\ already\ written.\ Avoid\ infinite\ loops.}}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ **nodes\_already\_written,}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{keywordtype}{int}\ written\_length,}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ rtl}
+\DoxyCodeLine{00172\ );}
+\DoxyCodeLine{00173\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}\ *get\_most\_left\_node(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node);}
+\DoxyCodeLine{00174\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structNode}{Node}}\ *get\_most\_right\_node(\textcolor{keyword}{struct}\ \mbox{\hyperlink{structNode}{Node}}\ *node);}
+\DoxyCodeLine{00175\ \textcolor{keywordtype}{char}\ **init\_matrix(\textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ width,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ height);}
+\DoxyCodeLine{00176\ \textcolor{keywordtype}{void}\ free\_matrix(\textcolor{keywordtype}{char}\ **matrix,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ height);}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//C\_DOMINO\_UNIVE\_DOMINO\_H}}
+
+\end{DoxyCode}
